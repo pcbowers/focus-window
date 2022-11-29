@@ -49,15 +49,28 @@ class FocusWindow {
       // if there are no open applications, create a new one
       if (!appWindows.length) {
         application.activate();
-        // if there is one application and it's already selected, go back to the unselected app
+        // if there is one application and it's already selected, go back to the unselected app or minimize
       } else if (
         appWindows.length === 1 &&
         global.display.get_focus_window().get_id() === appWindows[0].get_id()
       ) {
-        this._lastUnselectedApp.activate_window(
-          this._lastUnselectedWindow,
-          global.get_current_time()
-        );
+        if (
+          this._lastUnselectedApp &&
+          this._lastUnselectedWindow &&
+          this._lastUnselectedApp
+            .get_windows()
+            .filter((w) => w.get_id() === this._lastUnselectedWindow.get_id())
+            .length
+        ) {
+          this._lastUnselectedApp.activate_window(
+            this._lastUnselectedWindow,
+            global.get_current_time()
+          );
+        } else {
+          this._lastUnselectedApp = null;
+          this._lastUnselectedWindow = null;
+          global.display.get_focus_window().minimize();
+        }
         // if there are multiple applications, cycle through them
       } else if (appWindows.length === 1) {
         application.activate();
@@ -77,7 +90,6 @@ class FocusWindow {
 
   disable() {
     Main.wm.removeKeybinding("focus-shortcut");
-    this._windowTracker = null;
     this._lastUnselectedApp = null;
     this._lastUnselectedWindow = null;
   }
