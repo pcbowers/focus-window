@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.focus-window" path="/org/gnome/shell/extensions/focus-window/">
+    <!-- See also: https://docs.gtk.org/glib/gvariant-format-strings.html -->
+    <key name="application-id" type="s">
+      <default><![CDATA['']]></default>
+      <summary>Application ID</summary>
+      <description>The ID of the application that will be either opened or focused</description>
+    </key>
+    <key name="application-name" type="s">
+      <default><![CDATA['']]></default>
+      <summary>Application Name</summary>
+      <description>The name of the application that will be either opened or focused</description>
+    </key>
+    <key name="focus-shortcut" type="as">
+      <default><![CDATA[['<Super>t']]]></default>
+      <summary>Focus Keyboard Shortcut</summary>
+      <description>The keyboard shortcut that will either open or focus the already-opened window of the selected application ID</description>
+    </key>
+
+  </schema>
+</schemalist>
