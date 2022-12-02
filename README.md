@@ -1,4 +1,4 @@
-<h1><img align="left" style="height: 1em; margin-right: 0.25em;" src="media/icon.svg?raw=true&sanitize=true"> Focus Window</h1>
+# Focus Window
 
 <p align="center">
   <img width="100%" src="media/header.svg?raw=true&sanitize=true" alt="focus-window">
