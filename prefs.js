@@ -321,6 +321,10 @@ function fillPreferencesWindow(window) {
   const group = new Adw.PreferencesGroup();
   page.add(group);
   window.add(page);
+  window.set_margin_bottom(10);
+  window.set_margin_top(10);
+  window.set_margin_start(5);
+  window.set_margin_end(5);
 
   // generate 'Add Application' button
   const button = new Gtk.Button({ has_frame: false });
