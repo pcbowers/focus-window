@@ -7,7 +7,7 @@
 This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.
 
 <p align="center">
-  <img width="80%" src="https://user-images.githubusercontent.com/41601975/205367034-93b4b9f4-da23-4376-bfb5-02f6d8f03273.gif" alt="focus-window">
+  <img src="media/focus-window.gif" style="border-radius: 10px; max-width: 500px; width: 100%;" alt="focus-window">
 </p>
 
 ## Installation
