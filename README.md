@@ -1,4 +1,8 @@
-# Focus Window
+<h1><img align="left" style="height: 1em; margin-right: 0.25em;" src="media/icon.svg?raw=true&sanitize=true"> Focus Window</h1>
+
+<p align="center">
+  <img width="100%" src="media/header.svg?raw=true&sanitize=true" alt="focus-window">
+</p>
 
 This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.
 
