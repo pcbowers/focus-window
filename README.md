@@ -2,6 +2,9 @@
 
 <p align="center">
   <img width="100%" src="media/header.svg?raw=true&sanitize=true" alt="focus-window">
+  <a href="https://extensions.gnome.org/extension/5571/focus-window/"><img src="https://img.shields.io/badge/Download-extensions.gnome.org-e67f4d.svg?logo=gnome&logoColor=lightgrey&labelColor=303030" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-purple.svg?labelColor=303030" /></a>
+  <a href="releases"><img src="https://img.shields.io/github/v/release/pcbowers/focus-window" /></a>
 </p>
 
 This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.
@@ -15,7 +18,7 @@ This extension allows one to create various shortcuts for applications, enabling
 ### Website
 
 1. Make sure to download the appropriate browser extension and connector according to the [GNOME Shell browser integration Installation Guide](https://wiki.gnome.org/action/show/Projects/GnomeShellIntegration/Installation?action=show&redirect=Projects%2FGnomeShellIntegrationForChrome%2FInstallation)
-2. Navigate to the [GNOME Extensions Website](https://extensions.gnome.org/)
+2. Navigate to the [GNOME Extensions Website](https://extensions.gnome.org/extension/5571/focus-window/)
 3. Install the latest version of **Focus Window**
 
 ### Desktop App
