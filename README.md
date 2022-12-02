@@ -6,20 +6,20 @@ This extension allows one to create various shortcuts for applications, enabling
   <img width="80%" src="https://user-images.githubusercontent.com/41601975/205367034-93b4b9f4-da23-4376-bfb5-02f6d8f03273.gif" alt="focus-window">
 </p>
 
-# Installation
+## Installation
 
-## Website
+### Website
 
 1. Make sure to download the appropriate browser extension and connector according to the [GNOME Shell browser integration Installation Guide](https://wiki.gnome.org/action/show/Projects/GnomeShellIntegration/Installation?action=show&redirect=Projects%2FGnomeShellIntegrationForChrome%2FInstallation)
 2. Navigate to the [GNOME Extensions Website](https://extensions.gnome.org/extension/4627/focus-changer/)
 3. Install the latest version of **Focus Window**
 
-## Desktop App
+### Desktop App
 
 1. Make sure that the `gnome-shell-extension-manager` application is installed
 2. Search for **Focus Window** and install the latest version
 
-## Manual
+### Manual
 
 1. Clone the repository:
 
@@ -38,7 +38,7 @@ git clone git@github.com:pcbowers/focus-window.git $HOME/.local/share/gnome-shel
 gnome-extensions enable focus-window@chris.al
 ```
 
-# Preferences
+## Preferences
 
 To open the prefrences after installation, either navigate to the extension on the website or desktop app and click the preferences icon or run the following command:
 
@@ -46,45 +46,45 @@ To open the prefrences after installation, either navigate to the extension on t
 gnome-extensions prefs focus-window@chris.al
 ```
 
-## Application to Focus
+### Application to Focus
 
 Use this setting to choose the application that should be focused (or launched) when the keyboard shortcut is pressed. This is required for the extension to bind the keyboard shortcut.
 
-## Title to Match
+### Title to Match
 
 An optional title that will filter any open windows of the application by its title. If the title of the window matches this, it will focus it. If this is left empty, then no windows will be filtered.
 
-## Exact Title Match
+### Exact Title Match
 
 By default, the specified title does not need to be an exact match. Toggling this on will ensure that the windows will be filtered by an exact match to the specified title.
 
-## Launch Application
+### Launch Application
 
 By default, a new window will be launched if there are no windows that already exist (or no windows that match the title). Toggling this off will ensure that no new windows will be launched.
 
-## Keyboard Shortcut
+### Keyboard Shortcut
 
 This is the keyboard shortcut that focuses (and potentially launches) the application. If multiple windows are found, repeat presses of the keyboard shortcut will cycle through the various windows. If only one window is found, repeate presses of the keyboard shortcut when the window is already focused will minimize it.
 
 Click on the row to set the keyboard shortcut. After clicking, press your shortcut and it will be automatically saved. Press the Escape key to cancel entry. Press Backspace to unbind the shortcut.
 
-# FAQ
+## FAQ
 
-## Can I create multiple shortcuts to launch the same application?
+### Can I create multiple shortcuts to launch the same application?
 
 Sure! Just add the application twice!
 
-## My keyboard shortcut isn't working. What do I do?
+### My keyboard shortcut isn't working. What do I do?
 
 The shortcut may already be bound by the system. Make sure you don't already have a system shortcut that is bound by it!
 
 Also, if there are no existing windows for your application (or no windows that match the desired title) and the `Launch Application` setting is toggled off, nothing will happen. Try editing your settings by allowing the shortcut to launch an application or changing your title.
 
-## If I add a new application but don't configure it, will this break the extension?
+### If I add a new application but don't configure it, will this break the extension?
 
 It shouldn't! The extension requires an application and keyboard shortcut to be set before binding. Using the `Delete Application` button exists simply for a better user experience. If the application is not set and/or there is no shortcut, nothing will happen.
 
-## How can I contribute?
+### How can I contribute?
 
 Create issues and create pull requests. I'm always happy to receive feedback.
 
