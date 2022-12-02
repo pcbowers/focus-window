@@ -9,6 +9,8 @@
 
 This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.
 
+Do you want a pulldown mode on your terminal without having to switch to tilda or guake? Do you want to focus your Spotify app or email client with a single shortcut key? Then this extension is for you!
+
 <p align="center">
   <img src="media/focus-window.gif" style="border-radius: 10px; max-width: 500px; width: 100%;" alt="focus-window">
 </p>
