@@ -1,6 +1,6 @@
 {
   "name": "Focus Window",
-  "description": "Open an application or focus on its window if it is already opened with a single keyboard shortcut.",
+  "description": "This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.",
   "uuid": "focus-window@chris.al",
   "shell-version": [
     "42"

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="focus-window">
+  <requires lib="gtk" version="4.0"/>
+  <template class="FocusWidget" parent="AdwPreferencesGroup">
+    <property name="header-suffix">
+      <object class="GtkButton">
+        <signal name="clicked" handler="onApplicationDelete" swapped="no"/>
+        <property name="child">
+          <object class="AdwButtonContent">
+            <property name="icon-name">app-remove-symbolic</property>
+            <property name="label">Delete Shortcut</property>
+          </object>
+        </property>
+        <style>
+          <class name="flat"/>
+        </style>
+      </object>
+    </property>
+    <child>
+      <object class="AdwComboRow" id="application_to_focus">
+        <property name="title">Application to Focus</property>
+        <property name="subtitle">The application that should be focused</property>
+        <signal name="notify::selected" handler="onApplicationSelected" swapped="no" />
+        <property name="model">
+          <object class="GtkStringList" id="application_list">
+            <items>
+              <item>No App Selected</item>
+            </items>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="AdwActionRow">
+        <property name="title">Title to Match</property>
+        <property name="subtitle">An optional title to filter application windows</property>
+        <property name="activatable-widget">title_to_match</property>
+        <child>
+          <object class="GtkEntry" id="title_to_match">
+            <property name="valign">center</property>
+            <property name="placeholder-text">Window Title</property>
+            <signal name="notify::text" handler="onTitleChanged" swapped="no" />
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwActionRow">
+        <property name="title">Exact Title Match</property>
+        <property name="subtitle">Toggle this on if an exact title match is desired</property>
+        <property name="activatable-widget">exact_title_match</property>
+        <child>
+          <object class="GtkSwitch" id="exact_title_match">
+            <property name="valign">center</property>
+            <property name="active">false</property>
+            <signal name="notify::active" handler="onExactTitleToggled" swapped="no" />
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwActionRow">
+        <property name="title">Launch Application</property>
+        <property name="subtitle">Toggle this on if the application should be luanched when no windows are found</property>
+        <property name="activatable-widget">launch_application</property>
+        <child>
+          <object class="GtkSwitch" id="launch_application">
+            <property name="valign">center</property>
+            <property name="active">true</property>
+            <signal name="notify::active" handler="onLaunchApplicationToggled" swapped="no" />
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwActionRow" id="keyboard_shortcut_row">
+        <property name="title">Keyboard Shortcut</property>
+        <property name="subtitle">The keyboard shortcut that focuses the application.
+Press Esc to cancel or Backspace to unbind the shortcut.</property>
+        <property name="activatable-widget">keyboard_shortcut</property>
+        <signal name="activated" handler="onKeyboardShortcutClicked" swapped="no" />
+        <child>
+          <object class="GtkShortcutLabel" id="keyboard_shortcut">
+            <property name="valign">center</property>
+            <property name="disabled_text">Not Bound</property>
+            <property name="focus-on-click">true</property>
+            <property name="accelerator"></property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

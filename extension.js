@@ -1,100 +1,172 @@
 "use strict";
 
-const { Shell, Meta, Gio } = imports.gi;
+const { Shell, Meta, Gio, GObject } = imports.gi;
 const Main = imports.ui.main;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
+const SETTINGS_ID = "org.gnome.shell.extensions.focus-window";
+const SETTINGS_KEY = "app-settings";
+const SETTINGS_VARIANT = "aa{sv}";
+
 const appSys = Shell.AppSystem.get_default();
 const appWin = Shell.WindowTracker.get_default();
 
-class FocusWindow {
+const KeyboardShortcuts = GObject.registerClass(
+  {},
+  class KeyboardShortcuts extends GObject.Object {
+    constructor(params = {}) {
+      super(params);
+      this.shortcuts = {};
+
+      this.displayConnection = global.display.connect(
+        "accelerator-activated",
+        (__, action) => {
+          const grabber = this.shortcuts[action];
+          if (grabber) grabber.callback();
+        }
+      );
+    }
+
+    reset() {
+      for (let action in this.shortcuts) {
+        this.unbind(action);
+      }
+    }
+
+    destroy() {
+      global.display.disconnect(this.displayConnection);
+
+      for (let action in this.shortcuts) {
+        this.unbind(action);
+      }
+
+      this.shortcuts = {};
+      this.displayConnection = null;
+    }
+
+    bind(accelerator, callback) {
+      const action = global.display.grab_accelerator(
+        accelerator,
+        Meta.KeyBindingFlags.NONE
+      );
+
+      if (action === Meta.KeyBindingAction.NONE) return;
+      log("binding shortcut: " + accelerator);
+
+      const name = Meta.external_binding_name_for_action(action);
+      Main.wm.allowKeybinding(name, Shell.ActionMode.ALL);
+
+      this.shortcuts[action] = { name, accelerator, callback };
+    }
+
+    unbind(action) {
+      const grabber = this.shortcuts[action];
+
+      if (grabber) {
+        log("unbinding shortcut: " + grabber.accelerator);
+        global.display.ungrab_accelerator(action);
+        Main.wm.allowKeybinding(grabber.name, Shell.ActionMode.NONE);
+        delete this.shortcuts[action];
+      }
+    }
+  }
+);
+
+class Extension {
   constructor() {
-    this._lastUnselectedApp = null;
-    this._lastUnselectedWindow = null;
+    this.shortcuts = null;
+    this.settingsListener = null;
+    this.settings = null;
   }
 
   enable() {
-    let mode = Shell.ActionMode.ALL;
-    let flag = Meta.KeyBindingFlags.NONE;
+    log(`enabling ${Me.metadata.name}`);
 
-    const settings = ExtensionUtils.getSettings(
-      "org.gnome.shell.extensions.focus-window"
+    this.shortcuts = new KeyboardShortcuts();
+
+    this.settings = ExtensionUtils.getSettings(SETTINGS_ID);
+
+    this.settingsListener = this.settings.connect(
+      `changed::${SETTINGS_KEY}`,
+      () => {
+        this.setupShortcuts(
+          this.settings.get_value(SETTINGS_KEY).recursiveUnpack()
+        );
+      }
     );
 
-    Main.wm.addKeybinding("focus-shortcut", settings, flag, mode, () => {
-      // get the application that should be activated
-      const appId = settings.get_string("application-id");
+    this.setupShortcuts(
+      this.settings.get_value(SETTINGS_KEY).recursiveUnpack()
+    );
+  }
 
-      // ensure the app exists
-      const application = appSys.lookup_app(appId);
+  setupShortcuts(settings) {
+    this.shortcuts.reset();
 
-      // exit if it doesn't
-      if (!application) return false;
+    settings.forEach((setting) => {
+      if (setting.keyboardShortcut && setting.applicationToFocus) {
+        this.shortcuts.bind(setting.keyboardShortcut, () => {
+          log("setting triggered: " + JSON.stringify(setting));
 
-      // get the currently focused app
-      const currentlyFocused = appWin.get_app_from_pid(
-        global.display.get_focus_window().get_pid()
-      );
+          // get application
+          const application = appSys.lookup_app(setting.applicationToFocus);
+          if (!application) return false;
 
-      // if there is another app that is focused but it is not our app, save it
-      if (currentlyFocused && currentlyFocused.get_id() !== appId) {
-        this._lastUnselectedApp = currentlyFocused;
-        this._lastUnselectedWindow = global.display.get_focus_window();
+          // get application windows and filter appropriately
+          const appWindows = application.get_windows().filter((window) => {
+            if (!setting.titleToMatch) return true;
+            if (setting.exactTitleMatch)
+              return window.get_title() === setting.titleToMatch;
+
+            return window.get_title().includes(setting.titleToMatch);
+          });
+
+          // get the currently focused window
+          const focusedWindow = global.display.get_focus_window().get_id();
+
+          // launch the application
+          if (!appWindows.length && setting.launchApplication) {
+            return application.open_new_window(-1);
+          }
+
+          // cycle through open windows if there are multiple
+          if (appWindows.length > 1) {
+            return Main.activateWindow(appWindows[appWindows.length - 1]);
+          }
+
+          // Minimize window if it is already focused and there is only 1 window
+          if (
+            appWindows.length === 1 &&
+            focusedWindow === appWindows[0].get_id()
+          ) {
+            return appWindows[0].minimize();
+          }
+
+          // Draw focus to the window if it is not already focused
+          if (appWindows.length === 1) {
+            return Main.activateWindow(appWindows[0]);
+          }
+
+          return false;
+        });
       }
-
-      // get any open applications
-      const appWindows = application.get_windows();
-
-      // if there are no open applications, create a new one
-      if (!appWindows.length) {
-        application.activate();
-        // if there is one application and it's already selected, go back to the unselected app or minimize
-      } else if (
-        appWindows.length === 1 &&
-        global.display.get_focus_window().get_id() === appWindows[0].get_id()
-      ) {
-        if (
-          this._lastUnselectedApp &&
-          this._lastUnselectedWindow &&
-          this._lastUnselectedApp
-            .get_windows()
-            .filter((w) => w.get_id() === this._lastUnselectedWindow.get_id())
-            .length
-        ) {
-          this._lastUnselectedApp.activate_window(
-            this._lastUnselectedWindow,
-            global.get_current_time()
-          );
-        } else {
-          this._lastUnselectedApp = null;
-          this._lastUnselectedWindow = null;
-          global.display.get_focus_window().minimize();
-        }
-        // if there are multiple applications, cycle through them
-      } else if (appWindows.length === 1) {
-        application.activate();
-      } else if (appWindows.length > 1) {
-        application.activate_window(
-          appWindows[appWindows.length - 1],
-          global.get_current_time()
-        );
-        // this should never happen, but if it does, simply activate the application
-      } else {
-        application.activate();
-      }
-
-      return true;
     });
   }
 
   disable() {
-    Main.wm.removeKeybinding("focus-shortcut");
-    this._lastUnselectedApp = null;
-    this._lastUnselectedWindow = null;
+    log(`disabling ${Me.metadata.name}`);
+
+    this.shortcuts.destroy();
+    this.settings.disconnect(this.settingsListener);
+
+    this.settingsListener = null;
+    this.settings = null;
+    this.shortcuts = null;
   }
 }
 
 function init() {
-  return new FocusWindow();
+  log(`initializing ${Me.metadata.name}`);
+  return new Extension();
 }
