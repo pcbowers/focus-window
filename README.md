@@ -15,7 +15,7 @@ This extension allows one to create various shortcuts for applications, enabling
 ### Website
 
 1. Make sure to download the appropriate browser extension and connector according to the [GNOME Shell browser integration Installation Guide](https://wiki.gnome.org/action/show/Projects/GnomeShellIntegration/Installation?action=show&redirect=Projects%2FGnomeShellIntegrationForChrome%2FInstallation)
-2. Navigate to the [GNOME Extensions Website](https://extensions.gnome.org/extension/4627/focus-changer/)
+2. Navigate to the [GNOME Extensions Website](https://extensions.gnome.org/)
 3. Install the latest version of **Focus Window**
 
 ### Desktop App
