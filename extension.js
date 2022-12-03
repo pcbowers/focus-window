@@ -79,8 +79,6 @@ class Extension {
   }
 
   enable() {
-    log(`enabling ${Me.metadata.name}`);
-
     this.shortcuts = new KeyboardShortcuts();
 
     this.settings = ExtensionUtils.getSettings(SETTINGS_ID);
@@ -176,7 +174,6 @@ class Extension {
   }
 
   disable() {
-    log(`disabling ${Me.metadata.name}`);
     this.shortcuts.destroy();
     this.settings.disconnect(this.settingsListener);
 
@@ -187,6 +184,5 @@ class Extension {
 }
 
 function init() {
-  log(`initializing ${Me.metadata.name}`);
   return new Extension();
 }
