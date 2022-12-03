@@ -109,46 +109,71 @@ class Extension {
         this.shortcuts.bind(setting.keyboardShortcut, () => {
           log("setting triggered: " + JSON.stringify(setting));
 
-          // get application
-          const application = appSys.lookup_app(setting.applicationToFocus);
-          if (!application) return false;
+          try {
+            // get application
+            const application = appSys.lookup_app(setting.applicationToFocus);
+            if (!application) return false;
 
-          // get application windows and filter appropriately
-          const appWindows = application.get_windows().filter((window) => {
-            if (!setting.titleToMatch) return true;
-            if (setting.exactTitleMatch)
-              return window.get_title() === setting.titleToMatch;
+            // get application windows and filter appropriately
+            const appWindows = application.get_windows().filter((window) => {
+              if (!setting.titleToMatch) return true;
+              if (setting.exactTitleMatch)
+                return window.get_title() === setting.titleToMatch;
 
-            return window.get_title().includes(setting.titleToMatch);
-          });
+              if (typeof window.get_title() !== "string") return false;
 
-          // get the currently focused window
-          const focusedWindow = global.display.get_focus_window().get_id();
+              return window
+                .get_title()
+                .toLowerCase()
+                .includes(setting.titleToMatch.toLowerCase());
+            });
 
-          // launch the application
-          if (!appWindows.length && setting.launchApplication) {
-            return application.open_new_window(-1);
+            // get the currently focused window
+            const focusedWindow = global.display.get_focus_window().get_id();
+
+            // launch the application
+            if (!appWindows.length && setting.launchApplication) {
+              // launch the application normally
+              if (!setting.commandLineArguments) {
+                return application.open_new_window(-1);
+              }
+
+              // launch the application with the overriden command line arguments
+              const context = global.create_app_launch_context(0, -1);
+              const newApplication = Gio.AppInfo.create_from_commandline(
+                application.get_app_info().get_executable() +
+                  " " +
+                  setting.commandLineArguments,
+                null,
+                Gio.AppInfoCreateFlags.NONE
+              );
+
+              newApplication.launch([], context);
+            }
+
+            // cycle through open windows if there are multiple
+            if (appWindows.length > 1) {
+              return Main.activateWindow(appWindows[appWindows.length - 1]);
+            }
+
+            // Minimize window if it is already focused and there is only 1 window
+            if (
+              appWindows.length === 1 &&
+              focusedWindow === appWindows[0].get_id()
+            ) {
+              return appWindows[0].minimize();
+            }
+
+            // Draw focus to the window if it is not already focused
+            if (appWindows.length === 1) {
+              return Main.activateWindow(appWindows[0]);
+            }
+
+            return false;
+          } catch (error) {
+            log("setting trigger failed");
+            log(error);
           }
-
-          // cycle through open windows if there are multiple
-          if (appWindows.length > 1) {
-            return Main.activateWindow(appWindows[appWindows.length - 1]);
-          }
-
-          // Minimize window if it is already focused and there is only 1 window
-          if (
-            appWindows.length === 1 &&
-            focusedWindow === appWindows[0].get_id()
-          ) {
-            return appWindows[0].minimize();
-          }
-
-          // Draw focus to the window if it is not already focused
-          if (appWindows.length === 1) {
-            return Main.activateWindow(appWindows[0]);
-          }
-
-          return false;
         });
       }
     });
