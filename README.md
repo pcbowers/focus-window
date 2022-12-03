@@ -4,8 +4,10 @@
   <img width="100%" src="media/header.svg?raw=true&sanitize=true" alt="focus-window">
   <a href="https://extensions.gnome.org/extension/5571/focus-window/"><img src="https://img.shields.io/badge/Download-extensions.gnome.org-e67f4d.svg?logo=gnome&logoColor=lightgrey&labelColor=303030" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-purple.svg?labelColor=303030" /></a>
-  <a href="releases"><img src="https://img.shields.io/github/v/release/pcbowers/focus-window" /></a>
+  <a href="https://github.com/pcbowers/focus-window/releases"><img src="https://img.shields.io/github/v/release/pcbowers/focus-window" /></a>
 </p>
+
+Do you want a pulldown mode on your terminal without having to switch to tilda or guake? Do you want to focus your Spotify app or email client with a single shortcut key? Then this extension is for you!
 
 This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.
 
