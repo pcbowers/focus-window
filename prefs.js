@@ -97,7 +97,6 @@ const FocusWidget = GObject.registerClass(
     GTypeName: "FocusWidget",
     Template: Me.dir.get_child("prefs.ui").get_uri(),
     InternalChildren: [
-      "application_row",
       "application_to_focus",
       "application_list",
       "title_to_match",
@@ -108,7 +107,7 @@ const FocusWidget = GObject.registerClass(
       "keyboard_shortcut",
     ],
   },
-  class FocusWidget extends Adw.PreferencesGroup {
+  class FocusWidget extends Adw.ExpanderRow {
     constructor(
       adwPreferences = {},
       setSettings = () => {},
@@ -132,7 +131,6 @@ const FocusWidget = GObject.registerClass(
       this.settings = settings;
 
       // remap all widgets
-      this.applicationRow = this._application_row;
       this.applicationList = this._application_list;
       this.applicationToFocus = this._application_to_focus;
       this.titleToMatch = this._title_to_match;
@@ -151,14 +149,9 @@ const FocusWidget = GObject.registerClass(
       this.populateApplications();
       this.addDeleteButton();
       this.createShortcutListener();
+      this.updateTitleAndSubtitle();
 
       // set all values based on the widget settings
-      this.applicationRow.set_title(
-        this.getAppNameFromId(this.settings.applicationToFocus)
-      );
-      this.applicationRow.set_subtitle(
-        this.htmlEntities(this.settings.keyboardShortcut || "Not Bound")
-      );
       this.applicationToFocus.set_selected(
         this.getAppPositionFromId(this.settings.applicationToFocus)
       );
@@ -195,25 +188,9 @@ const FocusWidget = GObject.registerClass(
       });
       buttonContent.add_css_class("error");
       button.set_child(buttonContent);
-      this.applicationRow.add_action(button);
+      this.add_action(button);
 
       button.connect("clicked", () => this.onApplicationDelete());
-      /*
-<property name="action">
-          <object class="GtkButton">
-            <signal name="clicked" handler="onApplicationDelete" swapped="no"/>
-            <property name="child">
-              <object class="AdwButtonContent">
-                <property name="icon-name">app-remove-symbolic</property>
-                <property name="label">Delete Shortcut</property>
-              </object>
-            </property>
-            <style>
-              <class name="flat"/>
-            </style>
-          </object>
-        </property>
-      */
     }
 
     // get the position of the app in the list based on its ID
@@ -364,16 +341,26 @@ const FocusWidget = GObject.registerClass(
         .replace(/"/g, "&quot;");
     }
 
+    updateTitleAndSubtitle() {
+      this.set_title(this.getAppNameFromId(this.settings.applicationToFocus));
+      this.set_subtitle(
+        this.htmlEntities(this.settings.keyboardShortcut || "Not Bound")
+      );
+
+      const appPosition = this.getAppPositionFromId(
+        this.settings.applicationToFocus
+      );
+      if (appPosition && this.settings.keyboardShortcut) {
+        this.remove_css_class("warning");
+      } else {
+        this.add_css_class("warning");
+      }
+    }
+
     // saves the widget settings and make updates where need be
     saveSettings() {
       this.setSettings(this.settings);
-
-      this.applicationRow.set_title(
-        this.getAppNameFromId(this.settings.applicationToFocus)
-      );
-      this.applicationRow.set_subtitle(
-        this.htmlEntities(this.settings.keyboardShortcut || "Not Bound")
-      );
+      this.updateTitleAndSubtitle();
     }
 
     // will remove widget and call the onDelete callback when deleted
@@ -411,32 +398,38 @@ function fillPreferencesWindow(window) {
   });
   button.add_css_class("suggested-action");
   group.set_header_suffix(button);
-  group.set_title("Focus Window");
   button.set_child(buttonContent);
 
-  // generate row that tracks application count
-  const count = new Adw.ActionRow({
-    title: "Total Shorcuts",
-    subtitle: "The Total Number of Shortcuts",
-  });
-  const countLabel = new Gtk.Label();
-  count.add_suffix(countLabel);
-  group.add(count);
-
-  // sets the lable application count label
-  const setCountLabel = () =>
-    countLabel.set_label(
-      `${focusWidgets.length} Shortcut${focusWidgets.length === 1 ? "" : "s"}`
+  // sets the title and description of group
+  const setTitleAndDescription = () => {
+    group.set_title(
+      `${focusWidgets.length} Shortcut${
+        focusWidgets.length === 1 ? "" : "s Created"
+      }`
     );
+
+    const configured = focusWidgets.filter(
+      (item) =>
+        item.widget.settings &&
+        item.widget.settings.applicationToFocus &&
+        item.widget.settings.keyboardShortcut
+    ).length;
+
+    group.set_description(
+      `${
+        configured === focusWidgets.length ? "All" : configured
+      } of which are fully configured`
+    );
+  };
 
   // removes focus widget from page and memory, updates count label
   const onDelete = (id) => () => {
     const index = focusWidgets.findIndex((i) => i.id === id);
     if (index < 0) return;
 
-    page.remove(focusWidgets[index].widget);
+    group.remove(focusWidgets[index].widget);
     focusWidgets.splice(index, 1);
-    setCountLabel();
+    setTitleAndDescription();
   };
 
   // add focus widgets from settings
@@ -450,17 +443,17 @@ function fillPreferencesWindow(window) {
       false
     );
     focusWidgets.push({ id: settings.id, widget: newWidget });
-    page.add(newWidget);
+    group.add(newWidget);
   });
 
-  setCountLabel();
+  setTitleAndDescription();
 
   // add focus widgets when 'Add Application' button is clicked
   button.connect("clicked", () => {
     const id = createId();
     const newWidget = new FocusWidget({}, setSettings(id), onDelete(id), id);
     focusWidgets.push({ id, widget: newWidget });
-    page.add(newWidget);
-    setCountLabel();
+    group.add(newWidget);
+    setTitleAndDescription();
   });
 }

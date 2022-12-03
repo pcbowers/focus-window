@@ -52,7 +52,6 @@ const KeyboardShortcuts = GObject.registerClass(
       );
 
       if (action === Meta.KeyBindingAction.NONE) return;
-      log("binding shortcut: " + accelerator);
 
       const name = Meta.external_binding_name_for_action(action);
       Main.wm.allowKeybinding(name, Shell.ActionMode.ALL);
@@ -64,7 +63,6 @@ const KeyboardShortcuts = GObject.registerClass(
       const grabber = this.shortcuts[action];
 
       if (grabber) {
-        log("unbinding shortcut: " + grabber.accelerator);
         global.display.ungrab_accelerator(action);
         Main.wm.allowKeybinding(grabber.name, Shell.ActionMode.NONE);
         delete this.shortcuts[action];
@@ -107,8 +105,6 @@ class Extension {
     settings.forEach((setting) => {
       if (setting.keyboardShortcut && setting.applicationToFocus) {
         this.shortcuts.bind(setting.keyboardShortcut, () => {
-          log("setting triggered: " + JSON.stringify(setting));
-
           try {
             // get application
             const application = appSys.lookup_app(setting.applicationToFocus);
@@ -171,7 +167,7 @@ class Extension {
 
             return false;
           } catch (error) {
-            log("setting trigger failed");
+            log("setting trigger failed: ");
             log(error);
           }
         });
@@ -181,7 +177,6 @@ class Extension {
 
   disable() {
     log(`disabling ${Me.metadata.name}`);
-
     this.shortcuts.destroy();
     this.settings.disconnect(this.settingsListener);
 

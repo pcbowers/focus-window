@@ -1,100 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface domain="focus-window">
   <requires lib="gtk" version="4.0"/>
-  <template class="FocusWidget" parent="AdwPreferencesGroup">
+  <template class="FocusWidget" parent="AdwExpanderRow">
+    <property name="title">Application Name</property>
+    <property name="subtitle">Shortcut Accelerator</property>
     <child>
-      <object class="AdwExpanderRow" id="application_row">
-        <property name="title">Application Name</property>
-        <property name="subtitle">Shortcut Accelerator</property>
-        <child>
-          <object class="AdwComboRow" id="application_to_focus">
-            <property name="title">Application to Focus</property>
-            <property name="subtitle">The application that should be focused</property>
-            <signal name="notify::selected" handler="onApplicationSelected" swapped="no" />
-            <property name="model">
-              <object class="GtkStringList" id="application_list">
-                <items>
-                  <item>No App Selected</item>
-                </items>
-              </object>
-            </property>
+      <object class="AdwComboRow" id="application_to_focus">
+        <property name="title">Application to Focus</property>
+        <property name="subtitle">The application that should be focused</property>
+        <signal name="notify::selected" handler="onApplicationSelected" swapped="no" />
+        <property name="model">
+          <object class="GtkStringList" id="application_list">
+            <items>
+              <item>No App Selected</item>
+            </items>
           </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title">Title to Match</property>
-            <property name="subtitle">An optional title to filter application windows</property>
-            <property name="activatable-widget">title_to_match</property>
-            <child>
-              <object class="GtkEntry" id="title_to_match">
-                <property name="valign">center</property>
-                <property name="placeholder-text">Window Title</property>
-                <signal name="notify::text" handler="onTitleChanged" swapped="no" />
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title">Exact Title Match</property>
-            <property name="subtitle">Toggle this on if an exact title match is desired</property>
-            <property name="activatable-widget">exact_title_match</property>
-            <child>
-              <object class="GtkSwitch" id="exact_title_match">
-                <property name="valign">center</property>
-                <property name="active">false</property>
-                <signal name="notify::active" handler="onExactTitleToggled" swapped="no" />
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title">Launch Application</property>
-            <property name="subtitle">Toggle this on if the application should be luanched when no windows are found</property>
-            <property name="activatable-widget">launch_application</property>
-            <child>
-              <object class="GtkSwitch" id="launch_application">
-                <property name="valign">center</property>
-                <property name="active">true</property>
-                <signal name="notify::active" handler="onLaunchApplicationToggled" swapped="no" />
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title">Command Line Arguments</property>
-            <property name="subtitle">If no windows are found, Focus Window uses the `.desktop` default action to launch your application. Use this to override any command line arguments passed to the executable.</property>
-            <property name="activatable-widget">command_line_arguments</property>
-            <child>
-              <object class="GtkEntry" id="command_line_arguments">
-                <property name="valign">center</property>
-                <property name="placeholder-text">--example command</property>
-                <signal name="notify::text" handler="onCommandLineArgumentsChanged" swapped="no" />
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow" id="keyboard_shortcut_row">
-            <property name="title">Keyboard Shortcut</property>
-            <property name="subtitle">The keyboard shortcut that focuses the application.
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="AdwActionRow" id="keyboard_shortcut_row">
+        <property name="title">Keyboard Shortcut</property>
+        <property name="subtitle">The keyboard shortcut that focuses the application.
 Press Esc to cancel or Backspace to unbind the shortcut.</property>
-            <property name="activatable-widget">keyboard_shortcut</property>
-            <signal name="activated" handler="onKeyboardShortcutClicked" swapped="no" />
-            <child>
-              <object class="GtkShortcutLabel" id="keyboard_shortcut">
-                <property name="valign">center</property>
-                <property name="disabled_text">Not Bound</property>
-                <property name="focus-on-click">true</property>
-                <property name="accelerator"></property>
-              </object>
-            </child>
+        <property name="activatable-widget">keyboard_shortcut</property>
+        <signal name="activated" handler="onKeyboardShortcutClicked" swapped="no" />
+        <child>
+          <object class="GtkShortcutLabel" id="keyboard_shortcut">
+            <property name="valign">center</property>
+            <property name="disabled_text">Not Bound</property>
+            <property name="focus-on-click">true</property>
+            <property name="accelerator"></property>
           </object>
         </child>
       </object>
     </child>
-
+    <child>
+      <object class="AdwActionRow">
+        <property name="title">Title to Match</property>
+        <property name="subtitle">An optional title to filter application windows</property>
+        <property name="activatable-widget">title_to_match</property>
+        <child>
+          <object class="GtkEntry" id="title_to_match">
+            <property name="valign">center</property>
+            <property name="placeholder-text">Window Title</property>
+            <signal name="notify::text" handler="onTitleChanged" swapped="no" />
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwActionRow">
+        <property name="title">Exact Title Match</property>
+        <property name="subtitle">Toggle this on if an exact title match is desired</property>
+        <property name="activatable-widget">exact_title_match</property>
+        <child>
+          <object class="GtkSwitch" id="exact_title_match">
+            <property name="valign">center</property>
+            <property name="active">false</property>
+            <signal name="notify::active" handler="onExactTitleToggled" swapped="no" />
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwActionRow">
+        <property name="title">Command Line Arguments</property>
+        <property name="subtitle">Use this to override any command line arguments passed to the application executable.</property>
+        <property name="activatable-widget">command_line_arguments</property>
+        <child>
+          <object class="GtkEntry" id="command_line_arguments">
+            <property name="valign">center</property>
+            <property name="placeholder-text">Arguments</property>
+            <signal name="notify::text" handler="onCommandLineArgumentsChanged" swapped="no" />
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwActionRow">
+        <property name="title">Launch Application</property>
+        <property name="subtitle">Toggle this on if the application should be launched when no windows are found</property>
+        <property name="activatable-widget">launch_application</property>
+        <child>
+          <object class="GtkSwitch" id="launch_application">
+            <property name="valign">center</property>
+            <property name="active">true</property>
+            <signal name="notify::active" handler="onLaunchApplicationToggled" swapped="no" />
+          </object>
+        </child>
+      </object>
+    </child>
   </template>
 </interface>
