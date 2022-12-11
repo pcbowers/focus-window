@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.focus-window" path="/org/gnome/shell/extensions/focus-window/">
+    <!-- See also: https://docs.gtk.org/glib/gvariant-format-strings.html -->
+    <key name="app-settings" type="aa{sv}">
+      <default>[]</default>
+      <summary>Data</summary>
+      <description>An array of objects containing an application ID, a window title, a boolean toggling exact title match, a boolean toggling application launch, and an array of strings making up a keyboard shortcut</description>
+    </key>
+  </schema>
+</schemalist>

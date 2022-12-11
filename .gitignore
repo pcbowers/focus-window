@@ -1,0 +1,6 @@
+@types
+src/ui
+*~
+*.zip
+node_modules
+backup

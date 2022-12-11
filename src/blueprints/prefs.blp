@@ -1,0 +1,60 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.PreferencesPage test {
+  Adw.PreferencesGroup {
+    Adw.ActionRow {
+      title: _("Setting Title 1");
+      subtitle: _("Setting Subtitle 1");
+      activatable-widget: switch;
+
+      Gtk.Switch switch {
+        valign: center;
+        active: true;
+      }
+    }
+
+    Adw.ExpanderRow {
+      title: _("Application Name");
+      subtitle: _("Keyboard Shortcut");
+      show-enable-switch: true;
+
+      [prefix]
+      Box {
+        styles [
+          "toolbar",
+        ]
+
+        Button {
+          valign: center;
+          // this is an explanation for this translatable text
+          tooltip-markup: _("<big>this</big> is a test");
+          icon-name: "edit-delete-symbolic";
+
+          styles [
+            "destructive-action",
+          ]
+        }
+
+        Box {
+          homogeneous: true;
+
+          styles [
+            "linked",
+          ]
+
+          Button {
+            valign: center;
+            tooltip-markup: _("<big>THIS</big> is a test");
+            icon-name: "pan-up-symbolic";
+          }
+
+          Button {
+            valign: center;
+            icon-name: "pan-down-symbolic";
+          }
+        }
+      }
+    }
+  }
+}

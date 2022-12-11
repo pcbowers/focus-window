@@ -7,47 +7,69 @@
   <a href="https://github.com/pcbowers/focus-window/releases"><img src="https://img.shields.io/github/v/release/pcbowers/focus-window" /></a>
 </p>
 
+- [:tada: Installation](#tada-installation)
+  - [:earth\_americas: Website](#earth_americas-website)
+  - [:desktop\_computer: Desktop App](#desktop_computer-desktop-app)
+  - [:hammer\_and\_wrench:	Manual](#hammer_and_wrenchmanual)
+- [:gear: Preferences](#gear-preferences)
+- [:open\_book: Usage](#open_book-usage)
+- [:question:	FAQ](#questionfaq)
+  - [:keyboard: Can I create multiple shortcuts to launch the same application?](#keyboard-can-i-create-multiple-shortcuts-to-launch-the-same-application)
+  - [:broken\_heart: My keyboard shortcut isn't working. What do I do?](#broken_heart-my-keyboard-shortcut-isnt-working-what-do-i-do)
+  - [:handshake:	How can I contribute?](#handshakehow-can-i-contribute)
+- [:floppy\_disk: Development Notes](#floppy_disk-development-notes)
+  - [:scroll: Viewing Logs](#scroll-viewing-logs)
+  - [:heavy\_check\_mark: Working With Types and Autocompletion](#heavy_check_mark-working-with-types-and-autocompletion)
+  - [:building\_construction: Using the Build Script](#building_construction-using-the-build-script)
+  - [:notebook: Other Notes](#notebook-other-notes)
+
+
 Do you want a pulldown mode on your terminal without having to switch to tilda or guake? Do you want to focus your Spotify app or email client with a single shortcut key? Then this extension is for you!
 
 This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.
 
-<p align="center">
-  <img src="media/focus-window.gif" style="border-radius: 10px; max-width: 500px; width: 100%;" alt="focus-window">
-</p>
+## :tada: Installation
 
-## Installation
-
-### Website
+### :earth_americas: Website
 
 1. Make sure to download the appropriate browser extension and connector according to the [GNOME Shell browser integration Installation Guide](https://wiki.gnome.org/action/show/Projects/GnomeShellIntegration/Installation?action=show&redirect=Projects%2FGnomeShellIntegrationForChrome%2FInstallation)
-2. Navigate to the [GNOME Extensions Website](https://extensions.gnome.org/extension/5571/focus-window/)
+2. Navigate to the [GNOME Extensions Website](https://extensions.gnome.org/extension/5571/focus-window/) and search for **Focus Window**
 3. Install the latest version of **Focus Window**
 
-### Desktop App
+### :desktop_computer: Desktop App
 
 1. Make sure that the `gnome-shell-extension-manager` application is installed
-2. Search for **Focus Window** and install the latest version
+2. Search for **Focus Window**
+3. Install the latest version of **Focus Window**
 
-### Manual
+### :hammer_and_wrench:	Manual
+
+This step is only recommended for those that want to contribute. To build the extension, you must have the [blueprint-compiler](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/setup.html) installed.
 
 1. Clone the repository:
 
-```bash
-git clone git@github.com:pcbowers/focus-window.git $HOME/.local/share/gnome-shell/extensions/focus-window@chris.al
-```
+    ```bash
+    git clone git@github.com:pcbowers/focus-window.git
+    ```
 
-2. Restart GNOME:
+2. Run the build script to build and install the extension:
 
-- in an X11 session, press `Alt`+`F2` and then run `restart`
-- in Wayland, log out and log back in
+    ```bash
+    ./build.sh -ipr
+    ```
 
-3. Enable the extension:
+3. Restart GNOME:
 
-```bash
-gnome-extensions enable focus-window@chris.al
-```
+   - in an X11 session, press `Alt`+`F2` and then run `restart`
+   - in Wayland, log out and log back in
 
-## Preferences
+4. Enable the extension:
+
+    ```bash
+    gnome-extensions enable focus-window@chris.al
+    ```
+
+## :gear: Preferences
 
 To open the prefrences after installation, either navigate to the extension on the website or desktop app and click the preferences icon or run the following command:
 
@@ -55,84 +77,147 @@ To open the prefrences after installation, either navigate to the extension on t
 gnome-extensions prefs focus-window@chris.al
 ```
 
-### Application to Focus
+## :open_book: Usage
 
-Use this setting to choose the application that should be focused (or launched) when the keyboard shortcut is pressed. This is required for the extension to bind the keyboard shortcut.
+TODO
 
-### Title to Match
+## :question:	FAQ
 
-An optional title that will filter any open windows of the application by its title. If the title of the window matches this, it will focus it. If this is left empty, then no windows will be filtered.
-
-### Exact Title Match
-
-By default, the specified title does not need to be an exact match. Toggling this on will ensure that the windows will be filtered by an exact match to the specified title.
-
-### Launch Application
-
-By default, a new window will be launched if there are no windows that already exist (or no windows that match the title). Toggling this off will ensure that no new windows will be launched.
-
-### Keyboard Shortcut
-
-This is the keyboard shortcut that focuses (and potentially launches) the application. If multiple windows are found, repeat presses of the keyboard shortcut will cycle through the various windows. If only one window is found, repeate presses of the keyboard shortcut when the window is already focused will minimize it.
-
-Click on the row to set the keyboard shortcut. After clicking, press your shortcut and it will be automatically saved. Press the Escape key to cancel entry. Press Backspace to unbind the shortcut.
-
-## FAQ
-
-### Can I create multiple shortcuts to launch the same application?
+### :keyboard: Can I create multiple shortcuts to launch the same application?
 
 Sure! Just add the application twice!
 
-### My keyboard shortcut isn't working. What do I do?
+### :broken_heart: My keyboard shortcut isn't working. What do I do?
 
-The shortcut may already be bound by the system. Make sure you don't already have a system shortcut that is bound by it!
+The shortcut may already be bound by the system. Make sure you don't already have a system shortcut that is bound by it.
 
-Also, if there are no existing windows for your application (or no windows that match the desired title) and the `Launch Application` setting is toggled off, nothing will happen. Try editing your settings by allowing the shortcut to launch an application or changing your title.
+Also, if there are no existing windows that match your application and filters, and the `Launch Application` setting is toggled off, nothing will happen. Try editing your settings by allowing the shortcut to launch an application or changing your filter options.
 
-### If I add a new application but don't configure it, will this break the extension?
+### :handshake:	How can I contribute?
 
-It shouldn't! The extension requires an application and keyboard shortcut to be set before binding. Using the `Delete Application` button exists simply for a better user experience. If the application is not set and/or there is no shortcut, nothing will happen.
+I am always down to receive help! There are 3 ways you can contribute to this project:
 
-### How can I contribute?
+1. **Give Feedback:** I'll monitor the issues page, so if there are any bugs or features that you would like added, please create an issue!
+2. **Help with Translations:** I grew up overseas and have always appreciated applications that are language accessible. I have made this project translation-friendly, so feel free to create a pull request and help with translations.
+3. **Create your own Pull Requests:** For those who like to get their hands dirty, I'm also open to pull requests for bug fixes and new features. I'll help review them before making the changes live! 
 
-Create issues and create pull requests. I'm always happy to receive feedback.
 
-If you're planning on submitting a pull request, here are some helpful tips when debugging:
+## :floppy_disk: Development Notes
+
+If you're planning on submitting a pull request, here are some helpful tips when debugging.
+
+### :scroll: Viewing Logs
 
 - View the log for the preferences window with the following command:
 
-```bash
-journalctl -f -o cat /usr/bin/gjs
-```
+  ```bash
+  journalctl -f -o cat /usr/bin/gjs | grep focus-window@chris.al:
+  ```
 
 - View the extension debug log with the following command:
 
-```bash
-journalctl -f -o cat GNOME_SHELL_EXTENSION_UUID=focus-window@chris.al
-```
+  ```bash
+  journalctl -f -o cat GNOME_SHELL_EXTENSION_UUID=focus-window@chris.al
+  ```
 
 - View the extension settings with the following command:
 
-```bash
-dconf dump /org/gnome/shell/extensions/focus-window/
-```
+  ```bash
+  dconf dump /org/gnome/shell/extensions/focus-window/
+  ```
 
 - Clear the extension settings with the following command:
 
+  ```bash
+  dconf reset -f /org/gnome/shell/extensions/focus-window/
+  ```
+
+### :heavy_check_mark: Working With Types and Autocompletion
+
+#### **External Import Types**
+
+Use the [`ts-for-gir`](https://github.com/sammydre/ts-for-gir) npm package to generate types. This will make autocomplete for the `imports.gi` global import possible within any `gjs` file. To use the npm package, navigate to the root of your directory and run the following:
+
 ```bash
-dconf reset -f /org/gnome/shell/extensions/focus-window/
+cd src && ts-for-gir generate '*' -e gjs
 ```
 
-- If you make edits to the schema, use this command to compile it before testing or it won't work (and this gives the added benefit of ensuring the schema is formatted properly):
+You may need to install some dependencies to get this to work. The command will let you know which dependencies are missing. Check the package for documentation.
+
+Sometimes, you have multiple versions of different dependencies already installed. Make sure you use the same version that will be used by the extension
+
+*Typically, these versions can be found by navigating [here](https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/js/ui/environment.js) and making sure to select the branch/tag that specifies the correct shell. These are the base versions, though the versions in [this file](https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/js/dbusServices/extensions/main.js) do override the aforementioned ones. For context, I had Gdk 3.0 and 4.0 as well as Soup 2.4 and 3.0 on my system, and I selected 4.0 and 3.0 respectively based on gnome-shell 42. You do not need to keep the other versions.*)
+
+#### **Internal Import Types**
+
+The code is commented using [JSDoc](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) comments. A tsconfig is set up so that types can be used across multiple files as well using the `@lib` path alias. To type an `Me.imports`, simply add the following comment above the import (this is only an example. Make sure to tailor yours to the correct input):
+
+  ```js
+  /** @type {typeof import("@lib/common/utils")} */
+  const { Utils } = Me.imports.lib.common.utils;
+  ```
+#### **UI Autocompletion**
+
+The extension relies on [Blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/index.html). You will need to make sure the compiler is installed. Check the documentation for Blueprint if you need help. Once installed, use the [GTK Blueprint](https://marketplace.visualstudio.com/items?itemName=bodil.blueprint-gtk) extension in VS Code to get autocompletion for your UI files.
+
+### :building_construction: Using the Build Script
+
+The build script makes developing much easier. Simply run `./build.sh` to compile and pack the extension. There are several flags that also allow you to build for production, install the package, generate and update translations, and more. Flags can be joined together or separated. Here are some examples:
 
 ```bash
-glib-compile-schemas $HOME/.local/share/gnome-shell/extensions/focus-window@chris.al/schemas/
+# Prints the help statement
+./build.sh -h
+
+# builds and installs the package for production, removing zip file after completion
+./build.sh -pir
+# OR
+./build.sh -p -i -r
+
+# builds and installs the package with verbose logs, removing zip file after completion
+./build.sh -vir
+# OR
+./build.sh -v -i -r
+
+# Builds the package and generates new translations ready for production
+./build.sh -tpr
+# OR
+./build.sh -t -p -r
 ```
+
+#### **`-h` Help**
+
+Get all the possible flags that can be used with the build script.
+
+#### **`-p` Production** 
+
+Builds/Packs the extension in a production state by removing all the debug statements.
+
+#### **`-i` Install**
+
+Installs the package after building/packing the extension.
+
+#### **`-r` Remove**
+
+Removes the packed extension after the build script completes (useful when you only want to install the extension and don't care about the packed extension).
+
+#### **`-t` Translation**
+
+Generates a new translation template and updates existing translations based on the blueprint files.
+
+#### **`-v` Verbose**
+
+Logs each step of the build process (useful if something breaks).
+
+### :notebook: Other Notes
 
 - For some reason, when the preferences are launched from the extension application, the preferences don't update after closing the window and reopening it. To get around this, don't launch the preferences using the extension manager. Instead, use the command:
 
-```bash
-gnome-extensions prefs focus-window@chris.al
-```
+  ```bash
+  gnome-extensions prefs focus-window@chris.al
+  ```
+  
+  The preferences panel also won't update until after you close the preferences window. Make sure to rebuild after closing to make sure reopening it will show the changes.
 
-- The preferences panel won't update after closing the window and reopening it if you saved your changes before closing. Make sure to save something in the file after closing to make sure reopening it will show the changes.
+
+
+

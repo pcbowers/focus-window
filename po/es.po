@@ -1,0 +1,44 @@
+# Focus Window GNOME Extension Translation
+# Copyright (C) YEAR P Christopher Bowers
+# This file is distributed under the same license as the Focus Window package.
+# P Christopher Bowers <pcbowers@gmail.com>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Focus Window 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-12-10 20:05-0500\n"
+"PO-Revision-Date: 2022-12-10 19:55-0500\n"
+"Last-Translator: P Christopher Bowers <pcbowers@gmail.com>\n"
+"Language-Team: Spanish - Spain <pcbowers@gmail.com>\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Gtranslator 42.0\n"
+
+#: src/blueprints/prefs.blp:7
+msgid "Setting Title 1"
+msgstr ""
+
+#: src/blueprints/prefs.blp:8
+msgid "Setting Subtitle 1"
+msgstr ""
+
+#: src/blueprints/prefs.blp:18
+msgid "Application Name"
+msgstr "Nombre de la Aplicación"
+
+#: src/blueprints/prefs.blp:19
+msgid "Keyboard Shortcut"
+msgstr "Atajo de Teclado"
+
+#. this is an explanation for this translatable text
+#: src/blueprints/prefs.blp:31
+msgid "<big>this</big> is a test"
+msgstr "<big>esto</big> es una prueba"
+
+#: src/blueprints/prefs.blp:48
+msgid "<big>THIS</big> is a test"
+msgstr "<big>ESTO</big> es una prueba"
