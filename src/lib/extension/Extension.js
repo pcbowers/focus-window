@@ -3,14 +3,15 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 /** @type {typeof import("@lib/common/utils")} */
 const { Utils } = Me.imports.lib.common.utils;
-const { debug } = new Utils();
 
 var Extension = class Extension {
-  constructor() {
-    debug("TODO: Extension");
-  }
+    constructor() {
+        this.utils = new Utils();
+        this.utils.debug('TODO: Extension');
+        this.utils.debug(1);
+    }
 
-  destroy() {
-    debug("TODO: Extension.destroy()");
-  }
+    destroy() {
+        this.utils.debug('TODO: Extension.destroy()');
+    }
 };

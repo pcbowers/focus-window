@@ -1,0 +1,23 @@
+{
+  "name": "focus-window",
+  "version": "1.0.0",
+  "description": "This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.",
+  "scripts": {
+    "test": "eslint .",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pcbowers/focus-window.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pcbowers/focus-window/issues"
+  },
+  "homepage": "https://github.com/pcbowers/focus-window#readme",
+  "dependencies": {
+    "eslint": "^8.29.0",
+    "eslint-plugin-jsdoc": "^39.6.4"
+  }
+}
