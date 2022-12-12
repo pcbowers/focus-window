@@ -8,7 +8,7 @@ const Me = ExtensionUtils.getCurrentExtension();
  * @param {any} message A string that should be logged to the console
  */
 function debug(message) {
-    log(`${Me.metadata.uuid}: ${message}`);
+    log(`\n${Me.metadata.uuid}: [${new Date().toLocaleString()}] ${message}`);
 }
 
 /**

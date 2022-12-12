@@ -3,8 +3,29 @@
   "version": "1.0.0",
   "description": "This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.",
   "scripts": {
-    "test": "eslint .",
-    "lint": "eslint ."
+    "setup": "npm run setup:types",
+    "setup:types": "ts-for-gir generate '*' -e gjs -o ./src/@types",
+
+    "test:prefs": "npm run test:lint && npm run test:build && npm run prefs && npm run test:log:prefs",
+    "test:extension": "npm run test:lint && npm run enable && npm run test:build && dbus-run-session -- gnome-shell --nested --wayland",
+
+    "test:lint": "eslint .",
+    "test:build": "./build.sh -irv",
+    "test:open": "",
+    "test:log": "journalctl -f -o cat | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
+    "test:log:prefs": "journalctl -f -o cat /usr/bin/gjs | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
+    "test:log:extension": "journalctl -f -o cat GNOME_SHELL_EXTENSION_UUID=focus-window@chris.al | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
+
+    "uninstall": "gnome-extensions uninstall focus-window@chris.al",
+    "prefs": "gnome-extensions prefs focus-window@chris.al",
+    "enable": "gnome-extensions enable focus-window@chris.al",
+    "disable": "gnome-extensions disable focus-window@chris.al",
+
+    "build": "./build.sh -ptv",
+    "build:install": "./build.sh -ptir",
+
+    "settings": "dconf dump /org/gnome/shell/extensions/focus-window/",
+    "settings:clear": "dconf reset -f /org/gnome/shell/extensions/focus-window/"
   },
   "repository": {
     "type": "git",
@@ -16,7 +37,8 @@
     "url": "https://github.com/pcbowers/focus-window/issues"
   },
   "homepage": "https://github.com/pcbowers/focus-window#readme",
-  "dependencies": {
+  "devDependencies": {
+    "ts-for-gir": "^1.0.1",
     "eslint": "^8.29.0",
     "eslint-plugin-jsdoc": "^39.6.4"
   }

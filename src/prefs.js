@@ -23,13 +23,13 @@ function init() {
  * @param {import("$types/Gjs/Adw-1").PreferencesWindow} window the Adw.PreferencesWindow that will contain all the extension preferences.
  */
 function fillPreferencesWindow(window) {
-    debug(`Opening Preferences Window: ${new Date()}`);
+    debug('Filling Preferences Window...');
 
-    const prefs = new Prefs();
-    debug(prefs);
+    // const prefs = new Prefs();
+    debug('TODO: use prefs');
 
-    const settings = ExtensionUtils.getSettings(Me.metadata['settings-schema']);
-    debug(settings);
+    // const settings = ExtensionUtils.getSettings(Me.metadata['settings-schema']);
+    debug('TODO: use settings');
 
     const gettextDomain = Me.metadata['gettext-domain'];
     const builder = new Gtk.Builder();

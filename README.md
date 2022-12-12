@@ -55,7 +55,7 @@ This step is only recommended for those that want to contribute. To build the ex
 2. Run the build script to build and install the extension:
 
     ```bash
-    ./build.sh -ipr
+    npm run build:install
     ```
 
 3. Restart GNOME:
@@ -111,24 +111,50 @@ If you're planning on submitting a pull request, here are some helpful tips when
 - View the log for the preferences window with the following command:
 
   ```bash
-  journalctl -f -o cat /usr/bin/gjs | grep focus-window@chris.al:
+  npm run test:log:prefs
+
+  # OR
+
+  journalctl -f -o cat /usr/bin/gjs
   ```
 
 - View the extension debug log with the following command:
 
   ```bash
+  npm run test:log:extension
+
+  # OR
+
   journalctl -f -o cat GNOME_SHELL_EXTENSION_UUID=focus-window@chris.al
+  ```
+
+- View all logs (preferences and extensions) with the following command:
+
+  ```bash
+  npm run test:log
+
+  # OR
+
+  journalctl -f -o cat | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\s/, ""); print }'
   ```
 
 - View the extension settings with the following command:
 
   ```bash
+  npm run settings
+
+  # OR
+
   dconf dump /org/gnome/shell/extensions/focus-window/
   ```
 
 - Clear the extension settings with the following command:
 
   ```bash
+  npm run settings:clear
+
+  # OR
+
   dconf reset -f /org/gnome/shell/extensions/focus-window/
   ```
 
@@ -139,7 +165,11 @@ If you're planning on submitting a pull request, here are some helpful tips when
 Use the [`ts-for-gir`](https://github.com/sammydre/ts-for-gir) npm package to generate types. This will make autocomplete for the `imports.gi` global import possible within any `gjs` file. To use the npm package, navigate to the root of your directory and run the following:
 
 ```bash
-cd src && ts-for-gir generate '*' -e gjs
+npm run setup
+
+# OR 
+
+ts-for-gir generate '*' -e gjs -o ./src/@types
 ```
 
 You may need to install some dependencies to get this to work. The command will let you know which dependencies are missing. Check the package for documentation.
@@ -150,12 +180,13 @@ Sometimes, you have multiple versions of different dependencies already installe
 
 #### **Internal Import Types**
 
-The code is commented using [JSDoc](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) comments. A tsconfig is set up so that types can be used across multiple files as well using the `@lib` path alias. To type an `Me.imports`, simply add the following comment above the import (this is only an example. Make sure to tailor yours to the correct input):
+The code is commented using [JSDoc](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) comments. A tsconfig is set up so that types can be used across multiple files as well using the `$lib` path alias. To type an `Me.imports`, simply add the following comment above the import (this is only an example. Make sure to tailor yours to the correct input):
 
   ```js
-  /** @type {typeof import("@lib/common/utils")} */
-  const { Utils } = Me.imports.lib.common.utils;
+  /** @type {import("$lib/common/utils").Debug} */
+  const debug = Me.imports.lib.common.utils.debug;
   ```
+
 #### **UI Autocompletion**
 
 The extension relies on [Blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/index.html). You will need to make sure the compiler is installed. Check the documentation for Blueprint if you need help. Once installed, use the [GTK Blueprint](https://marketplace.visualstudio.com/items?itemName=bodil.blueprint-gtk) extension in VS Code to get autocompletion for your UI files.
@@ -182,6 +213,22 @@ The build script makes developing much easier. Simply run `./build.sh` to compil
 ./build.sh -tpr
 # OR
 ./build.sh -t -p -r
+```
+
+While you can use the build script directly, 4 common ones have been provided through npm scripts:
+
+```bash
+# lints, installs extension, opens prefs, and shows log in terminal
+npm run test:prefs
+
+# lints, installs extension, enables it, and opens a nested dbus session
+npm run test:extension
+
+# builds the extension
+npm run build
+
+# builds and installs the extension
+npm run build:install
 ```
 
 #### **`-h` Help**

@@ -1,11 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "es2020",
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": [
+      "ESNext"
+    ],
     "allowJs": true,
     "outDir": "./dist",
     "checkJs": true,
     "strict": true,
+    "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "isolatedModules": true,
@@ -14,6 +18,7 @@
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "noImplicitAny": false,
+    "noImplicitThis": true,
     "baseUrl": ".",
     "paths": {
       "$lib/*": [
