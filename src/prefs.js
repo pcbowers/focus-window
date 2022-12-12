@@ -6,6 +6,9 @@ const Me = ExtensionUtils.getCurrentExtension();
 /** @type {typeof import("@lib/common/utils")} */
 const { Utils } = Me.imports.lib.common.utils;
 
+/** @type {typeof import("@lib/common/utils")} */
+const { debug } = Me.imports.lib.common.utils;
+
 /** @type {typeof import("@lib/prefs/Prefs")} */
 const { Prefs } = Me.imports.lib.prefs.Prefs;
 
@@ -22,7 +25,7 @@ function init() {
  * @param {import("@types/Gjs/Adw-1").PreferencesWindow} window the Adw.PreferencesWindow that will contain all the extension preferences.
  */
 function fillPreferencesWindow(window) {
-    const { debug } = new Utils();
+    debug('test');
 
     debug(`Opening Preferences Window: ${new Date()}`);
     // const prefs = new Prefs();
