@@ -1,35 +1,45 @@
+// @ts-ignore
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-/** @type {typeof import("@lib/common/utils")} */
-const { debug } = Me.imports.lib.common.utils;
+/** @type {import("$lib/common/utils").Debug} */
+const debug = Me.imports.lib.common.utils.debug;
 
-/** @type {typeof import("@lib/extension/Extension")} */
-const { Extension } = Me.imports.lib.extension.Extension;
+/** @type {import("$lib/extension/extension").Extension} */
+const Extension = Me.imports.lib.extension.extension.extension;
 
-/** @type {Extension} */
-let extension;
+class FocusWindow {
+    _modules = [];
+
+    constructor() {
+        debug('Initializing Focus Window...');
+        ExtensionUtils.initTranslations();
+    }
+
+    /**
+     * Enables extension
+     */
+    enable() {
+        debug('Enabling Focus Window...');
+
+        const extension = new Extension();
+        this._modules.push(extension);
+
+        this._modules.forEach(module => module.enable());
+    }
+
+    /**
+     * Disables extension
+     */
+    disable() {
+        debug('Disabling Focus Window...');
+        this._modules.forEach(module => module.disable());
+    }
+}
 
 /**
- * Called when the extension loads. Should only include translation initiation.
+ * Initializes extension
  */
 function init() {
-    ExtensionUtils.initTranslations();
-}
-
-/**
- *  Called when the extension is enabled.
- */
-function enable() {
-    debug('Enabling Extension');
-    extension = new Extension();
-}
-
-/**
- * Called when the extension is disabled. Make sure to destroy all widgets here.
- */
-function disable() {
-    debug('Disabling Extension');
-    extension.destroy();
-    extension = null;
+    return new FocusWindow();
 }

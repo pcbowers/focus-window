@@ -1,39 +1,41 @@
-const { Adw, Gtk } = imports.gi;
+const { Gtk } = imports.gi;
 
+// @ts-ignore
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-/** @type {typeof import("@lib/common/utils")} */
-const { Utils } = Me.imports.lib.common.utils;
+/** @type {import("$lib/common/utils").Debug} */
+const debug = Me.imports.lib.common.utils.debug;
 
-/** @type {typeof import("@lib/common/utils")} */
-const { debug } = Me.imports.lib.common.utils;
-
-/** @type {typeof import("@lib/prefs/Prefs")} */
-const { Prefs } = Me.imports.lib.prefs.Prefs;
+/** @type {import("$lib/prefs/prefs").Prefs} */
+const Prefs = Me.imports.lib.prefs.prefs.prefs;
 
 /**
- * Called when the extension loads. Should only include translation initiation.
+ * Initializes preferences. Should only include translation initiation.
  */
 function init() {
     ExtensionUtils.initTranslations();
 }
 
 /**
- * Called when the preferences window is opened.
+ * Fills an Adw.PreferencesWindow when preferences are launched.
  *
- * @param {import("@types/Gjs/Adw-1").PreferencesWindow} window the Adw.PreferencesWindow that will contain all the extension preferences.
+ * @param {import("$types/Gjs/Adw-1").PreferencesWindow} window the Adw.PreferencesWindow that will contain all the extension preferences.
  */
 function fillPreferencesWindow(window) {
-    debug('test');
-
     debug(`Opening Preferences Window: ${new Date()}`);
-    // const prefs = new Prefs();
-    // const settings = ExtensionUtils.getSettings(Me.metadata["settings-schema"]);
+
+    const prefs = new Prefs();
+    debug(prefs);
+
+    const settings = ExtensionUtils.getSettings(Me.metadata['settings-schema']);
+    debug(settings);
 
     const gettextDomain = Me.metadata['gettext-domain'];
     const builder = new Gtk.Builder();
     builder.set_translation_domain(gettextDomain);
     builder.add_from_file(`${Me.path}/ui/prefs.ui`);
+
+    // @ts-ignore
     window.add(builder.get_object('test'));
 }

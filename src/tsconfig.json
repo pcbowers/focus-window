@@ -2,24 +2,26 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "es2020",
-    "removeComments": true,
-    "declaration": true,
     "allowJs": true,
     "outDir": "./dist",
-    "preserveConstEnums": true,
+    "checkJs": true,
     "strict": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
+    "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
-      "@lib/*": [
+      "$lib/*": [
         "lib/*"
       ],
-      "@types/*": [
+      "$types/*": [
         "@types/*"
-      ]
+      ],
     }
   },
 }
