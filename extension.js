@@ -147,7 +147,11 @@ class Extension {
 
             // cycle through open windows if there are multiple
             if (appWindows.length > 1) {
-              return Main.activateWindow(appWindows[appWindows.length - 1]);
+              if (focusedWindow === appWindows[0].get_id()) {
+                return Main.activateWindow(appWindows[appWindows.length - 1]);
+              } else {
+                return Main.activateWindow(appWindows[0]);
+              }
             }
 
             // Minimize window if it is already focused and there is only 1 window
