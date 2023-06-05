@@ -2,12 +2,10 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "allowJs": true,
-    "outDir": "./dist",
     "checkJs": true,
+    "noEmit": true,
     "strict": true,
     "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
@@ -19,14 +17,11 @@
     "importHelpers": true,
     "noImplicitAny": false,
     "noImplicitThis": true,
+    "strictPropertyInitialization": false,
     "baseUrl": ".",
     "paths": {
-      "$lib/*": [
-        "lib/*"
-      ],
-      "$types/*": [
-        "@types/*"
-      ],
+      "$lib/*": ["lib/*"],
+      "$types/*": ["@types/*"]
     }
-  },
+  }
 }

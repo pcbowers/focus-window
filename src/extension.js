@@ -9,37 +9,28 @@ const debug = Me.imports.lib.common.utils.debug;
 const Extension = Me.imports.lib.extension.extension.extension;
 
 class FocusWindow {
-    _modules = [];
+  _modules = [];
 
-    constructor() {
-        debug('Initializing Focus Window...');
-        ExtensionUtils.initTranslations();
-    }
+  constructor() {
+    debug('Initializing Focus Window...');
+    ExtensionUtils.initTranslations();
+  }
 
-    /**
-     * Enables extension
-     */
-    enable() {
-        debug('Enabling Focus Window...');
+  enable() {
+    debug('Enabling Focus Window...');
 
-        const extension = new Extension();
-        this._modules.push(extension);
+    const extension = new Extension();
+    this._modules.push(extension);
 
-        this._modules.forEach(module => module.enable());
-    }
+    this._modules.forEach(module => module.enable());
+  }
 
-    /**
-     * Disables extension
-     */
-    disable() {
-        debug('Disabling Focus Window...');
-        this._modules.forEach(module => module.disable());
-    }
+  disable() {
+    debug('Disabling Focus Window...');
+    this._modules.forEach(module => module.disable());
+  }
 }
 
-/**
- * Initializes extension
- */
 function init() {
-    return new FocusWindow();
+  return new FocusWindow();
 }
