@@ -71,7 +71,7 @@ This step is only recommended for those that want to contribute. To build the ex
 
 ## :gear: Preferences
 
-To open the prefrences after installation, either navigate to the extension on the website or desktop app and click the preferences icon or run the following command:
+To open the preferences after installation, either navigate to the extension on the website or desktop app and click the preferences icon or run the following command:
 
 ```bash
 gnome-extensions prefs focus-window@chris.al
@@ -218,10 +218,10 @@ The build script makes developing much easier. Simply run `./build.sh` to compil
 While you can use the build script directly, 4 common ones have been provided through npm scripts:
 
 ```bash
-# lints, installs extension, opens prefs, and shows log in terminal
+#  installs extension, opens prefs, and shows log in terminal
 npm run test:prefs
 
-# lints, installs extension, enables it, and opens a nested dbus session
+# installs extension, enables it, and opens a nested dbus session
 npm run test:extension
 
 # builds the extension

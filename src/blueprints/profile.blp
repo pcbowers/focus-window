@@ -1,0 +1,97 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ProfileExpanderRow : Adw.PreferencesGroup {
+  Adw.ExpanderRow profile {
+    title: bind-property profileName.text;
+    subtitle: _("No Application Shortcuts");
+    show-enable-switch: true;
+    expanded: false;
+    
+    notify::enable-expansion => $onProfile();
+
+    [prefix]
+    Box {
+      styles ["toolbar"]
+
+      Box {
+        styles ["linked"]
+
+        homogeneous: true;
+
+        Button deleteProfile {
+          styles ["error", "raised"]
+          
+          valign: center;
+          tooltip-markup: _("Delete Profile");
+          icon-name: "edit-delete-symbolic";
+          
+          clicked => $onDeleteProfile();
+        }
+
+        Button duplicateProfile {
+          styles ["info", "raised"]
+          
+          valign: center;
+          tooltip-markup: _("Duplicate Profile");
+          icon-name: "edit-copy-symbolic";
+          
+          clicked => $onDuplicateProfile();
+        }
+      }
+
+      Box {
+        styles ["linked"]
+        
+        homogeneous: true;
+
+        Button increasePriority {
+          valign: center;
+          tooltip-markup: _("Increase Priority");
+          icon-name: "pan-up-symbolic";
+          
+          clicked => $onIncreasePriority();
+        }
+
+        Button decreasePriority {
+          valign: center;
+          tooltip-markup: _("Decrease Priority");
+          icon-name: "pan-down-symbolic";
+          
+          clicked => $onDecreasePriority();
+        }
+      }
+    }
+    
+    Adw.ActionRow {
+      title: _("Profile Name");
+      subtitle: _("The name of the profile");
+      activatable-widget: profileName;
+      
+      Entry profileName {
+        width-chars: 30;
+        valign: center;
+        placeholder-text: _("Profile Name");
+        
+        notify::text => $onProfileName();
+      }
+    }
+    
+    Adw.ActionRow {
+      title: _("Add an Application");
+      subtitle: _("Add an application to the profile");
+      activatable-widget: addApplication;
+      
+      Button addApplication {
+        valign: center;
+        
+        Adw.ButtonContent {
+          label: _("Add Application");
+          icon-name: "list-add-symbolic";
+        }
+        
+        clicked => $onAddApplication();
+      }
+    }
+  }
+}

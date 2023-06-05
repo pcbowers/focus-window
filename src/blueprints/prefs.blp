@@ -1,60 +1,19 @@
 using Gtk 4.0;
 using Adw 1;
 
-Adw.PreferencesPage test {
-  Adw.PreferencesGroup {
-    Adw.ActionRow {
-      title: _("Setting Title 1");
-      subtitle: _("Setting Subtitle 1");
-      activatable-widget: switch;
-
-      Gtk.Switch switch {
-        valign: center;
-        active: true;
+template $FocusWindowPreferencesPage : Adw.PreferencesPage {
+  Adw.PreferencesGroup focusWindowPreferencesGroup {
+    title: _("Focus Window");
+    description: _("Add a profile to get started!");
+    
+    [header-suffix]
+    Button addProfile {
+      Adw.ButtonContent {
+        label: _("Add Profile");
+        icon-name: "list-add-symbolic";
       }
-    }
-
-    Adw.ExpanderRow {
-      title: _("Application Name");
-      subtitle: _("Keyboard Shortcut");
-      show-enable-switch: true;
-
-      [prefix]
-      Box {
-        styles [
-          "toolbar",
-        ]
-
-        Button {
-          valign: center;
-          // this is an explanation for this translatable text
-          tooltip-markup: _("<big>this</big> is a test");
-          icon-name: "edit-delete-symbolic";
-
-          styles [
-            "destructive-action",
-          ]
-        }
-
-        Box {
-          homogeneous: true;
-
-          styles [
-            "linked",
-          ]
-
-          Button {
-            valign: center;
-            tooltip-markup: _("<big>THIS</big> is a test");
-            icon-name: "pan-up-symbolic";
-          }
-
-          Button {
-            valign: center;
-            icon-name: "pan-down-symbolic";
-          }
-        }
-      }
+      
+      clicked => $onAddProfile();
     }
   }
 }

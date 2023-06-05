@@ -22,8 +22,8 @@ function remove_debugs {
   if compgen -G $FILE_PATH >/dev/null; then
     for file in $FILE_PATH; do
       print_message " - Removing Debug Statements from $file..."
-      sed -i 's/debug(/\/\/ REMOVED FOR PRODUCTION: debug(/g' $file &&
-        print_message "   Debug Statements in $file Removed!" || {
+      sed -i 's/debug(/\/\/ REMOVED FOR PRODUCTION: debug(/g' $file \
+        && print_message "   Debug Statements in $file Removed!" || {
         echo >&2 "ERROR: Failed to remove debug statements from $file"
         exit 1
       }
@@ -36,8 +36,8 @@ function readd_debugs {
   if compgen -G $FILE_PATH >/dev/null; then
     for file in $FILE_PATH; do
       print_message " - Readding Debug Statements to $file..."
-      sed -i 's/\/\/ REMOVED FOR PRODUCTION: debug(/debug(/g' $file &&
-        print_message "   Debug Statements in $file Removed!" || {
+      sed -i 's/\/\/ REMOVED FOR PRODUCTION: debug(/debug(/g' $file \
+        && print_message "   Debug Statements in $file Removed!" || {
         echo >&2 "ERROR: Failed to readd debug statements to $file"
         exit 1
       }
@@ -57,37 +57,37 @@ function print_message {
 while getopts ":hirvtp" flag; do
   case ${flag} in
 
-  h)
-    usage
-    exit 0
-    ;;
+    h)
+      usage
+      exit 0
+      ;;
 
-  v)
-    VERBOSE='true'
-    ;;
+    v)
+      VERBOSE='true'
+      ;;
 
-  i)
-    INSTALL='true'
-    ;;
+    i)
+      INSTALL='true'
+      ;;
 
-  r)
-    REMOVE='true'
-    ;;
+    r)
+      REMOVE='true'
+      ;;
 
-  t)
-    TRANSLATION='true'
-    ;;
+    t)
+      TRANSLATION='true'
+      ;;
 
-  p)
-    PRODUCTION='true'
-    ;;
+    p)
+      PRODUCTION='true'
+      ;;
 
-  ?)
-    echo >&2 "Invalid Option: -${OPTARG}"
-    echo >&2 ""
-    usage
-    exit 127
-    ;;
+    ?)
+      echo >&2 "Invalid Option: -${OPTARG}"
+      echo >&2 ""
+      usage
+      exit 127
+      ;;
 
   esac
 done
@@ -113,8 +113,8 @@ if [[ "${TRANSLATION}" == true ]]; then
     --package-name="Focus Window" \
     --package-version="1" \
     --output="po/main.pot" \
-    src/blueprints/* 2>/dev/null &&
-    print_message "Translations Template Generated!" || {
+    src/blueprints/* 2>/dev/null \
+    && print_message "Translations Template Generated!" || {
     echo >&2 "ERROR: Could not generate translations template"
     exit 1
   }
@@ -124,8 +124,8 @@ if [[ "${TRANSLATION}" == true ]]; then
     print_message "Updating Translations..."
     for file in po/*.po; do
       print_message " - Updating $(basename "$file" .po) Translation..."
-      msgmerge -U "$file" po/main.pot --backup=numbered 2>/dev/null &&
-        print_message "   $(basename "$file" .po) Translation Updated!" || {
+      msgmerge -U "$file" po/main.pot --backup=numbered 2>/dev/null \
+        && print_message "   $(basename "$file" .po) Translation Updated!" || {
         echo >&2 "ERROR: Could not update $(basename "$file" .po) translation"
         exit 1
       }
@@ -178,9 +178,9 @@ if [[ "${INSTALL}" == true ]]; then
   print_message ""
   print_message "Installing Extension..."
   gnome-extensions install --force \
-    focus-window@chris.al.shell-extension.zip &&
-    print_message "Extension installed! Make sure to restart the GNOME shell." ||
-    {
+    focus-window@chris.al.shell-extension.zip \
+    && print_message "Extension installed! Make sure to restart the GNOME shell." \
+    || {
       echo >&2 "ERROR: Failed to install the extension"
       exit 1
     }
@@ -208,9 +208,9 @@ fi
 if [[ "${REMOVE}" == true ]]; then
   print_message ""
   print_message "Removing Extension Pack..."
-  rm focus-window@chris.al.shell-extension.zip &&
-    print_message "Extension Pack removed!" ||
-    {
+  rm focus-window@chris.al.shell-extension.zip \
+    && print_message "Extension Pack removed!" \
+    || {
       echo >&2 "ERROR: Failed to remove the packed extension"
       exit 1
     }

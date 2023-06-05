@@ -1,6 +1,3 @@
-const { Gtk } = imports.gi;
-
-// @ts-ignore
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
@@ -14,7 +11,7 @@ const Prefs = Me.imports.lib.prefs.prefs.prefs;
  * Initializes preferences. Should only include translation initiation.
  */
 function init() {
-    ExtensionUtils.initTranslations();
+  ExtensionUtils.initTranslations();
 }
 
 /**
@@ -23,19 +20,15 @@ function init() {
  * @param {import("$types/Gjs/Adw-1").PreferencesWindow} window the Adw.PreferencesWindow that will contain all the extension preferences.
  */
 function fillPreferencesWindow(window) {
-    debug('Filling Preferences Window...');
+  debug('Filling Preferences Window...');
 
-    // const prefs = new Prefs();
-    debug('TODO: use prefs');
+  // const prefs = new Prefs();
+  debug('TODO: use prefs');
 
-    // const settings = ExtensionUtils.getSettings(Me.metadata['settings-schema']);
-    debug('TODO: use settings');
+  // const settings = ExtensionUtils.getSettings(Me.metadata['settings-schema']);
+  debug('TODO: use settings');
 
-    const gettextDomain = Me.metadata['gettext-domain'];
-    const builder = new Gtk.Builder();
-    builder.set_translation_domain(gettextDomain);
-    builder.add_from_file(`${Me.path}/ui/prefs.ui`);
+  const preferencesPage = new Prefs({});
 
-    // @ts-ignore
-    window.add(builder.get_object('test'));
+  window.add(preferencesPage);
 }

@@ -6,10 +6,9 @@
     "setup": "npm run setup:types",
     "setup:types": "ts-for-gir generate '*' -e gjs -o ./src/@types",
 
-    "test:prefs": "npm run test:lint && npm run test:build && npm run prefs && npm run test:log:prefs",
-    "test:extension": "npm run test:lint && npm run enable && npm run test:build && dbus-run-session -- gnome-shell --nested --wayland",
+    "test:prefs": "npm run test:build && npm run prefs && npm run test:log:prefs",
+    "test:extension": "npm run enable && npm run test:build && dbus-run-session -- gnome-shell --nested --wayland",
 
-    "test:lint": "eslint .",
     "test:build": "./build.sh -irv",
     "test:open": "",
     "test:log": "journalctl -f -o cat | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
@@ -38,8 +37,6 @@
   },
   "homepage": "https://github.com/pcbowers/focus-window#readme",
   "devDependencies": {
-    "ts-for-gir": "^1.0.1",
-    "eslint": "^8.29.0",
-    "eslint-plugin-jsdoc": "^39.6.4"
+    "ts-for-gir": "^1.0.1"
   }
 }

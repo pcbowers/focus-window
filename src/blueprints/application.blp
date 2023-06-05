@@ -1,0 +1,502 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ApplicationExpanderRow : Adw.ExpanderRow {
+  title: bind $onApplicationItem() as <string>;
+  subtitle: bind $onShortcutRow() as <string>;
+  show-enable-switch: true;
+  expanded: false;
+  
+  notify::enable-expansion => $onApplication();
+
+  [prefix]
+  Box {
+    styles ["toolbar"]
+
+    Box {
+      styles ["linked"]
+
+      homogeneous: true;
+
+      Button deleteApplication {
+        styles ["error", "raised"]
+        
+        valign: center;
+        tooltip-markup: _("Delete Application Shortcut");
+        icon-name: "edit-delete-symbolic";
+        
+        clicked => $onDeleteApplication();
+      }
+
+      Button duplicateApplication {
+        styles ["info", "raised"]
+        
+        valign: center;
+        tooltip-markup: _("Duplicate Application Shortcut");
+        icon-name: "edit-copy-symbolic";
+        
+        clicked => $onDuplicateApplication();
+      }
+    }
+
+    Box {
+      styles ["linked"]
+      
+      homogeneous: true;
+
+      Button increasePriority {
+        valign: center;
+        tooltip-markup: _("Increase Priority");
+        icon-name: "pan-up-symbolic";
+        
+        clicked => $onIncreasePriority();
+      }
+
+      Button decreasePriority {
+        valign: center;
+        tooltip-markup: _("Decrease Priority");
+        icon-name: "pan-down-symbolic";
+        
+        clicked => $onDecreasePriority();
+      }
+    }
+  }
+
+  Adw.ComboRow applicationItem {
+    title: _("Application");
+    subtitle: _("The application that will be focused");
+    model: StringList applicationList {
+      strings [_("No App Selected")]
+    };
+    
+    notify::selected => $onApplicationItem();
+  }
+  
+  Adw.ActionRow shortcutRow {
+    title: _("Keyboard Shortcut");
+    subtitle: _("The shortcut that focuses the application\nPress 'Esc' to cancel or 'Backspace' to unbind");
+    activatable-widget: shortcut;
+    
+    activated => $onShortcutRow();
+    
+    ShortcutLabel shortcut {
+      valign: center;
+      disabled-text: _("Not Bound");
+      focus-on-click: true;
+      accelerator: "";
+    }
+  }
+  
+  Adw.ActionRow minimizeRow {
+    title: _("Minimize When Unfocused");
+    subtitle: _("Minimize the application window if already focused\nBy default, the application window is sent to the back");
+    activatable-widget: minimize;
+    
+    Switch minimize {
+      valign: center;
+      active: false;
+      
+      notify::active => $onMinimize();
+    }
+  }
+  
+  Adw.ExpanderRow launchApplication {
+    title: _("Launch Application");
+    subtitle: _("Launch the application if no windows are found");
+    show-enable-switch: true;
+    enable-expansion: true;
+    
+    notify::enable-expansion => $onLaunchApplication();
+
+    Adw.ActionRow commandLineArgumentsRow {
+      title: _("Command Line Arguments");
+      subtitle: _("Override any arguments passed to the application");
+      activatable-widget: commandLineArguments;
+
+      Entry commandLineArguments {
+        width-chars: 30;
+        valign: center;
+        placeholder-text: _("Arguments");
+        
+        notify::text => $onCommandLineArguments();
+      }
+    }
+  }
+  
+  Adw.ExpanderRow filterByTitle {
+    title: _("Filter by Title");
+    subtitle: _("Filter the application windows by a specified title");
+    show-enable-switch: true;
+    enable-expansion: false;
+    
+    notify::enable-expansion => $onFilterByTitle();
+
+    Adw.ActionRow titleToMatchRow {
+      title: _("Title to Match");
+      subtitle: _("Match window titles against a regular expression");
+      activatable-widget: titleToMatch;
+
+      Entry titleToMatch {
+        width-chars: 30;
+        valign: center;
+        placeholder-text: _("Window Title");
+        
+        notify::text => $onTitleToMatch();
+      }
+    }
+  }
+  
+  Adw.ExpanderRow filterByWorkspace {
+    title: _("Filter by Workspace");
+    subtitle: _("Filter the application windows based on its workspace");
+    show-enable-switch: true;
+    enable-expansion: false;
+    
+    notify::enable-expansion => $onFilterByWorkspace();
+
+    Adw.ActionRow filterToCurrentWorkspaceRow {
+      title: _("Filter to Current Workspace");
+      subtitle: _("Only consider application windows in the current workspace");
+      activatable-widget: filterToCurrentWorkspace;
+
+      Switch filterToCurrentWorkspace {
+        valign: center;
+        active: false;
+        
+        notify::active => $onFilterToCurrentWorkspace();
+      }
+    }
+
+    Adw.ActionRow workspaceToMatchRow {
+      visible: bind-property filterToCurrentWorkspace.active inverted;
+      title: _("Workspace to Match");
+      subtitle: _("The specific workspace that should be matched\nWorkspaces are numbered starting from 0");
+      activatable-widget: workspaceToMatch;
+
+      SpinButton workspaceToMatch {
+        valign: center;
+        adjustment: Adjustment {
+          lower: 0;
+          upper: 250;
+          step-increment: 1;
+          page-size: 0;
+          page-increment: 1;
+        };
+        
+        notify::value => $onWorkspaceToMatch();
+      }
+    }
+  }
+  
+  Adw.ExpanderRow filterByMonitor {
+    title: _("Filter by Monitor");
+    subtitle: _("Filter the application windows based on its monitor");
+    show-enable-switch: true;
+    enable-expansion: false;
+    
+    notify::enable-expansion => $onFilterByMonitor();
+
+    Adw.ActionRow filterToCurrentMonitorRow {
+      title: _("Filter to Current Monitor");
+      subtitle: _("Only consider application windows in the current monitor");
+      activatable-widget: filterToCurrentMonitor;
+
+      Switch filterToCurrentMonitor {
+        valign: center;
+        active: false;
+        
+        notify::active => $onFilterToCurrentMonitor();
+      }
+    }
+
+    Adw.ActionRow monitorToMatchRow {
+      visible: bind-property filterToCurrentMonitor.active inverted;
+      title: _("Monitor to Match");
+      subtitle: _("The specific monitor that should be matched\Monitors are numbered starting from 0");
+      activatable-widget: monitorToMatch;
+
+      SpinButton monitorToMatch {
+        valign: center;
+        adjustment: Adjustment {
+          lower: 0;
+          upper: 50;
+          step-increment: 1;
+          page-size: 0;
+          page-increment: 1;
+        };
+        
+        notify::value => $onMonitorToMatch();
+      }
+    }
+  }
+  
+  Adw.ExpanderRow moveOnFocus {
+    title: _("Move On Focus");
+    subtitle: _("Move the window on focus");
+    show-enable-switch: true;
+    enable-expansion: false;
+    
+    notify::enable-expansion => $onMoveOnFocus();
+
+    Adw.ActionRow moveToCurrentWorkspaceRow {
+      title: _("Move to Current Workspace");
+      subtitle: _("Move the window to the current workspace unless filtered to a specific workspace");
+      activatable-widget: moveToCurrentWorkspace;
+
+      Switch moveToCurrentWorkspace {
+        valign: center;
+        active: true;
+        
+        notify::active => $onMoveToCurrentWorkspace();
+      }
+    }
+
+    Adw.ActionRow moveToCurrentMonitorRow {
+      title: _("Move to Current Monitor");
+      subtitle: _("Move the window to the current monitor unless filtered to a specific monitor");
+      activatable-widget: moveToCurrentMonitor;
+
+      Switch moveToCurrentMonitor {
+        valign: center;
+        active: false;
+        
+        notify::active => $onMoveToCurrentMonitor();
+      }
+    }
+  }
+  
+  Adw.ExpanderRow resizeOnFocus {
+    title: _("Resize On Focus");
+    subtitle: _("Resize the window on focus");
+    show-enable-switch: true;
+    enable-expansion: false;
+    
+    notify::enable-expansion => $onResizeOnFocus();
+    
+    Adw.ActionRow maximizeRow {
+      title: _("Maximize Window");
+      subtitle: _("Maximize the application window");
+      activatable-widget: maximize;
+
+      Switch maximize {
+        valign: center;
+        active: false;
+        
+        notify::active => $onMaximize();
+      }
+    }
+    
+    Adw.ExpanderRow usePixelsRow {
+      visible: bind-property maximize.active inverted;
+      title: _("Use Pixels");
+      subtitle: _("Define the application window size by its pixels");
+      show-enable-switch: false;
+      enable-expansion: bind-property usePixels.active;
+      
+      [prefix]
+      CheckButton usePixels {
+        valign: center;
+        active: false;
+        
+        toggled => $onUsePixels();
+      }
+      
+      Adw.ActionRow applicationX1Row {
+        title: _("Top Left X Coordinate");
+        subtitle: _("The x coordinate for the top left corner of the application window");
+        activatable-widget: applicationX1;
+        
+        SpinButton applicationX1 {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 1000000000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 0;
+          };
+          
+          notify::value => $onApplicationX1();
+        }
+      }
+      
+      Adw.ActionRow applicationY1Row {
+        title: _("Top Left Y Coordinate");
+        subtitle: _("The y coordinate for the top left corner of the application window");
+        activatable-widget: applicationY1;
+        
+        SpinButton applicationY1 {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 1000000000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 0;
+          };
+          
+          notify::value => $onApplicationY1();
+        }
+      }
+      
+      Adw.ActionRow applicationX2Row {
+        title: _("Bottom Right X Coordinate");
+        subtitle: _("The x coordinate for the bottom right corner of the application window");
+        activatable-widget: applicationX2;
+        
+        SpinButton applicationX2 {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 1000000000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 0;
+          };
+          
+          notify::value => $onApplicationX2();
+        }
+      }
+      
+      Adw.ActionRow applicationY2Row {
+        title: _("Bottom Right Y Coordinate");
+        subtitle: _("The y coordinate for the bottom right corner of the application window");
+        activatable-widget: applicationY2;
+        
+        SpinButton applicationY2 {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 1000000000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 0;
+          };
+          
+          notify::value => $onApplicationY2();
+        }
+      }
+    }
+    
+    Adw.ExpanderRow useProportionsRow {
+      visible: bind-property maximize.active inverted;
+      title: _("Use Proportions");
+      subtitle: _("Define the application window size by its relative proportions to the screen");
+      show-enable-switch: false;
+      enable-expansion: bind-property useProportions.active;
+      
+      [prefix]
+      CheckButton useProportions {
+        valign: center;
+        active: true;
+        group: usePixels;
+        
+        toggled => $onUseProportions();
+      }
+      
+      Adw.ActionRow gridSizeRow {
+        title: _("Grid Size");
+        subtitle: _("The number of screen slices that should be made\nThis defines the units used to resize the application window");
+        activatable-widget: gridSize;
+        
+        SpinButton gridSize {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 1;
+            upper: 1000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 12;
+          };
+          
+          notify::value => $onGridSize();
+        }
+      }
+      
+      Adw.ActionRow applicationColumnStartRow {
+        title: _("Application Column Start");
+        subtitle: _("The grid cell column representing the left of the application window");
+        activatable-widget: applicationColumnStart;
+        
+        SpinButton applicationColumnStart {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 1;
+            upper: 1000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 2;
+          };
+          
+          notify::value => $onApplicationColumnStart();
+        }
+      }
+      
+      Adw.ActionRow applicationWidthRow {
+        title: _("Application Width");
+        subtitle: _("The width in grid cells of the application window");
+        activatable-widget: applicationWidth;
+        
+        SpinButton applicationWidth {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 1;
+            upper: 1000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 8;
+          };
+          
+          notify::value => $onApplicationWidth();
+        }
+      }
+      
+      Adw.ActionRow applicationRowStartRow {
+        title: _("Application Row Start");
+        subtitle: _("The grid cell row representing the top of the application window");
+        activatable-widget: applicationRowStart;
+        
+        SpinButton applicationRowStart {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 1;
+            upper: 1000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 2;
+          };
+          
+          notify::value => $onApplicationRowStart();
+        }
+      }
+      
+      Adw.ActionRow applicationHeightRow {
+        title: _("Application Window Height");
+        subtitle: _("The height in grid cells of the application window");
+        activatable-widget: applicationHeight;
+        
+        SpinButton applicationHeight {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 1;
+            upper: 1000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 8;
+          };
+          
+          notify::value => $onApplicationHeight();
+        }
+      }
+    }
+  }
+}
