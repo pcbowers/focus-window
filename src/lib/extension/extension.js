@@ -1,12 +1,11 @@
-// @ts-ignore
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 /** @type {import("$lib/common/utils").Debug} */
 const debug = Me.imports.lib.common.utils.debug;
 
-/** @typedef {typeof extension} Extension */
-var extension = class Extension {
+/** @typedef {typeof extension} FocusExtension */
+var extension = class FocusExtension {
   constructor() {
     debug('Initializing Extension...');
   }

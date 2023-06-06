@@ -3,13 +3,20 @@ const { GObject, Adw, Gio, Gtk, Gdk } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-/** @type {import("$lib/common/utils").Debug} */
+/** @type {import('$lib/common/utils').Debug} */
 const debug = Me.imports.lib.common.utils.debug;
 
+/** @type {import('$lib/common/utils').HtmlEntities} */
+const htmlEntities = Me.imports.lib.common.utils.htmlEntities;
+
+/** @type {import('$lib/common/utils').CreateId} */
+const createId = Me.imports.lib.common.utils.createId;
+
 /** @typedef {typeof ApplicationClass} Application */
+/** @typedef {ApplicationClass} ApplicationInstance */
 class ApplicationClass extends Adw.ExpanderRow {
   /**
-   * @param {import("$types/Gjs/Adw-1").ExpanderRow_ConstructProps} AdwExpanderRowProps
+   * @param {import('$types/adw-1').Adw.ExpanderRow.ConstructorProperties} AdwExpanderRowProps
    * @param {(id: string) => void} deleteApplication
    * @param {(id: string) => void} duplicateApplication
    * @param {(id: string, increasePriority: boolean) => void} changeApplicationPriority
@@ -24,7 +31,7 @@ class ApplicationClass extends Adw.ExpanderRow {
     debug('Creating Application...');
 
     /** @type {string} */
-    this.id = Date.now().toString();
+    this.id = createId();
 
     /** @type {typeof deleteApplication} */
     this.deleteApplication = deleteApplication;
@@ -41,13 +48,13 @@ class ApplicationClass extends Adw.ExpanderRow {
     /** @type {string | null} */
     this.lastAccelerator = '';
 
-    /** @type {import("$types/Gjs/Gtk-4.0").StringList} */
+    /** @type {import('$types/gtk-4.0').Gtk.StringList} */
     this._applicationList = this._applicationList;
 
-    /** @type {import("$types/Gjs/Adw-1").ActionRow} */
+    /** @type {import('$types/adw-1').Adw.ActionRow} */
     this._shortcutRow = this._shortcutRow;
 
-    /** @type {import("$types/Gjs/Gtk-4.0").ShortcutLabel} */
+    /** @type {import('$types/gtk-4.0').Gtk.ShortcutLabel} */
     this._shortcut = this._shortcut;
 
     this._populateApplications();
@@ -110,7 +117,7 @@ class ApplicationClass extends Adw.ExpanderRow {
       shortcutName ||= 'Not Bound';
     }
 
-    return this._htmlEntities(shortcutName);
+    return htmlEntities(shortcutName);
   }
 
   onMinimize() {
@@ -224,11 +231,11 @@ class ApplicationClass extends Adw.ExpanderRow {
   _populateApplications() {
     this.allApplications = Gio.AppInfo.get_all()
       .filter(a => a.should_show())
-      .sort((a, b) =>
-        a
+      .sort((app1, app2) =>
+        app1
           .get_name()
           .toLowerCase()
-          .localeCompare(b.get_name().toLowerCase())
+          .localeCompare(app2.get_name().toLowerCase())
       )
       .map((a, index) => ({
         name: a.get_name(),
@@ -277,7 +284,6 @@ class ApplicationClass extends Adw.ExpanderRow {
   }
 
   _grabKeyboard() {
-    // @ts-ignore
     this.root.get_surface().inhibit_system_shortcuts(null);
     this.keyboardIsGrabbed = true;
     this.lastAccelerator = this._shortcut.get_accelerator();
@@ -287,20 +293,11 @@ class ApplicationClass extends Adw.ExpanderRow {
   }
 
   _cancelKeyboardGrab() {
-    // @ts-ignore
     this.root.get_surface().restore_system_shortcuts();
     this.keyboardIsGrabbed = false;
     this._shortcut.set_accelerator(this.lastAccelerator || '');
     this._shortcut.set_disabled_text('Not Bound');
-    this.set_subtitle(this._htmlEntities(this.lastAccelerator || 'Not Bound'));
-  }
-
-  _htmlEntities(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    this.set_subtitle(htmlEntities(this.lastAccelerator || 'Not Bound'));
   }
 }
 

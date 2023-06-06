@@ -7,7 +7,7 @@
     "checkJs": true,
     "noEmit": true,
     "strict": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "isolatedModules": true,

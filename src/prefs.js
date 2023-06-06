@@ -8,11 +8,11 @@ const debug = Me.imports.lib.common.utils.debug;
 const Prefs = Me.imports.lib.prefs.prefs.prefs;
 
 function init() {
-  ExtensionUtils.initTranslations();
+  ExtensionUtils.initTranslations(Me.metadata.uuid);
 }
 
 /**
- * @param {import("$types/Gjs/Adw-1").PreferencesWindow} window
+ * @param {import("$types/adw-1").Adw.PreferencesWindow} window
  */
 function fillPreferencesWindow(window) {
   debug('Filling Preferences Window...');

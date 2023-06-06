@@ -1,11 +1,12 @@
-// @ts-ignore
+/** @module extension */
+
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 /** @type {import("$lib/common/utils").Debug} */
 const debug = Me.imports.lib.common.utils.debug;
 
-/** @type {import("$lib/extension/extension").Extension} */
+/** @type {import("$lib/extension/extension").FocusExtension} */
 const Extension = Me.imports.lib.extension.extension.extension;
 
 class FocusWindow {
@@ -13,7 +14,7 @@ class FocusWindow {
 
   constructor() {
     debug('Initializing Focus Window...');
-    ExtensionUtils.initTranslations();
+    ExtensionUtils.initTranslations(Me.metadata.uuid);
   }
 
   enable() {

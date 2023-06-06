@@ -1,3 +1,5 @@
+/** @module prefs */
+
 const { GObject, Adw } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -10,13 +12,16 @@ const debug = Me.imports.lib.common.utils.debug;
 const Profile = Me.imports.lib.prefs.profile.profile;
 
 /** @typedef {typeof PrefsClass} Prefs */
+/** @typedef {PrefsClass} PrefsInstance */
 class PrefsClass extends Adw.PreferencesPage {
   /**
-   * @param {import("$types/Gjs/Adw-1").PreferencesPage_ConstructProps} AdwPreferencesPageProps
+   * @param {import("$types/adw-1").Adw.PreferencesPage.ConstructorProperties} AdwPreferencesPageProps
    */
   constructor(AdwPreferencesPageProps = {}) {
     super(AdwPreferencesPageProps);
     debug('Creating Preferences Page...');
+
+    /** @type {import('$lib/prefs/profile').ProfileInstance[]} */
     this.profiles = [];
   }
 
@@ -33,6 +38,9 @@ class PrefsClass extends Adw.PreferencesPage {
     this.add(newProfile);
   }
 
+  /**
+   * @param {string} id
+   */
   _deleteProfile(id) {
     const profileIndex = this.profiles.findIndex(profile => profile.getId() === id);
     const profile = this.profiles[profileIndex];
@@ -40,6 +48,9 @@ class PrefsClass extends Adw.PreferencesPage {
     this.profiles.splice(profileIndex, 1);
   }
 
+  /**
+   * @param {string} id
+   */
   _duplicateProfile(id) {
     const profileIndex = this.profiles.findIndex(profile => profile.getId() === id);
 
@@ -52,12 +63,16 @@ class PrefsClass extends Adw.PreferencesPage {
       this._duplicateProfile.bind(this),
       this._changeProfilePriority.bind(this)
     );
-    this.profiles.splice(profileIndex + 1, 0, newProfile);
 
     this.profiles.forEach(application => this.remove(application));
+    this.profiles.splice(profileIndex + 1, 0, newProfile);
     this.profiles.forEach(application => this.add(application));
   }
 
+  /**
+   * @param {string} id
+   * @param {boolean} increasePriority
+   */
   _changeProfilePriority(id, increasePriority) {
     const profileIndex = this.profiles.findIndex(profile => profile.getId() === id);
 

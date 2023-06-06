@@ -10,9 +10,10 @@ const debug = Me.imports.lib.common.utils.debug;
 const Application = Me.imports.lib.prefs.application.application;
 
 /** @typedef {typeof ProfileClass} Profile */
+/** @typedef {ProfileClass} ProfileInstance */
 class ProfileClass extends Adw.PreferencesGroup {
   /**
-   * @param {import("$types/Gjs/Adw-1").PreferencesGroup_ConstructProps} AdwPreferencesGroupProps
+   * @param {import("$types/adw-1").Adw.PreferencesGroup.ConstructorProperties} AdwPreferencesGroupProps
    * @param {string} defaultNameSuffix
    * @param {(id: string) => void} deleteProfile
    * @param {(id: string) => void} duplicateProfile
@@ -34,10 +35,10 @@ class ProfileClass extends Adw.PreferencesGroup {
     this.duplicateProfile = duplicateProfile;
     this.changeProfilePriority = changeProfilePriority;
 
-    /** @type {import("$types/Gjs/Gtk-4.0").Entry} */
+    /** @type {import("$types/gtk-4.0").Gtk.Entry} */
     this._profileName = this._profileName;
 
-    /** @type {import("$types/Gjs/Adw-1").ExpanderRow}*/
+    /** @type {import("$types/adw-1").Adw.ExpanderRow}*/
     this._profile = this._profile;
 
     this._profileName.set_text(`Profile ${defaultNameSuffix}`);
@@ -107,9 +108,9 @@ class ProfileClass extends Adw.PreferencesGroup {
       this._duplicateApplication.bind(this),
       this._changeApplicationPriority.bind(this)
     );
-    this.applications.splice(applicationIndex + 1, 0, newApplication);
 
     this.applications.forEach(application => this._profile.remove(application));
+    this.applications.splice(applicationIndex + 1, 0, newApplication);
     this.applications.forEach(application => this._profile.add_row(application));
     this._setSubtitle();
   }
