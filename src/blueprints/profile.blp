@@ -12,54 +12,42 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
 
     [prefix]
     Box {
-      styles ["toolbar"]
+      styles ["linked"]
 
-      Box {
-        styles ["linked"]
+      homogeneous: true;
 
-        homogeneous: true;
-
-        Button deleteProfile {
-          styles ["error", "raised"]
-          
-          valign: center;
-          tooltip-markup: _("Delete Profile");
-          icon-name: "edit-delete-symbolic";
-          
-          clicked => $onDeleteProfile();
-        }
-
-        Button duplicateProfile {
-          styles ["info", "raised"]
-          
-          valign: center;
-          tooltip-markup: _("Duplicate Profile");
-          icon-name: "edit-copy-symbolic";
-          
-          clicked => $onDuplicateProfile();
-        }
+      Button deleteProfile {
+        styles ["error", "raised"]
+        
+        valign: center;
+        tooltip-markup: _("Delete Profile");
+        icon-name: "edit-delete-symbolic";
+        
+        clicked => $onDeleteProfile();
       }
 
-      Box {
-        styles ["linked"]
+      Button duplicateProfile {
+        valign: center;
+        tooltip-markup: _("Duplicate Profile");
+        icon-name: "edit-copy-symbolic";
         
-        homogeneous: true;
+        clicked => $onDuplicateProfile();
+      }
 
-        Button increasePriority {
-          valign: center;
-          tooltip-markup: _("Increase Priority");
-          icon-name: "pan-up-symbolic";
-          
-          clicked => $onIncreasePriority();
-        }
+      Button increasePriority {
+        valign: center;
+        tooltip-markup: _("Increase Priority");
+        icon-name: "pan-up-symbolic";
+        
+        clicked => $onIncreasePriority();
+      }
 
-        Button decreasePriority {
-          valign: center;
-          tooltip-markup: _("Decrease Priority");
-          icon-name: "pan-down-symbolic";
-          
-          clicked => $onDecreasePriority();
-        }
+      Button decreasePriority {
+        valign: center;
+        tooltip-markup: _("Decrease Priority");
+        icon-name: "pan-down-symbolic";
+        
+        clicked => $onDecreasePriority();
       }
     }
     
@@ -77,19 +65,23 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
       }
     }
     
-    Adw.ActionRow {
-      title: _("Add an Application");
-      subtitle: _("Add an application to the profile");
-      activatable-widget: addApplication;
-      
-      Button addApplication {
+    Adw.ExpanderRow applications {
+      title: _("Application Shortcuts");
+      subtitle: _("Add an application shortcut to the profile");
+      expanded: true;
+
+      [action]
+      Button addApplication {    
+        styles ["suggested-action"]
+        
         valign: center;
+        tooltip-markup: _("Add Application");
         
         Adw.ButtonContent {
-          label: _("Add Application");
-          icon-name: "list-add-symbolic";
+          label: _("Add");
+          icon-name: "application-x-addon-symbolic";
         }
-        
+
         clicked => $onAddApplication();
       }
     }

@@ -1,51 +1,70 @@
 const { GObject, Adw } = imports.gi;
+const { extensionUtils } = imports.misc;
+const Me = extensionUtils.getCurrentExtension();
+const Gettext = imports.gettext;
+const Domain = Gettext.domain(Me.metadata.uuid);
+const _ = Domain.gettext;
+const ngettext = Domain.ngettext;
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-
-/** @type {import("$lib/common/utils").Debug} */
+/** @type {import('$lib/common/utils').Debug} */
 const debug = Me.imports.lib.common.utils.debug;
 
-/** @type {import("$lib/prefs/application").Application} */
+/** @type {import('$lib/prefs/application').Application} */
 const Application = Me.imports.lib.prefs.application.application;
 
 /** @typedef {typeof ProfileClass} Profile */
 /** @typedef {ProfileClass} ProfileInstance */
 class ProfileClass extends Adw.PreferencesGroup {
   /**
-   * @param {import("$types/adw-1").Adw.PreferencesGroup.ConstructorProperties} AdwPreferencesGroupProps
-   * @param {string} defaultNameSuffix
+   * @param {import('$types/adw-1').Adw.PreferencesGroup.ConstructorProperties} AdwPreferencesGroupProps
    * @param {(id: string) => void} deleteProfile
    * @param {(id: string) => void} duplicateProfile
    * @param {(id: string, increasePriority: boolean) => void} changeProfilePriority
+   * @param {string} name
    */
   constructor(
     AdwPreferencesGroupProps = {},
-    defaultNameSuffix,
     deleteProfile,
     duplicateProfile,
-    changeProfilePriority
+    changeProfilePriority,
+    name
   ) {
     super(AdwPreferencesGroupProps);
     debug('Creating Profile...');
 
-    this.applications = [];
-    this.id = Date.now().toString();
-    this.deleteProfile = deleteProfile;
-    this.duplicateProfile = duplicateProfile;
-    this.changeProfilePriority = changeProfilePriority;
+    /** @type {string} */
+    this._id = Date.now().toString();
 
-    /** @type {import("$types/gtk-4.0").Gtk.Entry} */
+    /** @type {typeof deleteProfile} */
+    this._deleteProfile = deleteProfile;
+
+    /** @type {typeof duplicateProfile} */
+    this._duplicateProfile = duplicateProfile;
+
+    /** @type {typeof changeProfilePriority} */
+    this._changeProfilePriority = changeProfilePriority;
+
+    /** @type {import('$lib/prefs/application').ApplicationInstance[]} */
+    this._applicationsList = [];
+
+    /** @type {import('$types/gtk-4.0').Gtk.Entry} */
     this._profileName = this._profileName;
 
-    /** @type {import("$types/adw-1").Adw.ExpanderRow}*/
+    /** @type {import('$types/adw-1').Adw.ExpanderRow}*/
     this._profile = this._profile;
 
-    this._profileName.set_text(`Profile ${defaultNameSuffix}`);
+    /** @type {import('$types/adw-1').Adw.ExpanderRow}*/
+    this._applications = this._applications;
+
+    this._profileName.set_text(name);
   }
 
   getId() {
-    return this.id;
+    return this._id;
+  }
+
+  getName() {
+    return this._profileName.get_text();
   }
 
   onProfile() {
@@ -58,22 +77,22 @@ class ProfileClass extends Adw.PreferencesGroup {
 
   onDeleteProfile() {
     debug('Deleting Profile...');
-    this.deleteProfile(this.id);
+    this._deleteProfile(this._id);
   }
 
   onDuplicateProfile() {
     debug('Duplicating Profile...');
-    this.duplicateProfile(this.id);
+    this._duplicateProfile(this._id);
   }
 
   onIncreasePriority() {
     debug('Increasing Priority...');
-    this.changeProfilePriority(this.id, true);
+    this._changeProfilePriority(this._id, true);
   }
 
   onDecreasePriority() {
     debug('Decreasing Priority...');
-    this.changeProfilePriority(this.id, false);
+    this._changeProfilePriority(this._id, false);
   }
 
   onAddApplication() {
@@ -84,21 +103,27 @@ class ProfileClass extends Adw.PreferencesGroup {
       this._duplicateApplication.bind(this),
       this._changeApplicationPriority.bind(this)
     );
-    this.applications.push(newApplication);
-    this._profile.add_row(newApplication);
+    this._applicationsList.push(newApplication);
+    this._applications.add_row(newApplication);
     this._setSubtitle();
+
+    this._applications.set_expanded(true);
   }
 
   _deleteApplication(id) {
-    const applicationIndex = this.applications.findIndex(application => application.getId() === id);
-    const application = this.applications[applicationIndex];
-    this._profile.remove(application);
-    this.applications.splice(applicationIndex, 1);
+    const applicationIndex = this._applicationsList.findIndex(
+      application => application.getId() === id
+    );
+    const application = this._applicationsList[applicationIndex];
+    this._applications.remove(application);
+    this._applicationsList.splice(applicationIndex, 1);
     this._setSubtitle();
   }
 
   _duplicateApplication(id) {
-    const applicationIndex = this.applications.findIndex(application => application.getId() === id);
+    const applicationIndex = this._applicationsList.findIndex(
+      application => application.getId() === id
+    );
 
     // TODO: implement duplicate application from old application
     // const application = this.applications[applicationIndex];
@@ -109,32 +134,39 @@ class ProfileClass extends Adw.PreferencesGroup {
       this._changeApplicationPriority.bind(this)
     );
 
-    this.applications.forEach(application => this._profile.remove(application));
-    this.applications.splice(applicationIndex + 1, 0, newApplication);
-    this.applications.forEach(application => this._profile.add_row(application));
+    this._applicationsList.forEach(application => this._applications.remove(application));
+    this._applicationsList.splice(applicationIndex + 1, 0, newApplication);
+    this._applicationsList.forEach(application => this._applications.add_row(application));
     this._setSubtitle();
   }
 
   _changeApplicationPriority(id, increasePriority) {
-    const applicationIndex = this.applications.findIndex(application => application.getId() === id);
+    const applicationIndex = this._applicationsList.findIndex(
+      application => application.getId() === id
+    );
 
     if (increasePriority && applicationIndex === 0) return;
-    if (!increasePriority && applicationIndex === this.applications.length - 1) return;
+    if (!increasePriority && applicationIndex === this._applicationsList.length - 1) return;
 
-    const application = this.applications[applicationIndex];
+    const application = this._applicationsList[applicationIndex];
     const newApplicationIndex = increasePriority ? applicationIndex - 1 : applicationIndex + 1;
-    const newApplication = this.applications[newApplicationIndex];
-    this.applications[applicationIndex] = newApplication;
-    this.applications[newApplicationIndex] = application;
+    const newApplication = this._applicationsList[newApplicationIndex];
+    this._applicationsList[applicationIndex] = newApplication;
+    this._applicationsList[newApplicationIndex] = application;
 
-    this.applications.forEach(application => this._profile.remove(application));
-    this.applications.forEach(application => this._profile.add_row(application));
+    this._applicationsList.forEach(application => this._applications.remove(application));
+    this._applicationsList.forEach(application => this._applications.add_row(application));
   }
 
   _setSubtitle() {
-    const subtitle = `${this.applications.length || 'No'} Application Shortcut${
-      this.applications.length === 1 ? '' : 's'
-    }`;
+    let subtitle = _('No Application Shortcuts');
+    if (this._applicationsList.length > 0) {
+      subtitle = ngettext(
+        '%d Application Shortcut',
+        '%d Application Shortcuts',
+        this._applicationsList.length
+      ).format(this._applicationsList.length);
+    }
     this._profile.set_subtitle(subtitle);
     return subtitle;
   }
@@ -144,7 +176,7 @@ var profile = GObject.registerClass(
   {
     GTypeName: 'ProfileExpanderRow',
     Template: Me.dir.get_child('ui/profile.ui').get_uri(),
-    InternalChildren: ['profileName', 'profile']
+    InternalChildren: ['profileName', 'profile', 'applications']
   },
   ProfileClass
 );

@@ -1,40 +1,43 @@
-/** @module prefs */
-
 const { GObject, Adw } = imports.gi;
+const { extensionUtils } = imports.misc;
+const Me = extensionUtils.getCurrentExtension();
+const Gettext = imports.gettext;
+const Domain = Gettext.domain(Me.metadata.uuid);
+const _ = Domain.gettext;
+const ngettext = Domain.ngettext;
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-
-/** @type {import("$lib/common/utils").Debug} */
+/** @type {import('$lib/common/utils').Debug} */
 const debug = Me.imports.lib.common.utils.debug;
 
-/** @type {import("$lib/prefs/profile").Profile} */
+/** @type {import('$lib/prefs/profile').Profile} */
 const Profile = Me.imports.lib.prefs.profile.profile;
 
 /** @typedef {typeof PrefsClass} Prefs */
 /** @typedef {PrefsClass} PrefsInstance */
 class PrefsClass extends Adw.PreferencesPage {
   /**
-   * @param {import("$types/adw-1").Adw.PreferencesPage.ConstructorProperties} AdwPreferencesPageProps
+   * @param {import('$types/adw-1').Adw.PreferencesPage.ConstructorProperties} AdwPreferencesPageProps
    */
   constructor(AdwPreferencesPageProps = {}) {
     super(AdwPreferencesPageProps);
     debug('Creating Preferences Page...');
 
     /** @type {import('$lib/prefs/profile').ProfileInstance[]} */
-    this.profiles = [];
+    this._profilesList = [];
   }
 
   onAddProfile() {
     debug('Adding Profile...');
     const newProfile = new Profile(
       {},
-      `${this.profiles.length + 1}`,
       this._deleteProfile.bind(this),
       this._duplicateProfile.bind(this),
-      this._changeProfilePriority.bind(this)
+      this._changeProfilePriority.bind(this),
+      ngettext('Profile %d', 'Profile %d', this._profilesList.length + 1).format(
+        this._profilesList.length + 1
+      )
     );
-    this.profiles.push(newProfile);
+    this._profilesList.push(newProfile);
     this.add(newProfile);
   }
 
@@ -42,31 +45,31 @@ class PrefsClass extends Adw.PreferencesPage {
    * @param {string} id
    */
   _deleteProfile(id) {
-    const profileIndex = this.profiles.findIndex(profile => profile.getId() === id);
-    const profile = this.profiles[profileIndex];
+    const profileIndex = this._profilesList.findIndex(profile => profile.getId() === id);
+    const profile = this._profilesList[profileIndex];
     this.remove(profile);
-    this.profiles.splice(profileIndex, 1);
+    this._profilesList.splice(profileIndex, 1);
   }
 
   /**
    * @param {string} id
    */
   _duplicateProfile(id) {
-    const profileIndex = this.profiles.findIndex(profile => profile.getId() === id);
+    const profileIndex = this._profilesList.findIndex(profile => profile.getId() === id);
 
     // TODO: implement duplicate profile from old profile
-    // const profile = this.profiles[profileIndex];
+    const profile = this._profilesList[profileIndex];
     const newProfile = new Profile(
       {},
-      'Copy',
       this._deleteProfile.bind(this),
       this._duplicateProfile.bind(this),
-      this._changeProfilePriority.bind(this)
+      this._changeProfilePriority.bind(this),
+      profile.getName() + ' ' + _('Copy')
     );
 
-    this.profiles.forEach(application => this.remove(application));
-    this.profiles.splice(profileIndex + 1, 0, newProfile);
-    this.profiles.forEach(application => this.add(application));
+    this._profilesList.forEach(application => this.remove(application));
+    this._profilesList.splice(profileIndex + 1, 0, newProfile);
+    this._profilesList.forEach(application => this.add(application));
   }
 
   /**
@@ -74,19 +77,19 @@ class PrefsClass extends Adw.PreferencesPage {
    * @param {boolean} increasePriority
    */
   _changeProfilePriority(id, increasePriority) {
-    const profileIndex = this.profiles.findIndex(profile => profile.getId() === id);
+    const profileIndex = this._profilesList.findIndex(profile => profile.getId() === id);
 
     if (increasePriority && profileIndex === 0) return;
-    if (!increasePriority && profileIndex === this.profiles.length - 1) return;
+    if (!increasePriority && profileIndex === this._profilesList.length - 1) return;
 
-    const application = this.profiles[profileIndex];
+    const application = this._profilesList[profileIndex];
     const newProfileIndex = increasePriority ? profileIndex - 1 : profileIndex + 1;
-    const newApplication = this.profiles[newProfileIndex];
-    this.profiles[profileIndex] = newApplication;
-    this.profiles[newProfileIndex] = application;
+    const newApplication = this._profilesList[newProfileIndex];
+    this._profilesList[profileIndex] = newApplication;
+    this._profilesList[newProfileIndex] = application;
 
-    this.profiles.forEach(application => this.remove(application));
-    this.profiles.forEach(application => this.add(application));
+    this._profilesList.forEach(application => this.remove(application));
+    this._profilesList.forEach(application => this.add(application));
   }
 }
 

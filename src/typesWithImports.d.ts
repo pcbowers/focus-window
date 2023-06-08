@@ -23,3 +23,17 @@ declare module '@girs/gnome-shell' {
     dir: any;
   }
 }
+
+declare module '@girs/gjs/gettext' {
+  export function domain(domainName: string): {
+    gettext: (msgid: string) => string;
+    ngettext: (
+      msgid: string,
+      msgid_plural: string,
+      n: number
+    ) => {
+      format: (n: number) => string;
+    };
+    pgettext: (context: string, msgid: string) => string;
+  };
+}

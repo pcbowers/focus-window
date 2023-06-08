@@ -1,7 +1,5 @@
-/** @module extension */
-
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const { extensionUtils } = imports.misc;
+const Me = extensionUtils.getCurrentExtension();
 
 /** @type {import("$lib/common/utils").Debug} */
 const debug = Me.imports.lib.common.utils.debug;
@@ -10,25 +8,26 @@ const debug = Me.imports.lib.common.utils.debug;
 const Extension = Me.imports.lib.extension.extension.extension;
 
 class FocusWindow {
-  _modules = [];
+  /** @type {{enable: () => void, disable: () => void}[]} */
+  modules = [];
 
   constructor() {
     debug('Initializing Focus Window...');
-    ExtensionUtils.initTranslations(Me.metadata.uuid);
+    extensionUtils.initTranslations(Me.metadata.uuid);
   }
 
   enable() {
     debug('Enabling Focus Window...');
 
     const extension = new Extension();
-    this._modules.push(extension);
+    this.modules.push(extension);
 
-    this._modules.forEach(module => module.enable());
+    this.modules.forEach(module => module.enable());
   }
 
   disable() {
     debug('Disabling Focus Window...');
-    this._modules.forEach(module => module.disable());
+    this.modules.forEach(module => module.disable());
   }
 }
 

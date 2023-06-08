@@ -1,16 +1,19 @@
-const { GObject, Adw, Gio, Gtk, Gdk } = imports.gi;
-
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const { GObject, Adw, Gio } = imports.gi;
+const { extensionUtils } = imports.misc;
+const Me = extensionUtils.getCurrentExtension();
+const Gettext = imports.gettext;
+const Domain = Gettext.domain(Me.metadata.uuid);
+const _ = Domain.gettext;
+const ngettext = Domain.ngettext;
 
 /** @type {import('$lib/common/utils').Debug} */
 const debug = Me.imports.lib.common.utils.debug;
 
-/** @type {import('$lib/common/utils').HtmlEntities} */
-const htmlEntities = Me.imports.lib.common.utils.htmlEntities;
-
 /** @type {import('$lib/common/utils').CreateId} */
 const createId = Me.imports.lib.common.utils.createId;
+
+/** @type {import("$lib/prefs/shortcut").Shortcut} */
+const Shortcut = Me.imports.lib.prefs.shortcut.shortcut;
 
 /** @typedef {typeof ApplicationClass} Application */
 /** @typedef {ApplicationClass} ApplicationInstance */
@@ -31,38 +34,37 @@ class ApplicationClass extends Adw.ExpanderRow {
     debug('Creating Application...');
 
     /** @type {string} */
-    this.id = createId();
+    this._id = createId();
 
     /** @type {typeof deleteApplication} */
-    this.deleteApplication = deleteApplication;
+    this._deleteApplication = deleteApplication;
 
     /** @type {typeof duplicateApplication} */
-    this.duplicateApplication = duplicateApplication;
+    this._duplicateApplication = duplicateApplication;
 
     /** @type {typeof changeApplicationPriority} */
-    this.changeApplicationPriority = changeApplicationPriority;
+    this._changeApplicationPriority = changeApplicationPriority;
 
     /** @type {boolean} */
-    this.keyboardIsGrabbed = false;
+    this._keyboardIsGrabbed = false;
 
     /** @type {string | null} */
-    this.lastAccelerator = '';
+    this._lastAccelerator = '';
+
+    /** @type {import('$lib/prefs/shortcut').ShortcutInstance[]} */
+    this._shortcutsList = [];
 
     /** @type {import('$types/gtk-4.0').Gtk.StringList} */
     this._applicationList = this._applicationList;
 
-    /** @type {import('$types/adw-1').Adw.ActionRow} */
-    this._shortcutRow = this._shortcutRow;
-
-    /** @type {import('$types/gtk-4.0').Gtk.ShortcutLabel} */
-    this._shortcut = this._shortcut;
+    /** @type {import('$types/adw-1').Adw.ExpanderRow} */
+    this._shortcuts = this._shortcuts;
 
     this._populateApplications();
-    this._createShortcutListener();
   }
 
   getId() {
-    return this.id;
+    return this._id;
   }
 
   onApplication() {
@@ -71,53 +73,42 @@ class ApplicationClass extends Adw.ExpanderRow {
 
   onDuplicateApplication() {
     debug('Duplicating Application...');
-    this.duplicateApplication(this.id);
+    this._duplicateApplication(this._id);
   }
 
   onDeleteApplication() {
     debug('Deleting Application...');
-    this.deleteApplication(this.id);
+    this._deleteApplication(this._id);
   }
 
   onApplicationItem(element) {
     debug('TODO: implement onApplicationItem');
-    let applicationName = 'No App Selected';
-    if (element && element.get_model && element.get_selected) {
-      applicationName = element.get_model().get_string(element.get_selected());
-      applicationName ||= 'No App Selected';
-    }
-
-    this.set_title(applicationName);
-    return applicationName;
+    this.set_title(element.get_model().get_string(element.get_selected()) || _('No App Selected'));
   }
 
   onIncreasePriority() {
     debug('Increasing Priority...');
-    this.changeApplicationPriority(this.id, true);
+    this._changeApplicationPriority(this._id, true);
   }
 
   onDecreasePriority() {
     debug('Decreasing Priority...');
-    this.changeApplicationPriority(this.id, false);
+    this._changeApplicationPriority(this._id, false);
   }
 
-  onShortcutRow() {
-    debug('TODO: implement onShortcutRow');
-
-    let shortcutName = this.lastAccelerator;
-    if (this._shortcutRow && this._shortcut) {
-      if (this.keyboardIsGrabbed) {
-        this._cancelKeyboardGrab();
-        shortcutName ||= 'Not Bound';
-      } else {
-        this._grabKeyboard();
-        shortcutName ||= 'Listening For Shortcut...';
-      }
-    } else {
-      shortcutName ||= 'Not Bound';
-    }
-
-    return htmlEntities(shortcutName);
+  onAddShortcut() {
+    const newShortcut = new Shortcut(
+      {},
+      this._deleteShortcut.bind(this),
+      this._setSubtitle.bind(this),
+      ngettext('Shortcut %d', 'Shortcut %d', this._shortcutsList.length + 1).format(
+        this._shortcutsList.length + 1
+      )
+    );
+    this._shortcutsList.push(newShortcut);
+    this._shortcuts.add_row(newShortcut);
+    this._shortcuts.set_expanded(true);
+    this._setSubtitle();
   }
 
   onMinimize() {
@@ -232,10 +223,7 @@ class ApplicationClass extends Adw.ExpanderRow {
     this.allApplications = Gio.AppInfo.get_all()
       .filter(a => a.should_show())
       .sort((app1, app2) =>
-        app1
-          .get_name()
-          .toLowerCase()
-          .localeCompare(app2.get_name().toLowerCase())
+        app1.get_name().toLowerCase().localeCompare(app2.get_name().toLowerCase())
       )
       .map((a, index) => ({
         name: a.get_name(),
@@ -246,58 +234,29 @@ class ApplicationClass extends Adw.ExpanderRow {
     this.allApplications.forEach(a => this._applicationList.append(a.name));
   }
 
-  _createShortcutListener() {
-    const keyController = new Gtk.EventControllerKey();
-    keyController.connect('key-pressed', (c, key, keycode, state) => {
-      if (this.keyboardIsGrabbed) {
-        const mods = state & Gtk.accelerator_get_default_mod_mask();
+  _deleteShortcut(id) {
+    const shortcutIndex = this._shortcutsList.findIndex(shortcut => shortcut.getId() === id);
+    const shortcut = this._shortcutsList[shortcutIndex];
+    this._shortcuts.remove(shortcut);
+    this._shortcutsList.splice(shortcutIndex, 1);
 
-        // Adapted from: https://github.com/Schneegans/Fly-Pie
-        if (key === Gdk.KEY_Escape) {
-          this._cancelKeyboardGrab();
-        } else if (key === Gdk.KEY_BackSpace) {
-          this.lastAccelerator = '';
-          this._cancelKeyboardGrab();
-        } else if (
-          Gtk.accelerator_valid(key, mods) ||
-          key === Gdk.KEY_Tab ||
-          key === Gdk.KEY_ISO_Left_Tab ||
-          key === Gdk.KEY_KP_Tab
-        ) {
-          const accelerator = Gtk.accelerator_name(key, mods);
-          this.lastAccelerator = accelerator;
-          this._cancelKeyboardGrab();
-        }
-
-        return true;
-      }
-
-      return false;
-    });
-    this._shortcutRow.add_controller(keyController);
-
-    const focusController = new Gtk.EventControllerFocus();
-    focusController.connect('leave', () => {
-      this._cancelKeyboardGrab();
-    });
-    this._shortcutRow.add_controller(focusController);
+    this._shortcutsList.forEach((shortcut, index) =>
+      shortcut.set_title(ngettext('Shortcut %d', 'Shortcut %d', index + 1).format(index + 1))
+    );
+    this._setSubtitle();
   }
 
-  _grabKeyboard() {
-    this.root.get_surface().inhibit_system_shortcuts(null);
-    this.keyboardIsGrabbed = true;
-    this.lastAccelerator = this._shortcut.get_accelerator();
-    this._shortcut.set_accelerator('');
-    this._shortcut.set_disabled_text('Listening For Shortcut...');
-    this.set_subtitle('Listening For Shortcut...');
-  }
-
-  _cancelKeyboardGrab() {
-    this.root.get_surface().restore_system_shortcuts();
-    this.keyboardIsGrabbed = false;
-    this._shortcut.set_accelerator(this.lastAccelerator || '');
-    this._shortcut.set_disabled_text('Not Bound');
-    this.set_subtitle(htmlEntities(this.lastAccelerator || 'Not Bound'));
+  _setSubtitle() {
+    const boundShortcuts = this._shortcutsList.filter(shortcut => shortcut.isBound());
+    let subtitle = _('No Keyboard Shortcuts');
+    if (boundShortcuts.length > 0) {
+      subtitle = ngettext(
+        '%d Keyboard Shortcut',
+        '%d Keyboard Shortcuts',
+        boundShortcuts.length
+      ).format(boundShortcuts.length);
+    }
+    this.set_subtitle(subtitle);
   }
 }
 
@@ -305,7 +264,7 @@ var application = GObject.registerClass(
   {
     GTypeName: 'ApplicationExpanderRow',
     Template: Me.dir.get_child('ui/application.ui').get_uri(),
-    InternalChildren: ['applicationList', 'shortcutRow', 'shortcut']
+    InternalChildren: ['applicationList', 'shortcuts']
   },
   ApplicationClass
 );

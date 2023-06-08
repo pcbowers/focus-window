@@ -12,9 +12,9 @@
   - [:desktop\_computer: Desktop App](#desktop_computer-desktop-app)
   - [:hammer\_and\_wrench:	Manual](#hammer_and_wrenchmanual)
 - [:gear: Preferences](#gear-preferences)
+- [:construction: TODO List](#construction-todo-list)
 - [:open\_book: Usage](#open_book-usage)
 - [:question:	FAQ](#questionfaq)
-  - [:keyboard: Can I create multiple shortcuts to launch the same application?](#keyboard-can-i-create-multiple-shortcuts-to-launch-the-same-application)
   - [:broken\_heart: My keyboard shortcut isn't working. What do I do?](#broken_heart-my-keyboard-shortcut-isnt-working-what-do-i-do)
   - [:handshake:	How can I contribute?](#handshakehow-can-i-contribute)
 - [:floppy\_disk: Development Notes](#floppy_disk-development-notes)
@@ -77,15 +77,25 @@ To open the preferences after installation, either navigate to the extension on 
 gnome-extensions prefs focus-window@chris.al
 ```
 
+## :construction: TODO List
+
+- [x] Add Type Support
+- [x] Add Ability to Modify Types on Demand
+- [x] Implement UI
+- [x] Add Translation Support
+- [ ] Add Support to Set and Get Settings
+- [ ] Bind Settings to UI
+- [ ] Add Duplication Support
+- [ ] Ensure Changing Priority also Changes Settings
+- [ ] Implement Extension
+
 ## :open_book: Usage
 
 TODO
 
 ## :question:	FAQ
 
-### :keyboard: Can I create multiple shortcuts to launch the same application?
-
-Sure! Just add the application twice!
+TODO
 
 ### :broken_heart: My keyboard shortcut isn't working. What do I do?
 
@@ -166,10 +176,6 @@ Use the [`ts-for-gir`](https://github.com/sammydre/ts-for-gir) npm package to ge
 
 ```bash
 npm run setup
-
-# OR 
-
-ts-for-gir generate '*' -e gjs -o ./src/@types
 ```
 
 You may need to install some dependencies to get this to work. The command will let you know which dependencies are missing. Check the package for documentation.

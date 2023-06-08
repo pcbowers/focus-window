@@ -1,7 +1,7 @@
 const { GLib } = imports.gi;
+const { extensionUtils } = imports.misc;
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const Me = extensionUtils.getCurrentExtension();
 
 /** @typedef {typeof SETTINGS_ID} SETTINGS_ID */
 var SETTINGS_ID = /** @type {const} */ ('org.gnome.shell.extensions.focus-window');
@@ -41,12 +41,7 @@ function htmlEntities(str) {
  * @returns {string}
  */
 function createId() {
-  return (
-    Date.now().toString(36) +
-    Math.random()
-      .toString(36)
-      .substring(2)
-  );
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
 
 /** @typedef {typeof convertToVariant} ConvertToVariant */

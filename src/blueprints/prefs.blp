@@ -8,6 +8,11 @@ template $FocusWindowPreferencesPage : Adw.PreferencesPage {
     
     [header-suffix]
     Button addProfile {
+      styles ["suggested-action"]
+
+      valign: center;
+      tooltip-markup: _("Add a new profile to the list.");
+
       Adw.ButtonContent {
         label: _("Add Profile");
         icon-name: "list-add-symbolic";

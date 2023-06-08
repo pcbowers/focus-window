@@ -104,7 +104,10 @@ print_message ""
 # translates the extension if specified
 if [[ "${TRANSLATION}" == true ]]; then
   print_message "Generating Translations Template..."
-  xgettext \
+  find src \
+    -type f \( -name '*.js' -or -name '*.blp' \) \
+    -not -path 'src/@types/*' \
+    -print | xargs xgettext \
     --from-code=UTF-8 \
     --add-comments \
     --keyword=_ \
@@ -112,8 +115,7 @@ if [[ "${TRANSLATION}" == true ]]; then
     --copyright-holder="P Christopher Bowers" \
     --package-name="Focus Window" \
     --package-version="1" \
-    --output="po/main.pot" \
-    src/blueprints/* 2>/dev/null \
+    --output="po/main.pot" 2>/dev/null \
     && print_message "Translations Template Generated!" || {
     echo >&2 "ERROR: Could not generate translations template"
     exit 1

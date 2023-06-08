@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Focus Window 1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-04 20:50-0400\n"
+"POT-Creation-Date: 2023-06-07 23:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,57 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: src/lib/prefs/profile.js:59
+msgid "Profile"
+msgstr ""
+
+#: src/lib/prefs/profile.js:158 src/blueprints/profile.blp:7
+msgid "No Application Shortcuts"
+msgstr ""
+
+#: src/lib/prefs/profile.js:161
+#, javascript-format
+msgid "%d Application Shortcut"
+msgid_plural "%d Application Shortcuts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/prefs/prefs.js:61
+msgid "Copy"
+msgstr ""
+
+#: src/lib/prefs/shortcut.js:120
+msgid "Listening For Shortcut..."
+msgstr ""
+
+#: src/lib/prefs/shortcut.js:128 src/blueprints/shortcut.blp:21
+msgid "Not Bound"
+msgstr ""
+
+#: src/lib/prefs/application.js:86 src/blueprints/application.blp:5
+#: src/blueprints/application.blp:61
+msgid "No App Selected"
+msgstr ""
+
+#: src/lib/prefs/application.js:104 src/lib/prefs/application.js:245
+#, javascript-format
+msgid "Shortcut %d"
+msgid_plural "Shortcut %d"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/prefs/application.js:255 src/blueprints/application.blp:6
+msgid "No Keyboard Shortcuts"
+msgstr ""
+
+#: src/lib/prefs/application.js:258
+#, javascript-format
+msgid "%d Keyboard Shortcut"
+msgid_plural "%d Keyboard Shortcuts"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/blueprints/prefs.blp:6
 msgid "Focus Window"
@@ -25,308 +76,324 @@ msgstr ""
 msgid "Add a profile to get started!"
 msgstr ""
 
-#: src/blueprints/prefs.blp:12
+#: src/blueprints/prefs.blp:14
+msgid "Add a new profile to the list."
+msgstr ""
+
+#: src/blueprints/prefs.blp:17
 msgid "Add Profile"
 msgstr ""
 
-#: src/blueprints/profile.blp:6
-msgid "Enable the profile and its shortcuts"
+#: src/blueprints/profile.blp:26
+msgid "Delete Profile"
 msgstr ""
 
-#: src/blueprints/profile.blp:13 src/blueprints/profile.blp:20
-msgid "Profile Name"
+#: src/blueprints/profile.blp:34
+msgid "Duplicate Profile"
 msgstr ""
 
-#: src/blueprints/profile.blp:14
-msgid "The name of the profile"
-msgstr ""
-
-#: src/blueprints/profile.blp:21
-msgid "My Profile"
-msgstr ""
-
-#: src/blueprints/profile.blp:28
-msgid "Add an Application"
-msgstr ""
-
-#: src/blueprints/profile.blp:29
-msgid "Add an application to the profile"
-msgstr ""
-
-#: src/blueprints/profile.blp:36
-msgid "Add Application"
-msgstr ""
-
-#: src/blueprints/profile.blp:59
-msgid "Delete Application Shortcut"
-msgstr ""
-
-#: src/blueprints/profile.blp:72
+#: src/blueprints/profile.blp:42 src/blueprints/application.blp:41
 msgid "Increase Priority"
 msgstr ""
 
-#: src/blueprints/profile.blp:80
+#: src/blueprints/profile.blp:50 src/blueprints/application.blp:49
 msgid "Decrease Priority"
 msgstr ""
 
-#: src/blueprints/profile.blp:89
-msgid "Application"
+#: src/blueprints/profile.blp:59 src/blueprints/profile.blp:66
+msgid "Profile Name"
 msgstr ""
 
-#: src/blueprints/profile.blp:90
-msgid "The application that will be focused"
+#: src/blueprints/profile.blp:60
+msgid "The name of the profile"
 msgstr ""
 
-#: src/blueprints/profile.blp:92
-msgid "No App Selected"
+#: src/blueprints/profile.blp:73
+msgid "Application Shortcuts"
 msgstr ""
 
-#: src/blueprints/profile.blp:99
-msgid "Keyboard Shortcut"
+#: src/blueprints/profile.blp:74
+msgid "Add an application shortcut to the profile"
 msgstr ""
 
-#: src/blueprints/profile.blp:100
+#: src/blueprints/profile.blp:82
+msgid "Add Application"
+msgstr ""
+
+#: src/blueprints/profile.blp:85 src/blueprints/application.blp:80
+msgid "Add"
+msgstr ""
+
+#: src/blueprints/shortcut.blp:5
 msgid ""
 "The shortcut that focuses the application\n"
 "Press 'Esc' to cancel or 'Backspace' to unbind"
 msgstr ""
 
-#: src/blueprints/profile.blp:107
-msgid "Not Bound"
+#: src/blueprints/shortcut.blp:13
+msgid "Delete Shortcut"
 msgstr ""
 
-#: src/blueprints/profile.blp:114
-msgid "Minimize When Unfocused"
+#: src/blueprints/application.blp:25
+msgid "Delete Application Shortcut"
 msgstr ""
 
-#: src/blueprints/profile.blp:115
-msgid ""
-"Minimize the application window if already focused\n"
-"By default, the application window is sent to the back"
+#: src/blueprints/application.blp:33
+msgid "Duplicate Application Shortcut"
 msgstr ""
 
-#: src/blueprints/profile.blp:127
+#: src/blueprints/application.blp:58
+msgid "Application"
+msgstr ""
+
+#: src/blueprints/application.blp:59
+msgid "The application that will be focused"
+msgstr ""
+
+#: src/blueprints/application.blp:68
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: src/blueprints/application.blp:69
+msgid "All the shortcuts used to focus your application"
+msgstr ""
+
+#: src/blueprints/application.blp:77
+msgid "Add Shortcut"
+msgstr ""
+
+#: src/blueprints/application.blp:89
 msgid "Launch Application"
 msgstr ""
 
-#: src/blueprints/profile.blp:128
+#: src/blueprints/application.blp:90
 msgid "Launch the application if no windows are found"
 msgstr ""
 
-#: src/blueprints/profile.blp:135
+#: src/blueprints/application.blp:97
 msgid "Command Line Arguments"
 msgstr ""
 
-#: src/blueprints/profile.blp:136
+#: src/blueprints/application.blp:98
 msgid "Override any arguments passed to the application"
 msgstr ""
 
-#: src/blueprints/profile.blp:142
+#: src/blueprints/application.blp:104
 msgid "Arguments"
 msgstr ""
 
-#: src/blueprints/profile.blp:150
+#: src/blueprints/application.blp:112
 msgid "Filter by Title"
 msgstr ""
 
-#: src/blueprints/profile.blp:151
+#: src/blueprints/application.blp:113
 msgid "Filter the application windows by a specified title"
 msgstr ""
 
-#: src/blueprints/profile.blp:158
+#: src/blueprints/application.blp:120
 msgid "Title to Match"
 msgstr ""
 
-#: src/blueprints/profile.blp:159
+#: src/blueprints/application.blp:121
 msgid "Match window titles against a regular expression"
 msgstr ""
 
-#: src/blueprints/profile.blp:165
+#: src/blueprints/application.blp:127
 msgid "Window Title"
 msgstr ""
 
-#: src/blueprints/profile.blp:173
+#: src/blueprints/application.blp:135
 msgid "Filter by Workspace"
 msgstr ""
 
-#: src/blueprints/profile.blp:174
+#: src/blueprints/application.blp:136
 msgid "Filter the application windows based on its workspace"
 msgstr ""
 
-#: src/blueprints/profile.blp:181
+#: src/blueprints/application.blp:143
 msgid "Filter to Current Workspace"
 msgstr ""
 
-#: src/blueprints/profile.blp:182
+#: src/blueprints/application.blp:144
 msgid "Only consider application windows in the current workspace"
 msgstr ""
 
-#: src/blueprints/profile.blp:195
+#: src/blueprints/application.blp:157
 msgid "Workspace to Match"
 msgstr ""
 
-#: src/blueprints/profile.blp:196
+#: src/blueprints/application.blp:158
 msgid ""
 "The specific workspace that should be matched\n"
 "Workspaces are numbered starting from 0"
 msgstr ""
 
-#: src/blueprints/profile.blp:215
+#: src/blueprints/application.blp:177
 msgid "Filter by Monitor"
 msgstr ""
 
-#: src/blueprints/profile.blp:216
+#: src/blueprints/application.blp:178
 msgid "Filter the application windows based on its monitor"
 msgstr ""
 
-#: src/blueprints/profile.blp:223
+#: src/blueprints/application.blp:185
 msgid "Filter to Current Monitor"
 msgstr ""
 
-#: src/blueprints/profile.blp:224
+#: src/blueprints/application.blp:186
 msgid "Only consider application windows in the current monitor"
 msgstr ""
 
-#: src/blueprints/profile.blp:237
+#: src/blueprints/application.blp:199
 msgid "Monitor to Match"
 msgstr ""
 
-#: src/blueprints/profile.blp:238
+#: src/blueprints/application.blp:200
 msgid ""
 "The specific monitor that should be matchedMonitors are numbered starting "
 "from 0"
 msgstr ""
 
-#: src/blueprints/profile.blp:257
+#: src/blueprints/application.blp:219
 msgid "Move On Focus"
 msgstr ""
 
-#: src/blueprints/profile.blp:258
+#: src/blueprints/application.blp:220
 msgid "Move the window on focus"
 msgstr ""
 
-#: src/blueprints/profile.blp:265
+#: src/blueprints/application.blp:227
 msgid "Move to Current Workspace"
 msgstr ""
 
-#: src/blueprints/profile.blp:266
+#: src/blueprints/application.blp:228
 msgid ""
 "Move the window to the current workspace unless filtered to a specific "
 "workspace"
 msgstr ""
 
-#: src/blueprints/profile.blp:278
+#: src/blueprints/application.blp:240
 msgid "Move to Current Monitor"
 msgstr ""
 
-#: src/blueprints/profile.blp:279
+#: src/blueprints/application.blp:241
 msgid ""
 "Move the window to the current monitor unless filtered to a specific monitor"
 msgstr ""
 
-#: src/blueprints/profile.blp:292
+#: src/blueprints/application.blp:254
 msgid "Resize On Focus"
 msgstr ""
 
-#: src/blueprints/profile.blp:293
+#: src/blueprints/application.blp:255
 msgid "Resize the window on focus"
 msgstr ""
 
-#: src/blueprints/profile.blp:300
+#: src/blueprints/application.blp:262
 msgid "Maximize Window"
 msgstr ""
 
-#: src/blueprints/profile.blp:301
+#: src/blueprints/application.blp:263
 msgid "Maximize the application window"
 msgstr ""
 
-#: src/blueprints/profile.blp:314
+#: src/blueprints/application.blp:276
 msgid "Use Pixels"
 msgstr ""
 
-#: src/blueprints/profile.blp:315
+#: src/blueprints/application.blp:277
 msgid "Define the application window size by its pixels"
 msgstr ""
 
-#: src/blueprints/profile.blp:328
+#: src/blueprints/application.blp:290
 msgid "Top Left X Coordinate"
 msgstr ""
 
-#: src/blueprints/profile.blp:329
+#: src/blueprints/application.blp:291
 msgid "The x coordinate for the top left corner of the application window"
 msgstr ""
 
-#: src/blueprints/profile.blp:348
+#: src/blueprints/application.blp:310
 msgid "Top Left Y Coordinate"
 msgstr ""
 
-#: src/blueprints/profile.blp:349
+#: src/blueprints/application.blp:311
 msgid "The y coordinate for the top left corner of the application window"
 msgstr ""
 
-#: src/blueprints/profile.blp:368
+#: src/blueprints/application.blp:330
 msgid "Bottom Right X Coordinate"
 msgstr ""
 
-#: src/blueprints/profile.blp:369
+#: src/blueprints/application.blp:331
 msgid "The x coordinate for the bottom right corner of the application window"
 msgstr ""
 
-#: src/blueprints/profile.blp:388
+#: src/blueprints/application.blp:350
 msgid "Bottom Right Y Coordinate"
 msgstr ""
 
-#: src/blueprints/profile.blp:389
+#: src/blueprints/application.blp:351
 msgid "The y coordinate for the bottom right corner of the application window"
 msgstr ""
 
-#: src/blueprints/profile.blp:410
+#: src/blueprints/application.blp:372
 msgid "Use Proportions"
 msgstr ""
 
-#: src/blueprints/profile.blp:411
+#: src/blueprints/application.blp:373
 msgid ""
 "Define the application window size by its relative proportions to the screen"
 msgstr ""
 
-#: src/blueprints/profile.blp:425
+#: src/blueprints/application.blp:387
 msgid "Grid Size"
 msgstr ""
 
-#: src/blueprints/profile.blp:426
+#: src/blueprints/application.blp:388
 msgid ""
 "The number of screen slices that should be made\n"
 "This defines the units used to resize the application window"
 msgstr ""
 
-#: src/blueprints/profile.blp:445
+#: src/blueprints/application.blp:407
 msgid "Application Column Start"
 msgstr ""
 
-#: src/blueprints/profile.blp:446
+#: src/blueprints/application.blp:408
 msgid "The grid cell column representing the left of the application window"
 msgstr ""
 
-#: src/blueprints/profile.blp:465
+#: src/blueprints/application.blp:427
 msgid "Application Width"
 msgstr ""
 
-#: src/blueprints/profile.blp:466
+#: src/blueprints/application.blp:428
 msgid "The width in grid cells of the application window"
 msgstr ""
 
-#: src/blueprints/profile.blp:485
+#: src/blueprints/application.blp:447
 msgid "Application Row Start"
 msgstr ""
 
-#: src/blueprints/profile.blp:486
+#: src/blueprints/application.blp:448
 msgid "The grid cell row representing the top of the application window"
 msgstr ""
 
-#: src/blueprints/profile.blp:505
+#: src/blueprints/application.blp:467
 msgid "Application Window Height"
 msgstr ""
 
-#: src/blueprints/profile.blp:506
+#: src/blueprints/application.blp:468
 msgid "The height in grid cells of the application window"
+msgstr ""
+
+#: src/blueprints/application.blp:489
+msgid "Minimize When Unfocused"
+msgstr ""
+
+#: src/blueprints/application.blp:490
+msgid ""
+"Minimize the application window if already focused\n"
+"By default, the application window is sent to the back"
 msgstr ""

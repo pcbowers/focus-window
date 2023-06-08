@@ -1,11 +1,204 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist>
+<schemalist gettext-domain="focus-window@chris.al">
   <schema id="org.gnome.shell.extensions.focus-window" path="/org/gnome/shell/extensions/focus-window/">
     <!-- See also: https://docs.gtk.org/glib/gvariant-format-strings.html -->
-    <key name="app-settings" type="aa{sv}">
+    <key name="profiles" type="as">
       <default>[]</default>
-      <summary>Data</summary>
-      <description>An array of objects containing an application ID, a window title, a boolean toggling exact title match, a boolean toggling application launch, and an array of strings making up a keyboard shortcut</description>
+      <summary>Profile ID's</summary>
+      <description>An array of profile ID's</description>
+    </key>
+  </schema>
+
+  <schema id="org.gnome.shell.extensions.focus-window.profile">
+    <key name="id" type="s">
+      <default>""</default>
+      <summary>Profile ID</summary>
+      <description>The ID of the profile</description>
+    </key>
+    <key name="name" type="s">
+      <default>""</default>
+      <summary>Profile Name</summary>
+      <description>The name of the profile</description>
+    </key>
+    <key name="enabled" type="b">
+      <default>true</default>
+      <summary>Profile Enabled</summary>
+      <description>Whether the profile is enabled</description>
+    </key>
+    <key name="applications" type="as">
+      <default>[]</default>
+      <summary>Profile Application ID's</summary>
+      <description>An array of application ID's</description>
+    </key>
+  </schema>
+
+  <schema id="org.gnome.shell.extensions.focus-window.application">
+    <key name="id" type="s">
+      <default>""</default>
+      <summary>Application ID</summary>
+      <description>The ID of the application</description>
+    </key>
+    <key name="name" type="s">
+      <default>""</default>
+      <summary>Application Name</summary>
+      <description>The name of the application</description>
+    </key>
+    <key name="enabled" type="b">
+      <default>true</default>
+      <summary>Application Enabled</summary>
+      <description>Whether the application is enabled</description>
+    </key>
+    <key name="shortcuts" type="as">
+      <default>[]</default>
+      <summary>Application Shortcut ID's</summary>
+      <description>An array of keyboard shortcut ID's</description>
+    </key>
+    <key name="launch" type="b">
+      <default>true</default>
+      <summary>Launch Application</summary>
+      <description>Whether to launch the application if it is not running</description>
+    </key>
+    <key name="command-line-args" type="s">
+      <default>""</default>
+      <summary>Command Line Arguments</summary>
+      <description>Command line arguments to pass to the application on launch</description>
+    </key>
+    <key name="filter-by-title" type="b">
+      <default>false</default>
+      <summary>Filter by Title</summary>
+      <description>Whether to filter by the application title</description>
+    </key>
+    <key name="title-to-match" type="s">
+      <default>""</default>
+      <summary>Title to Match</summary>
+      <description>The title to match</description>
+    </key>
+    <key name="filter-by-workspace" type="b">
+      <default>false</default>
+      <summary>Filter by Workspace</summary>
+      <description>Whether to filter by the application workspace</description>
+    </key>
+    <key name="filter-to-current-workspace" type="b">
+      <default>false</default>
+      <summary>Filter to Current Workspace</summary>
+      <description>Whether to filter to the current workspace</description>
+    </key>
+    <key name="workspace-to-match" type="i">
+      <default>0</default>
+      <summary>Workspace to Match</summary>
+      <description>The workspace to match</description>
+    </key>
+    <key name="filter-by-monitor" type="b">
+      <default>false</default>
+      <summary>Filter by Monitor</summary>
+      <description>Whether to filter by the application monitor</description>
+    </key>
+    <key name="filter-to-current-monitor" type="b">
+      <default>false</default>
+      <summary>Filter to Current Monitor</summary>
+      <description>Whether to filter to the current monitor</description>
+    </key>
+    <key name="monitor-to-match" type="i">
+      <default>0</default>
+      <summary>Monitor to Match</summary>
+      <description>The monitor to match</description>
+    </key>
+    <key name="move-on-focus" type="b">
+      <default>false</default>
+      <summary>Move on Focus</summary>
+      <description>Whether to move the window when it is focused</description>
+    </key>
+    <key name="move-to-current-workspace" type="b">
+      <default>false</default>
+      <summary>Move to Current Workspace</summary>
+      <description>Whether to move the window to the current workspace</description>
+    </key>
+    <key name="move-to-current-monitor" type="b">
+      <default>false</default>
+      <summary>Move to Current Monitor</summary>
+      <description>Whether to move the window to the current monitor</description>
+    </key>
+    <key name="resize-on-focus" type="b">
+      <default>false</default>
+      <summary>Resize on Focus</summary>
+      <description>Whether to resize the window when it is focused</description>
+    </key>
+    <key name="maximize-window" type="b">
+      <default>false</default>
+      <summary>Maximize Window</summary>
+      <description>Whether to maximize the window on focus</description>
+    </key>
+    <key name="use-pixels" type="b">
+      <default>false</default>
+      <summary>Use Pixels</summary>
+      <description>Whether to use pixels for the resize amount</description>
+    </key>
+    <key name="top-left-x" type="i">
+      <default>0</default>
+      <summary>Top Left X</summary>
+      <description>The top left X coordinate</description>
+    </key>
+    <key name="top-left-y" type="i">
+      <default>0</default>
+      <summary>Top Left Y</summary>
+      <description>The top left Y coordinate</description>
+    </key>
+    <key name="bottom-right-x" type="i">
+      <default>0</default>
+      <summary>Bottom Right X</summary>
+      <description>The bottom right X coordinate</description>
+    </key>
+    <key name="bottom-right-y" type="i">
+      <default>0</default>
+      <summary>Bottom Right Y</summary>
+      <description>The bottom right Y coordinate</description>
+    </key>
+    <key name="use-proportions" type="b">
+      <default>true</default>
+      <summary>Use Proportions</summary>
+      <description>Whether to use proportions for the resize amount</description>
+    </key>
+    <key name="grid-size" type="i">
+      <default>12</default>
+      <summary>Grid Size</summary>
+      <description>The grid size</description>
+    </key>
+    <key name="column-start" type="i">
+      <default>2</default>
+      <summary>Column Start</summary>
+      <description>The column start</description>
+    </key>
+    <key name="width" type="i">
+      <default>8</default>
+      <summary>Width</summary>
+      <description>The width</description>
+    </key>
+    <key name="row-start" type="i">
+      <default>2</default>
+      <summary>Row Start</summary>
+      <description>The row start</description>
+    </key>
+    <key name="height" type="i">
+      <default>8</default>
+      <summary>Height</summary>
+      <description>The height</description>
+    </key>
+    <key name="minimize-when-unfocused" type="b">
+      <default>false</default>
+      <summary>Minimize when Unfocused</summary>
+      <description>Whether to minimize the window when it is unfocused</description>
+    </key>
+  </schema>
+  <schema id="org.gnome.shell.extensions.focus-window.shortcut">
+    <key name="id" type="s">
+      <default>""</default>
+      <summary>Shortcut ID</summary>
+      <description>The shortcut ID</description>
+    </key>
+    <key name="shortcut" type="as">
+      <default>[]</default>
+      <summary>Shortcut</summary>
+      <description>A keyboard shortcut</description>
     </key>
   </schema>
 </schemalist>

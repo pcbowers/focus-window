@@ -2,8 +2,8 @@ using Gtk 4.0;
 using Adw 1;
 
 template $ApplicationExpanderRow : Adw.ExpanderRow {
-  title: bind $onApplicationItem() as <string>;
-  subtitle: bind $onShortcutRow() as <string>;
+  title: _("No App Selected");
+  subtitle: _("No Keyboard Shortcuts");
   show-enable-switch: true;
   expanded: false;
   
@@ -11,54 +11,42 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
 
   [prefix]
   Box {
-    styles ["toolbar"]
+    styles ["linked"]
 
-    Box {
-      styles ["linked"]
+    homogeneous: true;
 
-      homogeneous: true;
+    Button deleteApplication {   
+      styles ["error", "raised"]
 
-      Button deleteApplication {
-        styles ["error", "raised"]
-        
-        valign: center;
-        tooltip-markup: _("Delete Application Shortcut");
-        icon-name: "edit-delete-symbolic";
-        
-        clicked => $onDeleteApplication();
-      }
-
-      Button duplicateApplication {
-        styles ["info", "raised"]
-        
-        valign: center;
-        tooltip-markup: _("Duplicate Application Shortcut");
-        icon-name: "edit-copy-symbolic";
-        
-        clicked => $onDuplicateApplication();
-      }
+      valign: center;
+      tooltip-markup: _("Delete Application Shortcut");
+      icon-name: "edit-delete-symbolic";
+      
+      clicked => $onDeleteApplication();
     }
 
-    Box {
-      styles ["linked"]
+    Button duplicateApplication {        
+      valign: center;
+      tooltip-markup: _("Duplicate Application Shortcut");
+      icon-name: "edit-copy-symbolic";
       
-      homogeneous: true;
+      clicked => $onDuplicateApplication();
+    }
 
-      Button increasePriority {
-        valign: center;
-        tooltip-markup: _("Increase Priority");
-        icon-name: "pan-up-symbolic";
-        
-        clicked => $onIncreasePriority();
-      }
+    Button increasePriority {
+      valign: center;
+      tooltip-markup: _("Increase Priority");
+      icon-name: "pan-up-symbolic";
+      
+      clicked => $onIncreasePriority();
+    }
 
-      Button decreasePriority {
-        valign: center;
-        tooltip-markup: _("Decrease Priority");
-        icon-name: "pan-down-symbolic";
-        
-        clicked => $onDecreasePriority();
-      }
+    Button decreasePriority {
+      valign: center;
+      tooltip-markup: _("Decrease Priority");
+      icon-name: "pan-down-symbolic";
+      
+      clicked => $onDecreasePriority();
     }
   }
 
@@ -71,32 +59,25 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
     
     notify::selected => $onApplicationItem();
   }
-  
-  Adw.ActionRow shortcutRow {
-    title: _("Keyboard Shortcut");
-    subtitle: _("The shortcut that focuses the application\nPress 'Esc' to cancel or 'Backspace' to unbind");
-    activatable-widget: shortcut;
+
+  Adw.ExpanderRow shortcuts {
+    title: _("Keyboard Shortcuts");
+    subtitle: _("All the shortcuts used to focus your application");
+    expanded: true;
     
-    activated => $onShortcutRow();
-    
-    ShortcutLabel shortcut {
-      valign: center;
-      disabled-text: _("Not Bound");
-      focus-on-click: true;
-      accelerator: "";
-    }
-  }
-  
-  Adw.ActionRow minimizeRow {
-    title: _("Minimize When Unfocused");
-    subtitle: _("Minimize the application window if already focused\nBy default, the application window is sent to the back");
-    activatable-widget: minimize;
-    
-    Switch minimize {
-      valign: center;
-      active: false;
+    [action]
+    Button {    
+      styles ["suggested-action"]
       
-      notify::active => $onMinimize();
+      valign: center;
+      tooltip-markup: _("Add Shortcut");
+      
+      Adw.ButtonContent {
+        label: _("Add");
+        icon-name: "preferences-desktop-keyboard-shortcuts-symbolic";
+      }
+
+      clicked => $onAddShortcut();
     }
   }
   
@@ -497,6 +478,19 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
           notify::value => $onApplicationHeight();
         }
       }
+    }
+  }
+
+  Adw.ActionRow minimizeRow {
+    title: _("Minimize When Unfocused");
+    subtitle: _("Minimize the application window if already focused\nBy default, the application window is sent to the back");
+    activatable-widget: minimize;
+    
+    Switch minimize {
+      valign: center;
+      active: false;
+      
+      notify::active => $onMinimize();
     }
   }
 }

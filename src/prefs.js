@@ -1,5 +1,5 @@
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+const { extensionUtils } = imports.misc;
+const Me = extensionUtils.getCurrentExtension();
 
 /** @type {import("$lib/common/utils").Debug} */
 const debug = Me.imports.lib.common.utils.debug;
@@ -8,7 +8,7 @@ const debug = Me.imports.lib.common.utils.debug;
 const Prefs = Me.imports.lib.prefs.prefs.prefs;
 
 function init() {
-  ExtensionUtils.initTranslations(Me.metadata.uuid);
+  extensionUtils.initTranslations(Me.metadata.uuid);
 }
 
 /**
@@ -18,6 +18,7 @@ function fillPreferencesWindow(window) {
   debug('Filling Preferences Window...');
   // const settings = ExtensionUtils.getSettings(Me.metadata['settings-schema']);
   debug('TODO: use settings');
-  const preferencesPage = new Prefs({});
-  window.add(preferencesPage);
+
+  window.add(new Prefs({}));
+  window.search_enabled = true;
 }
