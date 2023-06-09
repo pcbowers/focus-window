@@ -83,10 +83,11 @@ gnome-extensions prefs focus-window@chris.al
 - [x] Add Ability to Modify Types on Demand
 - [x] Implement UI
 - [x] Add Translation Support
-- [ ] Add Support to Set and Get Settings
-- [ ] Bind Settings to UI
-- [ ] Add Duplication Support
-- [ ] Ensure Changing Priority also Changes Settings
+- [x] Add Support to Set and Get Settings
+- [x] Bind Settings to UI
+- [x] Add Duplication Support
+- [x] Ensure Changing Priority also Changes Settings
+- [x] Add Settings to Extension Files
 - [ ] Implement Extension
 
 ## :open_book: Usage
