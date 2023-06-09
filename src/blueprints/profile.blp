@@ -3,20 +3,18 @@ using Adw 1;
 
 template $ProfileExpanderRow : Adw.PreferencesGroup {
   Adw.ExpanderRow profile {
-    title: bind-property profileName.text;
+    title: bind-property profile-name.text;
     subtitle: _("No Application Shortcuts");
     show-enable-switch: true;
     expanded: false;
     
-    notify::enable-expansion => $onProfile();
-
     [prefix]
     Box {
       styles ["linked"]
 
       homogeneous: true;
 
-      Button deleteProfile {
+      Button {
         styles ["error", "raised"]
         
         valign: center;
@@ -26,7 +24,7 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
         clicked => $onDeleteProfile();
       }
 
-      Button duplicateProfile {
+      Button {
         valign: center;
         tooltip-markup: _("Duplicate Profile");
         icon-name: "edit-copy-symbolic";
@@ -34,7 +32,7 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
         clicked => $onDuplicateProfile();
       }
 
-      Button increasePriority {
+      Button {
         valign: center;
         tooltip-markup: _("Increase Priority");
         icon-name: "pan-up-symbolic";
@@ -42,7 +40,7 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
         clicked => $onIncreasePriority();
       }
 
-      Button decreasePriority {
+      Button {
         valign: center;
         tooltip-markup: _("Decrease Priority");
         icon-name: "pan-down-symbolic";
@@ -54,14 +52,12 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
     Adw.ActionRow {
       title: _("Profile Name");
       subtitle: _("The name of the profile");
-      activatable-widget: profileName;
+      activatable-widget: profile-name;
       
-      Entry profileName {
+      Entry profile-name {
         width-chars: 30;
         valign: center;
         placeholder-text: _("Profile Name");
-        
-        notify::text => $onProfileName();
       }
     }
     
@@ -71,7 +67,7 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
       expanded: true;
 
       [action]
-      Button addApplication {    
+      Button {    
         styles ["suggested-action"]
         
         valign: center;

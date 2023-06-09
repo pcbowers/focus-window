@@ -6,35 +6,130 @@ const Domain = Gettext.domain(Me.metadata.uuid);
 const _ = Domain.gettext;
 const ngettext = Domain.ngettext;
 
+/** @type { import('$lib/common/utils').SETTINGS_SCHEMA} */
+const SETTINGS_SCHEMA = Me.imports.lib.common.utils.SETTINGS_SCHEMA;
+
 /** @type {import('$lib/common/utils').Debug} */
 const debug = Me.imports.lib.common.utils.debug;
 
 /** @type {import('$lib/common/utils').CreateId} */
 const createId = Me.imports.lib.common.utils.createId;
 
-/** @type {import("$lib/prefs/shortcut").Shortcut} */
+/** @type {import('$lib/prefs/shortcut').Shortcut} */
 const Shortcut = Me.imports.lib.prefs.shortcut.shortcut;
+
+/**
+ * @typedef {Object} ApplicationSettingsProps
+ * @property {'settings'} type
+ * @property {string} id
+ */
+
+/**
+ * @typedef {Object} ApplicationNewProps
+ * @property {'new'} type
+ * @property {string} name
+ */
+
+/**
+ * @typedef {Object} ApplicationCopyProps
+ * @property {'copy'} type
+ * @property {boolean} [duplicateShortcuts]
+ * @property {import('$types/gio-2.0').Gio.Settings} settings
+ */
+
+/**
+ * @typedef {ApplicationSettingsProps | ApplicationNewProps | ApplicationCopyProps} ApplicationProps
+ */
+
+/**
+ * @typedef {Object} ApplicationSettings
+ * @property {boolean} enabled
+ * @property {string} name
+ * @property {import('$lib/prefs/shortcut').ShortcutSettings[]} shortcuts
+ * @property {boolean} launch-application
+ * @property {string} command-line-arguments
+ * @property {boolean} filter-by-title
+ * @property {string} title-to-match
+ * @property {boolean} filter-by-workspace
+ * @property {boolean} filter-to-current-workspace
+ * @property {number} workspace-to-match
+ * @property {boolean} filter-by-monitor
+ * @property {boolean} filter-to-current-monitor
+ * @property {number} monitor-to-match
+ * @property {boolean} move-on-focus
+ * @property {boolean} move-to-current-workspace
+ * @property {boolean} move-to-current-monitor
+ * @property {boolean} resize-on-focus
+ * @property {boolean} maximize
+ * @property {boolean} use-pixels
+ * @property {number} top-left-x
+ * @property {number} top-left-y
+ * @property {number} bottom-right-x
+ * @property {number} bottom-right-y
+ * @property {boolean} use-proportions
+ * @property {number} grid-size
+ * @property {number} column-start
+ * @property {number} width
+ * @property {number} row-start
+ * @property {number} height
+ * @property {boolean} minimize
+ */
 
 /** @typedef {typeof ApplicationClass} Application */
 /** @typedef {ApplicationClass} ApplicationInstance */
 class ApplicationClass extends Adw.ExpanderRow {
+  /** @type {string} */
+  _id = createId();
+
+  /** @type {import('$lib/prefs/shortcut').ShortcutInstance[]} */
+  _shortcutsList = [];
+
+  bindingProperties = {
+    'launch-application': 'enable-expansion',
+    'command-line-arguments': 'text',
+    'filter-by-title': 'enable-expansion',
+    'title-to-match': 'text',
+    'filter-by-workspace': 'enable-expansion',
+    'filter-to-current-workspace': 'active',
+    'workspace-to-match': 'value',
+    'filter-by-monitor': 'enable-expansion',
+    'filter-to-current-monitor': 'active',
+    'monitor-to-match': 'value',
+    'move-on-focus': 'enable-expansion',
+    'move-to-current-workspace': 'active',
+    'move-to-current-monitor': 'active',
+    'resize-on-focus': 'enable-expansion',
+    maximize: 'active',
+    'use-pixels': 'active',
+    'top-left-x': 'value',
+    'top-left-y': 'value',
+    'bottom-right-x': 'value',
+    'bottom-right-y': 'value',
+    'use-proportions': 'active',
+    'grid-size': 'value',
+    'column-start': 'value',
+    width: 'value',
+    'row-start': 'value',
+    height: 'value',
+    minimize: 'active'
+  };
+
   /**
    * @param {import('$types/adw-1').Adw.ExpanderRow.ConstructorProperties} AdwExpanderRowProps
    * @param {(id: string) => void} deleteApplication
    * @param {(id: string) => void} duplicateApplication
    * @param {(id: string, increasePriority: boolean) => void} changeApplicationPriority
+   * @param {ApplicationProps} applicationProps
    */
   constructor(
     AdwExpanderRowProps = {},
     deleteApplication,
     duplicateApplication,
-    changeApplicationPriority
+    changeApplicationPriority,
+    applicationProps
   ) {
-    super(AdwExpanderRowProps);
     debug('Creating Application...');
-
-    /** @type {string} */
-    this._id = createId();
+    super(AdwExpanderRowProps);
 
     /** @type {typeof deleteApplication} */
     this._deleteApplication = deleteApplication;
@@ -45,178 +140,147 @@ class ApplicationClass extends Adw.ExpanderRow {
     /** @type {typeof changeApplicationPriority} */
     this._changeApplicationPriority = changeApplicationPriority;
 
-    /** @type {boolean} */
-    this._keyboardIsGrabbed = false;
-
-    /** @type {string | null} */
-    this._lastAccelerator = '';
-
-    /** @type {import('$lib/prefs/shortcut').ShortcutInstance[]} */
-    this._shortcutsList = [];
-
     /** @type {import('$types/gtk-4.0').Gtk.StringList} */
-    this._applicationList = this._applicationList;
+    this._application_list = this._application_list;
+
+    /** @type {import('$types/adw-1').Adw.ComboRow} */
+    this._application_item = this._application_item;
 
     /** @type {import('$types/adw-1').Adw.ExpanderRow} */
     this._shortcuts = this._shortcuts;
 
     this._populateApplications();
+
+    if (applicationProps.type === 'settings') {
+      this._id = applicationProps.id;
+    }
+
+    /** @type {import('$types/gio-2.0').Gio.Settings} */
+    this.settings = new Gio.Settings({
+      settings_schema: SETTINGS_SCHEMA.lookup(
+        'org.gnome.shell.extensions.focus-window.application',
+        true
+      ),
+      path: `/org/gnome/shell/extensions/focus-window/application/${this._id}/`
+    });
+
+    Object.entries(this.bindingProperties).forEach(([key, property]) => {
+      this.settings.bind(
+        key,
+        this[`_${key.replaceAll('-', '_')}`],
+        property,
+        Gio.SettingsBindFlags.DEFAULT
+      );
+    });
+
+    this.settings.bind('enabled', this, 'enable-expansion', Gio.SettingsBindFlags.DEFAULT);
+    this.settings.bind('name', this, 'title', Gio.SettingsBindFlags.DEFAULT);
+
+    if (applicationProps.type === 'settings') {
+      this.settings.get_strv('shortcuts').forEach(shortcutId => {
+        const application = this._createShortcut({
+          type: 'settings',
+          id: shortcutId,
+          name: this._getNextShortcutName()
+        });
+        this._shortcutsList.push(application);
+        this._shortcuts.add_row(application);
+        this._setSubtitle();
+      });
+    } else if (applicationProps.type === 'new') {
+      this.set_title(applicationProps.name);
+    } else if (applicationProps.type === 'copy') {
+      applicationProps.settings.list_keys().forEach(key => {
+        if (key === 'shortcuts') return;
+        this.settings.set_value(key, applicationProps.settings.get_value(key));
+      });
+
+      if (applicationProps.duplicateShortcuts) {
+        applicationProps.settings.get_strv('shortcuts').forEach(shortcutId => {
+          const shortcutSettings = new Gio.Settings({
+            settings_schema: SETTINGS_SCHEMA.lookup(
+              'org.gnome.shell.extensions.focus-window.shortcut',
+              true
+            ),
+            path: `/org/gnome/shell/extensions/focus-window/shortcut/${shortcutId}/`
+          });
+          const shortcut = this._createShortcut({
+            type: 'copy',
+            name: this._getNextShortcutName(),
+            settings: shortcutSettings
+          });
+          this._shortcutsList.push(shortcut);
+          this._shortcuts.add_row(shortcut);
+          this._setSubtitle();
+          this._setShortcuts();
+        });
+      }
+    }
+
+    this._application_item.set_selected(this._getApplicationPositionByString(this.title));
   }
 
   getId() {
     return this._id;
   }
 
-  onApplication() {
-    debug('TODO: implement onApplication');
-  }
-
   onDuplicateApplication() {
-    debug('Duplicating Application...');
     this._duplicateApplication(this._id);
   }
 
   onDeleteApplication() {
     debug('Deleting Application...');
+    [...this._shortcutsList].forEach(shortcut => shortcut.onDeleteShortcut());
+    this.settings.list_keys().forEach(key => this.settings.reset(key));
+    this.settings.run_dispose();
     this._deleteApplication(this._id);
   }
 
-  onApplicationItem(element) {
-    debug('TODO: implement onApplicationItem');
-    this.set_title(element.get_model().get_string(element.get_selected()) || _('No App Selected'));
-  }
-
   onIncreasePriority() {
-    debug('Increasing Priority...');
     this._changeApplicationPriority(this._id, true);
   }
 
   onDecreasePriority() {
-    debug('Decreasing Priority...');
     this._changeApplicationPriority(this._id, false);
   }
 
-  onAddShortcut() {
-    const newShortcut = new Shortcut(
-      {},
-      this._deleteShortcut.bind(this),
-      this._setSubtitle.bind(this),
-      ngettext('Shortcut %d', 'Shortcut %d', this._shortcutsList.length + 1).format(
-        this._shortcutsList.length + 1
-      )
+  onApplicationItem() {
+    const stringList = /** @type {import('$types/gtk-4.0').Gtk.StringList} **/ (
+      this._application_item.get_model()
     );
+
+    this.set_title(
+      stringList.get_string(this._application_item.get_selected()) || _('No App Selected')
+    );
+  }
+
+  onAddShortcut() {
+    const newShortcut = this._createShortcut({
+      type: 'new',
+      name: this._getNextShortcutName()
+    });
     this._shortcutsList.push(newShortcut);
     this._shortcuts.add_row(newShortcut);
     this._shortcuts.set_expanded(true);
     this._setSubtitle();
+    this._setShortcuts();
   }
 
-  onMinimize() {
-    debug('TODO: implement onMinimize');
+  _getNextShortcutName() {
+    return ngettext('Shortcut %d', 'Shortcut %d', this._shortcutsList.length + 1).format(
+      this._shortcutsList.length + 1
+    );
   }
 
-  onLaunchApplication() {
-    debug('TODO: implement onLaunchApplication');
-  }
+  /**
+   * @param {string} string
+   */
+  _getApplicationPositionByString(string) {
+    const indexPosition = Array.from(Array(this._application_list.get_n_items()).keys()).findIndex(
+      position => this._application_list.get_string(position) === string
+    );
 
-  onCommandLineArguments() {
-    debug('TODO: implement onCommandLineArguments');
-  }
-
-  onFilterByTitle() {
-    debug('TODO: implement onFilterByTitle');
-  }
-
-  onTitleToMatch() {
-    debug('TODO: implement onTitleToMatch');
-  }
-
-  onFilterByWorkspace() {
-    debug('TODO: implement onFilterByWorkspace');
-  }
-
-  onFilterToCurrentWorkspace() {
-    debug('TODO: implement onFilterToCurrentWorkspace');
-  }
-
-  onWorkspaceToMatch() {
-    debug('TODO: implement onWorkspaceToMatch');
-  }
-
-  onFilterByMonitor() {
-    debug('TODO: implement onFilterByMonitor');
-  }
-
-  onFilterToCurrentMonitor() {
-    debug('TODO: implement onFilterToCurrentMonitor');
-  }
-
-  onMonitorToMatch() {
-    debug('TODO: implement onMonitorToMatch');
-  }
-
-  onMoveOnFocus() {
-    debug('TODO: implement onMoveOnFocus');
-  }
-
-  onMoveToCurrentWorkspace() {
-    debug('TODO: implement onMoveToCurrentWorkspace');
-  }
-
-  onMoveToCurrentMonitor() {
-    debug('TODO: implement onMoveToCurrentMonitor');
-  }
-
-  onResizeOnFocus() {
-    debug('TODO: implement onResizeOnFocus');
-  }
-
-  onMaximize() {
-    debug('TODO: implement onMaximize');
-  }
-
-  onUsePixels() {
-    debug('TODO: implement onUsePixels');
-  }
-
-  onApplicationX1() {
-    debug('TODO: implement onApplicationX1');
-  }
-
-  onApplicationY1() {
-    debug('TODO: implement onApplicationY1');
-  }
-
-  onApplicationX2() {
-    debug('TODO: implement onApplicationX2');
-  }
-
-  onApplicationY2() {
-    debug('TODO: implement onApplicationY2');
-  }
-
-  onUseProportions() {
-    debug('TODO: implement onUseProportions');
-  }
-
-  onGridSize() {
-    debug('TODO: implement onGridSize');
-  }
-
-  onApplicationColumnStart() {
-    debug('TODO: implement onApplicationColumnStart');
-  }
-
-  onApplicationWidth() {
-    debug('TODO: implement onApplicationWidth');
-  }
-
-  onApplicationRowStart() {
-    debug('TODO: implement onApplicationRowStart');
-  }
-
-  onApplicationHeight() {
-    debug('TODO: implement onApplicationHeight');
+    return indexPosition === -1 ? 0 : indexPosition;
   }
 
   _populateApplications() {
@@ -231,7 +295,7 @@ class ApplicationClass extends Adw.ExpanderRow {
         position: index + 1
       }));
 
-    this.allApplications.forEach(a => this._applicationList.append(a.name));
+    this.allApplications.forEach(a => this._application_list.append(a.name));
   }
 
   _deleteShortcut(id) {
@@ -244,6 +308,19 @@ class ApplicationClass extends Adw.ExpanderRow {
       shortcut.set_title(ngettext('Shortcut %d', 'Shortcut %d', index + 1).format(index + 1))
     );
     this._setSubtitle();
+    this._setShortcuts();
+  }
+
+  /**
+   * @param {import('$lib/prefs/shortcut').ShortcutProps} shortcutProps
+   */
+  _createShortcut(shortcutProps) {
+    return new Shortcut(
+      {},
+      this._deleteShortcut.bind(this),
+      this._setSubtitle.bind(this),
+      shortcutProps
+    );
   }
 
   _setSubtitle() {
@@ -258,13 +335,51 @@ class ApplicationClass extends Adw.ExpanderRow {
     }
     this.set_subtitle(subtitle);
   }
+
+  _setShortcuts() {
+    this.settings.set_strv(
+      'shortcuts',
+      this._shortcutsList.map(shortcut => shortcut.getId())
+    );
+  }
 }
 
 var application = GObject.registerClass(
   {
     GTypeName: 'ApplicationExpanderRow',
     Template: Me.dir.get_child('ui/application.ui').get_uri(),
-    InternalChildren: ['applicationList', 'shortcuts']
+    InternalChildren: [
+      'application-list',
+      'application-item',
+      'shortcuts',
+      'launch-application',
+      'command-line-arguments',
+      'filter-by-title',
+      'title-to-match',
+      'filter-by-workspace',
+      'filter-to-current-workspace',
+      'workspace-to-match',
+      'filter-by-monitor',
+      'filter-to-current-monitor',
+      'monitor-to-match',
+      'move-on-focus',
+      'move-to-current-workspace',
+      'move-to-current-monitor',
+      'resize-on-focus',
+      'maximize',
+      'use-pixels',
+      'top-left-x',
+      'top-left-y',
+      'bottom-right-x',
+      'bottom-right-y',
+      'use-proportions',
+      'grid-size',
+      'column-start',
+      'width',
+      'row-start',
+      'height',
+      'minimize'
+    ]
   },
   ApplicationClass
 );

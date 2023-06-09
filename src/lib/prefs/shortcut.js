@@ -1,9 +1,12 @@
-const { GObject, Adw, Gtk, Gdk } = imports.gi;
+const { GObject, Adw, Gtk, Gdk, Gio } = imports.gi;
 const { extensionUtils } = imports.misc;
 const Me = extensionUtils.getCurrentExtension();
 const Gettext = imports.gettext;
 const Domain = Gettext.domain(Me.metadata.uuid);
 const _ = Domain.gettext;
+
+/** @type { import('$lib/common/utils').SETTINGS_SCHEMA} */
+const SETTINGS_SCHEMA = Me.imports.lib.common.utils.SETTINGS_SCHEMA;
 
 /** @type {import('$lib/common/utils').Debug} */
 const debug = Me.imports.lib.common.utils.debug;
@@ -11,23 +14,69 @@ const debug = Me.imports.lib.common.utils.debug;
 /** @type {import('$lib/common/utils').CreateId} */
 const createId = Me.imports.lib.common.utils.createId;
 
+/**
+ * @typedef {Object} ShortcutSettingsProps
+ * @property {'settings'} type
+ * @property {string} id
+ * @property {string} name
+ */
+
+/**
+ * @typedef {Object} ShortcutNewProps
+ * @property {'new'} type
+ * @property {string} name
+ */
+
+/**
+ * @typedef {Object} ShortcutCopyProps
+ * @property {'copy'} type
+ * @property {string} name
+ * @property {import('$types/gio-2.0').Gio.Settings} settings
+ */
+
+/**
+ * @typedef {ShortcutSettingsProps | ShortcutNewProps | ShortcutCopyProps} ShortcutProps
+ */
+
+/**
+ * @typedef {Object} ShortcutSettings
+ * @property {string} shortcut
+ */
+
 /** @typedef {typeof ShortcutClass} Shortcut */
 /** @typedef {ShortcutClass} ShortcutInstance */
 class ShortcutClass extends Adw.ActionRow {
+  /** @type {string} */
+  _id = createId();
+
+  /** @type {boolean} */
+  _keyboardIsGrabbed = false;
+
+  /** @type {string | null} */
+  _lastAccelerator = '';
+
+  /** @type {number} */
+  _keyPressedId;
+
+  /** @type {number} */
+  _leaveId;
+
+  bindingProperties = {
+    shortcut: 'accelerator'
+  };
+
   /**
    * @param {import('$types/adw-1').Adw.ActionRow.ConstructorProperties} AdwActionRowProps
    * @param {(id: string) => void} deleteShortcut
    * @param {() => void} setApplicationSubtitle
-   * @param {string} name
+   * @param {ShortcutProps} shortcutProps
    */
-  constructor(AdwActionRowProps = {}, deleteShortcut, setApplicationSubtitle, name) {
+  constructor(AdwActionRowProps = {}, deleteShortcut, setApplicationSubtitle, shortcutProps) {
+    debug('Creating Shortcut...');
     super(AdwActionRowProps);
 
-    /** @type {string} */
-    this._id = createId();
-
     /** @type {typeof deleteShortcut} */
-    this.deleteShortcut = deleteShortcut;
+    this._deleteShortcut = deleteShortcut;
 
     /** @type {typeof setApplicationSubtitle} */
     this.setApplicationSubtitle = setApplicationSubtitle;
@@ -43,15 +92,37 @@ class ShortcutClass extends Adw.ActionRow {
     this._focusController = new Gtk.EventControllerFocus();
     this.add_controller(this._focusController);
 
-    /** @type {number} */
-    this._keyPressedId;
-
-    /** @type {number} */
-    this._leaveId;
-
-    this.set_title(name);
-
     this._createShortcutListener();
+
+    if (shortcutProps.type === 'settings') {
+      this._id = shortcutProps.id;
+    }
+
+    /** @type {import('$types/gio-2.0').Gio.Settings} */
+    this.settings = new Gio.Settings({
+      settings_schema: SETTINGS_SCHEMA.lookup(
+        'org.gnome.shell.extensions.focus-window.shortcut',
+        true
+      ),
+      path: `/org/gnome/shell/extensions/focus-window/shortcut/${this._id}/`
+    });
+
+    Object.entries(this.bindingProperties).forEach(([key, property]) => {
+      this.settings.bind(
+        key,
+        this[`_${key.replaceAll('-', '_')}`],
+        property,
+        Gio.SettingsBindFlags.DEFAULT
+      );
+    });
+
+    if (shortcutProps.type === 'copy') {
+      shortcutProps.settings.list_keys().forEach(key => {
+        this.settings.set_value(key, shortcutProps.settings.get_value(key));
+      });
+    }
+
+    this.set_title(shortcutProps.name);
   }
 
   getId() {
@@ -63,9 +134,7 @@ class ShortcutClass extends Adw.ActionRow {
   }
 
   onShortcutRow() {
-    debug('TODO: implement onShortcutRow');
-
-    if (this.keyboardIsGrabbed) {
+    if (this._keyboardIsGrabbed) {
       this._cancelKeyboardGrab();
     } else {
       this._grabKeyboard();
@@ -73,22 +142,24 @@ class ShortcutClass extends Adw.ActionRow {
   }
 
   onDeleteShortcut() {
-    debug('TODO: implement onDeleteShortcut');
+    debug('Deleting Shortcut...');
+    this.settings.list_keys().forEach(key => this.settings.reset(key));
+    this.settings.run_dispose();
     this._keyController.disconnect(this._keyPressedId);
     this._focusController.disconnect(this._leaveId);
-    this.deleteShortcut(this._id);
+    this._deleteShortcut(this._id);
   }
 
   _createShortcutListener() {
     this._keyPressedId = this._keyController.connect('key-pressed', (c, key, keycode, state) => {
-      if (this.keyboardIsGrabbed) {
+      if (this._keyboardIsGrabbed) {
         const mods = state & Gtk.accelerator_get_default_mod_mask();
 
         // Adapted from: https://github.com/Schneegans/Fly-Pie
         if (key === Gdk.KEY_Escape) {
           this._cancelKeyboardGrab();
         } else if (key === Gdk.KEY_BackSpace) {
-          this.lastAccelerator = '';
+          this._lastAccelerator = '';
           this._cancelKeyboardGrab();
         } else if (
           Gtk.accelerator_valid(key, mods) ||
@@ -97,7 +168,7 @@ class ShortcutClass extends Adw.ActionRow {
           key === Gdk.KEY_KP_Tab
         ) {
           const accelerator = Gtk.accelerator_name(key, mods);
-          this.lastAccelerator = accelerator;
+          this._lastAccelerator = accelerator;
           this._cancelKeyboardGrab();
         }
 
@@ -114,8 +185,8 @@ class ShortcutClass extends Adw.ActionRow {
 
   _grabKeyboard() {
     this.root.get_surface().inhibit_system_shortcuts(null);
-    this.keyboardIsGrabbed = true;
-    this.lastAccelerator = this._shortcut.get_accelerator();
+    this._keyboardIsGrabbed = true;
+    this._lastAccelerator = this._shortcut.get_accelerator();
     this._shortcut.set_accelerator('');
     this._shortcut.set_disabled_text(_('Listening For Shortcut...'));
     this.setApplicationSubtitle();
@@ -123,8 +194,8 @@ class ShortcutClass extends Adw.ActionRow {
 
   _cancelKeyboardGrab() {
     this.root.get_surface().restore_system_shortcuts();
-    this.keyboardIsGrabbed = false;
-    this._shortcut.set_accelerator(this.lastAccelerator || '');
+    this._keyboardIsGrabbed = false;
+    this._shortcut.set_accelerator(this._lastAccelerator || '');
     this._shortcut.set_disabled_text(_('Not Bound'));
     this.setApplicationSubtitle();
   }

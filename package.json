@@ -8,7 +8,6 @@
     "test:prefs": "npm run test:build && npm run prefs && npm run test:log:prefs",
     "test:extension": "npm run enable && npm run test:build && dbus-run-session -- gnome-shell --nested --wayland",
     "test:build": "./build.sh -irv",
-    "test:open": "",
     "test:log": "journalctl -f -o cat | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
     "test:log:prefs": "journalctl -f -o cat /usr/bin/gjs | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
     "test:log:extension": "journalctl -f -o cat GNOME_SHELL_EXTENSION_UUID=focus-window@chris.al | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",

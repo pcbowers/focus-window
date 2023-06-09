@@ -1,4 +1,4 @@
-const { GObject, Adw } = imports.gi;
+const { GObject, Adw, Gio } = imports.gi;
 const { extensionUtils } = imports.misc;
 const Me = extensionUtils.getCurrentExtension();
 const Gettext = imports.gettext;
@@ -6,11 +6,19 @@ const Domain = Gettext.domain(Me.metadata.uuid);
 const _ = Domain.gettext;
 const ngettext = Domain.ngettext;
 
+/** @type { import('$lib/common/utils').SETTINGS_SCHEMA} */
+const SETTINGS_SCHEMA = Me.imports.lib.common.utils.SETTINGS_SCHEMA;
+
 /** @type {import('$lib/common/utils').Debug} */
 const debug = Me.imports.lib.common.utils.debug;
 
 /** @type {import('$lib/prefs/profile').Profile} */
 const Profile = Me.imports.lib.prefs.profile.profile;
+
+/**
+ * @typedef {Object} PrefsSettings
+ * @property {import('$lib/prefs/profile').ProfileSettings[]} profiles
+ */
 
 /** @typedef {typeof PrefsClass} Prefs */
 /** @typedef {PrefsClass} PrefsInstance */
@@ -19,26 +27,35 @@ class PrefsClass extends Adw.PreferencesPage {
    * @param {import('$types/adw-1').Adw.PreferencesPage.ConstructorProperties} AdwPreferencesPageProps
    */
   constructor(AdwPreferencesPageProps = {}) {
-    super(AdwPreferencesPageProps);
     debug('Creating Preferences Page...');
+    super(AdwPreferencesPageProps);
 
     /** @type {import('$lib/prefs/profile').ProfileInstance[]} */
     this._profilesList = [];
+
+    this.settings = new Gio.Settings({
+      settings_schema: SETTINGS_SCHEMA.lookup('org.gnome.shell.extensions.focus-window', true),
+      path: '/org/gnome/shell/extensions/focus-window/'
+    });
+
+    this.settings.get_strv('profiles').forEach(profileId => {
+      const profile = this._createProfile({ type: 'settings', id: profileId });
+      this._profilesList.push(profile);
+      this.add(profile);
+    });
   }
 
   onAddProfile() {
-    debug('Adding Profile...');
-    const newProfile = new Profile(
-      {},
-      this._deleteProfile.bind(this),
-      this._duplicateProfile.bind(this),
-      this._changeProfilePriority.bind(this),
-      ngettext('Profile %d', 'Profile %d', this._profilesList.length + 1).format(
+    const profile = this._createProfile({
+      type: 'new',
+      name: ngettext('Profile %d', 'Profile %d', this._profilesList.length + 1).format(
         this._profilesList.length + 1
       )
-    );
-    this._profilesList.push(newProfile);
-    this.add(newProfile);
+    });
+
+    this._profilesList.push(profile);
+    this.add(profile);
+    this._setProfiles();
   }
 
   /**
@@ -47,8 +64,10 @@ class PrefsClass extends Adw.PreferencesPage {
   _deleteProfile(id) {
     const profileIndex = this._profilesList.findIndex(profile => profile.getId() === id);
     const profile = this._profilesList[profileIndex];
+
     this.remove(profile);
     this._profilesList.splice(profileIndex, 1);
+    this._setProfiles();
   }
 
   /**
@@ -56,20 +75,16 @@ class PrefsClass extends Adw.PreferencesPage {
    */
   _duplicateProfile(id) {
     const profileIndex = this._profilesList.findIndex(profile => profile.getId() === id);
-
-    // TODO: implement duplicate profile from old profile
     const profile = this._profilesList[profileIndex];
-    const newProfile = new Profile(
-      {},
-      this._deleteProfile.bind(this),
-      this._duplicateProfile.bind(this),
-      this._changeProfilePriority.bind(this),
-      profile.getName() + ' ' + _('Copy')
-    );
+    const newProfile = this._createProfile({
+      type: 'copy',
+      settings: profile.settings
+    });
 
     this._profilesList.forEach(application => this.remove(application));
     this._profilesList.splice(profileIndex + 1, 0, newProfile);
     this._profilesList.forEach(application => this.add(application));
+    this._setProfiles();
   }
 
   /**
@@ -90,6 +105,27 @@ class PrefsClass extends Adw.PreferencesPage {
 
     this._profilesList.forEach(application => this.remove(application));
     this._profilesList.forEach(application => this.add(application));
+    this._setProfiles();
+  }
+
+  /**
+   * @param {import('$lib/prefs/profile').ProfileProps} profileProps
+   */
+  _createProfile(profileProps) {
+    return new Profile(
+      {},
+      this._deleteProfile.bind(this),
+      this._duplicateProfile.bind(this),
+      this._changeProfilePriority.bind(this),
+      profileProps
+    );
+  }
+
+  _setProfiles() {
+    this.settings.set_strv(
+      'profiles',
+      this._profilesList.map(profile => profile.getId())
+    );
   }
 }
 
