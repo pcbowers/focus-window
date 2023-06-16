@@ -33,7 +33,7 @@ const Application = Me.imports.lib.prefs.application.application;
 /**
  * @typedef {Object} ProfileCopyProps
  * @property {'copy'} type
- * @property {import('$types/gio-2.0').Gio.Settings} settings
+ * @property {import('@girs/gio-2.0').Gio.Settings} settings
  */
 
 /**
@@ -57,7 +57,7 @@ class ProfileClass extends Adw.PreferencesGroup {
   _applicationsList = [];
 
   /**
-   * @param {import('$types/adw-1').Adw.PreferencesGroup.ConstructorProperties} AdwPreferencesGroupProps
+   * @param {import('@girs/adw-1').Adw.PreferencesGroup.ConstructorProperties} AdwPreferencesGroupProps
    * @param {(id: string) => void} deleteProfile
    * @param {(id: string) => void} duplicateProfile
    * @param {(id: string, increasePriority: boolean) => void} changeProfilePriority
@@ -70,7 +70,7 @@ class ProfileClass extends Adw.PreferencesGroup {
     changeProfilePriority,
     profileProps
   ) {
-    debug('Creating Profile...');
+debug('Creating Profile...');
     super(AdwPreferencesGroupProps);
 
     /** @type {typeof deleteProfile} */
@@ -82,26 +82,26 @@ class ProfileClass extends Adw.PreferencesGroup {
     /** @type {typeof changeProfilePriority} */
     this._changeProfilePriority = changeProfilePriority;
 
-    /** @type {import('$types/gtk-4.0').Gtk.Entry} */
+    /** @type {import('@girs/gtk-4.0').Gtk.Entry} */
     this._profile_name = this._profile_name;
 
-    /** @type {import('$types/adw-1').Adw.ExpanderRow}*/
+    /** @type {import('@girs/adw-1').Adw.ExpanderRow}*/
     this._profile = this._profile;
 
-    /** @type {import('$types/adw-1').Adw.ExpanderRow}*/
+    /** @type {import('@girs/adw-1').Adw.ExpanderRow}*/
     this._applications = this._applications;
 
     if (profileProps.type === 'settings') {
       this._id = profileProps.id;
     }
 
-    /** @type {import('$types/gio-2.0').Gio.Settings} */
+    /** @type {import('@girs/gio-2.0').Gio.Settings} */
     this.settings = new Gio.Settings({
       settings_schema: SETTINGS_SCHEMA.lookup(
-        'org.gnome.shell.extensions.focus-window.profile',
+        'org.gnome.shell.extensions.focus-window.profiles',
         true
       ),
-      path: `/org/gnome/shell/extensions/focus-window/profile/${this._id}/`
+      path: `/org/gnome/shell/extensions/focus-window/profiles/${this._id}/`
     });
 
     this.settings.bind('enabled', this._profile, 'enable-expansion', Gio.SettingsBindFlags.DEFAULT);
@@ -126,10 +126,10 @@ class ProfileClass extends Adw.PreferencesGroup {
       profileProps.settings.get_strv('applications').forEach(applicationId => {
         const appSettings = new Gio.Settings({
           settings_schema: SETTINGS_SCHEMA.lookup(
-            'org.gnome.shell.extensions.focus-window.application',
+            'org.gnome.shell.extensions.focus-window.applications',
             true
           ),
-          path: `/org/gnome/shell/extensions/focus-window/application/${applicationId}/`
+          path: `/org/gnome/shell/extensions/focus-window/applications/${applicationId}/`
         });
         const application = this._createApplication({
           type: 'copy',
@@ -149,7 +149,7 @@ class ProfileClass extends Adw.PreferencesGroup {
   }
 
   onDeleteProfile() {
-    debug('Deleting Profile...');
+debug('Deleting Profile...');
     [...this._applicationsList].forEach(application => application.onDeleteApplication());
     this.settings.list_keys().forEach(key => this.settings.reset(key));
     this.settings.run_dispose();

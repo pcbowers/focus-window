@@ -1,9 +1,9 @@
-const { GLib, Gio } = imports.gi;
+const { Gio } = imports.gi;
 const { extensionUtils } = imports.misc;
 
 const Me = extensionUtils.getCurrentExtension();
 
-/** @typedef {import('$types/gio-2.0').Gio.SettingsSchemaSource} SETTINGS_SCHEMA */
+/** @typedef {import('@girs/gio-2.0').Gio.SettingsSchemaSource} SETTINGS_SCHEMA */
 var SETTINGS_SCHEMA = Gio.SettingsSchemaSource.new_from_directory(
   Me.dir.get_child('schemas').get_path(),
   Gio.SettingsSchemaSource.get_default(),

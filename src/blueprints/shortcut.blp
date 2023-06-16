@@ -3,9 +3,9 @@ using Adw 1;
 
 template $ShortcutActionRow : Adw.ActionRow {
   subtitle: _("A shortcut that focuses the application\nPress 'Esc' to cancel or 'Backspace' to unbind");
-  activatable-widget: shortcut;
+  activatable-widget: accelerator;
 
-  activated => $onShortcutRow();
+  activated => $onAccelerator();
 
   [prefix]
   Button {
@@ -18,7 +18,7 @@ template $ShortcutActionRow : Adw.ActionRow {
     clicked => $onDeleteShortcut();
   }
 
-  ShortcutLabel shortcut {
+  ShortcutLabel accelerator {
   valign: center;
   disabled-text: _("Not Bound");
   focus-on-click: true;

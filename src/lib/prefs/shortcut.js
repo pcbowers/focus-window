@@ -31,7 +31,7 @@ const createId = Me.imports.lib.common.utils.createId;
  * @typedef {Object} ShortcutCopyProps
  * @property {'copy'} type
  * @property {string} name
- * @property {import('$types/gio-2.0').Gio.Settings} settings
+ * @property {import('@girs/gio-2.0').Gio.Settings} settings
  */
 
 /**
@@ -40,7 +40,7 @@ const createId = Me.imports.lib.common.utils.createId;
 
 /**
  * @typedef {Object} ShortcutSettings
- * @property {string} shortcut
+ * @property {string} accelerator
  */
 
 /** @typedef {typeof ShortcutClass} Shortcut */
@@ -62,17 +62,17 @@ class ShortcutClass extends Adw.ActionRow {
   _leaveId;
 
   bindingProperties = {
-    shortcut: 'accelerator'
+    accelerator: 'accelerator'
   };
 
   /**
-   * @param {import('$types/adw-1').Adw.ActionRow.ConstructorProperties} AdwActionRowProps
+   * @param {import('@girs/adw-1').Adw.ActionRow.ConstructorProperties} AdwActionRowProps
    * @param {(id: string) => void} deleteShortcut
    * @param {() => void} setApplicationSubtitle
    * @param {ShortcutProps} shortcutProps
    */
   constructor(AdwActionRowProps = {}, deleteShortcut, setApplicationSubtitle, shortcutProps) {
-    debug('Creating Shortcut...');
+debug('Creating Shortcut...');
     super(AdwActionRowProps);
 
     /** @type {typeof deleteShortcut} */
@@ -81,14 +81,14 @@ class ShortcutClass extends Adw.ActionRow {
     /** @type {typeof setApplicationSubtitle} */
     this.setApplicationSubtitle = setApplicationSubtitle;
 
-    /** @type {import('$types/gtk-4.0').Gtk.ShortcutLabel} */
-    this._shortcut = this._shortcut;
+    /** @type {import('@girs/gtk-4.0').Gtk.ShortcutLabel} */
+    this._accelerator = this._accelerator;
 
-    /** @type {import('$types/gtk-4.0').Gtk.EventControllerKey} */
+    /** @type {import('@girs/gtk-4.0').Gtk.EventControllerKey} */
     this._keyController = new Gtk.EventControllerKey();
     this.add_controller(this._keyController);
 
-    /** @type {import('$types/gtk-4.0').Gtk.EventControllerFocus} */
+    /** @type {import('@girs/gtk-4.0').Gtk.EventControllerFocus} */
     this._focusController = new Gtk.EventControllerFocus();
     this.add_controller(this._focusController);
 
@@ -98,13 +98,13 @@ class ShortcutClass extends Adw.ActionRow {
       this._id = shortcutProps.id;
     }
 
-    /** @type {import('$types/gio-2.0').Gio.Settings} */
+    /** @type {import('@girs/gio-2.0').Gio.Settings} */
     this.settings = new Gio.Settings({
       settings_schema: SETTINGS_SCHEMA.lookup(
-        'org.gnome.shell.extensions.focus-window.shortcut',
+        'org.gnome.shell.extensions.focus-window.shortcuts',
         true
       ),
-      path: `/org/gnome/shell/extensions/focus-window/shortcut/${this._id}/`
+      path: `/org/gnome/shell/extensions/focus-window/shortcuts/${this._id}/`
     });
 
     Object.entries(this.bindingProperties).forEach(([key, property]) => {
@@ -130,10 +130,10 @@ class ShortcutClass extends Adw.ActionRow {
   }
 
   isBound() {
-    return !!this._shortcut.get_accelerator();
+    return !!this._accelerator.get_accelerator();
   }
 
-  onShortcutRow() {
+  onAccelerator() {
     if (this._keyboardIsGrabbed) {
       this._cancelKeyboardGrab();
     } else {
@@ -142,7 +142,7 @@ class ShortcutClass extends Adw.ActionRow {
   }
 
   onDeleteShortcut() {
-    debug('Deleting Shortcut...');
+debug('Deleting Shortcut...');
     this.settings.list_keys().forEach(key => this.settings.reset(key));
     this.settings.run_dispose();
     this._keyController.disconnect(this._keyPressedId);
@@ -186,17 +186,17 @@ class ShortcutClass extends Adw.ActionRow {
   _grabKeyboard() {
     this.root.get_surface().inhibit_system_shortcuts(null);
     this._keyboardIsGrabbed = true;
-    this._lastAccelerator = this._shortcut.get_accelerator();
-    this._shortcut.set_accelerator('');
-    this._shortcut.set_disabled_text(_('Listening For Shortcut...'));
+    this._lastAccelerator = this._accelerator.get_accelerator();
+    this._accelerator.set_accelerator('');
+    this._accelerator.set_disabled_text(_('Listening For Shortcut...'));
     this.setApplicationSubtitle();
   }
 
   _cancelKeyboardGrab() {
     this.root.get_surface().restore_system_shortcuts();
     this._keyboardIsGrabbed = false;
-    this._shortcut.set_accelerator(this._lastAccelerator || '');
-    this._shortcut.set_disabled_text(_('Not Bound'));
+    this._accelerator.set_accelerator(this._lastAccelerator || '');
+    this._accelerator.set_disabled_text(_('Not Bound'));
     this.setApplicationSubtitle();
   }
 }
@@ -205,7 +205,7 @@ var shortcut = GObject.registerClass(
   {
     GTypeName: 'ShortcutActionRow',
     Template: Me.dir.get_child('ui/shortcut.ui').get_uri(),
-    InternalChildren: ['shortcut']
+    InternalChildren: ['accelerator']
   },
   ShortcutClass
 );

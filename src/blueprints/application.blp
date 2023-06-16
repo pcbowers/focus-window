@@ -234,6 +234,17 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
         active: false;        
       }
     }
+
+    Adw.ActionRow {
+      title: _("Restrict to Current Monitor");
+      subtitle: _("Restrict the window to the current monitor when resizing");
+      activatable-widget: restrict-resize;
+
+      Switch restrict-resize {
+        valign: center;
+        active: true;        
+      }
+    }
     
     Adw.ExpanderRow {
       visible: bind-property maximize.active inverted;
@@ -292,7 +303,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
         SpinButton bottom-right-x {
           valign: center;
           adjustment: Adjustment {
-            lower: 0;
+            lower: bind-property top-left-x.value;
             upper: 1000000000;
             step-increment: 1;
             page-size: 0;
@@ -310,7 +321,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
         SpinButton bottom-right-y {
           valign: center;
           adjustment: Adjustment {
-            lower: 0;
+            lower: bind-property top-left-y.value;
             upper: 1000000000;
             step-increment: 1;
             page-size: 0;
@@ -362,7 +373,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
           valign: center;
           adjustment: Adjustment {
             lower: 1;
-            upper: 1000;
+            upper: bind-property grid-size.value;
             step-increment: 1;
             page-size: 0;
             page-increment: 1;
@@ -380,7 +391,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
           valign: center;
           adjustment: Adjustment {
             lower: 1;
-            upper: 1000;
+            upper: bind-property grid-size.value;
             step-increment: 1;
             page-size: 0;
             page-increment: 1;
@@ -398,7 +409,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
           valign: center;
           adjustment: Adjustment {
             lower: 1;
-            upper: 1000;
+            upper: bind-property grid-size.value;
             step-increment: 1;
             page-size: 0;
             page-increment: 1;
@@ -416,7 +427,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
           valign: center;
           adjustment: Adjustment {
             lower: 1;
-            upper: 1000;
+            upper: bind-property grid-size.value;
             step-increment: 1;
             page-size: 0;
             page-increment: 1;
@@ -434,7 +445,29 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
     
     Switch minimize {
       valign: center;
-      active: false;      
+      active: false;
+    }
+  }
+
+    Adw.ActionRow {
+    title: _("Always On Top");
+    subtitle: _("Keep all matching application windows on top of other windows\nThis will take effect the next time the application shortcut is pressed");
+    activatable-widget: always-on-top;
+    
+    Switch always-on-top {
+      valign: center;
+      active: false;
+    }
+  }
+
+  Adw.ActionRow {
+    title: _("Disable Animations");
+    subtitle: _("Disable animations when moving, focusing, and resizing the application window\nThis may improve performance on some systems");
+    activatable-widget: disable-animations;
+    
+    Switch disable-animations {
+      valign: center;
+      active: false;
     }
   }
 }

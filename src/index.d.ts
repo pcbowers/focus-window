@@ -1,14 +1,10 @@
-import Gdk from '$types/gdk-4.0';
+import Shell from '@girs/shell-12';
 
-declare module '$types/gtk-4.0' {
-  namespace Gtk {
-    interface Native {
-      get_surface: () => Gdk.Surface;
-    }
-  }
-}
+// All these types help extend the existing types from GJS and Gnome Shell.
+// Check GJS types here: https://gitlab.gnome.org/GNOME/gjs
+// Check Gnome Shell types here: https://gitlab.gnome.org/GNOME/gnome-shell
 
-declare module '$types/gdk-4.0' {
+declare module '@girs/gdk-4.0' {
   namespace Gdk {
     interface Surface {
       inhibit_system_shortcuts: Gdk.Toplevel['inhibit_system_shortcuts'];
@@ -24,6 +20,12 @@ declare module '@girs/gnome-shell' {
   }
 }
 
+declare module '@girs/gnome-shell/src/ui/main' {
+  const wm: {
+    allowKeybinding: (name: string, modes: Shell.ActionMode) => void;
+  };
+}
+
 declare module '@girs/gjs/gettext' {
   export function domain(domainName: string): {
     gettext: (msgid: string) => string;
@@ -36,4 +38,13 @@ declare module '@girs/gjs/gettext' {
     };
     pgettext: (context: string, msgid: string) => string;
   };
+}
+
+declare global {
+  interface GjsImports {
+    ui: typeof import('@girs/gnome-shell').ui;
+    misc: typeof import('@girs/gnome-shell').misc;
+  }
+
+  const global: Shell.Global;
 }

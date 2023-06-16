@@ -22,7 +22,7 @@ function remove_debugs {
   if compgen -G $FILE_PATH >/dev/null; then
     for file in $FILE_PATH; do
       print_message " - Removing Debug Statements from $file..."
-      sed -i 's/debug(/\/\/ REMOVED FOR PRODUCTION: debug(/g' $file \
+      sed -i 's/^\s*debug(/\/\/ REMOVED FOR PRODUCTION: debug(/g' $file \
         && print_message "   Debug Statements in $file Removed!" || {
         echo >&2 "ERROR: Failed to remove debug statements from $file"
         exit 1

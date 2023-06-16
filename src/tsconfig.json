@@ -20,8 +20,7 @@
     "strictPropertyInitialization": false,
     "baseUrl": ".",
     "paths": {
-      "$lib/*": ["lib/*"],
-      "$types/*": ["@types/*"]
+      "$lib/*": ["lib/*"]
     }
   }
 }

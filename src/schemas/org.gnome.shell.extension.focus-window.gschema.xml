@@ -9,7 +9,7 @@
     </key>
   </schema>
 
-  <schema id="org.gnome.shell.extensions.focus-window.profile">
+  <schema id="org.gnome.shell.extensions.focus-window.profiles">
     <key name="enabled" type="b">
       <default>true</default>
       <summary>Profile Enabled</summary>
@@ -27,7 +27,7 @@
     </key>
   </schema>
 
-  <schema id="org.gnome.shell.extensions.focus-window.application">
+  <schema id="org.gnome.shell.extensions.focus-window.applications">
     <key name="enabled" type="b">
       <default>true</default>
       <summary>Application Enabled</summary>
@@ -118,6 +118,11 @@
       <summary>Maximize Window</summary>
       <description>Whether to maximize the window on focus</description>
     </key>
+    <key name="restrict-resize" type="b">
+      <default>true</default>
+      <summary>Restrict Resize</summary>
+      <description>Whether to restrict the resize to the current monitor</description>
+    </key>
     <key name="use-pixels" type="b">
       <default>false</default>
       <summary>Use Pixels</summary>
@@ -178,11 +183,21 @@
       <summary>Minimize when Unfocused</summary>
       <description>Whether to minimize the window when it is unfocused</description>
     </key>
+    <key name="always-on-top" type="b">
+      <default>false</default>
+      <summary>Always On Top</summary>
+      <description>Whether to keep the window on top</description>
+    </key>
+    <key name="disable-animations" type="b">
+      <default>false</default>
+      <summary>Disable Animations</summary>
+      <description>Whether to disable animations</description>
+    </key>
   </schema>
-  <schema id="org.gnome.shell.extensions.focus-window.shortcut">
-    <key name="shortcut" type="s">
+  <schema id="org.gnome.shell.extensions.focus-window.shortcuts">
+    <key name="accelerator" type="s">
       <default>""</default>
-      <summary>Shortcut</summary>
+      <summary>Accelerator</summary>
       <description>A keyboard shortcut</description>
     </key>
   </schema>

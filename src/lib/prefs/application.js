@@ -34,7 +34,7 @@ const Shortcut = Me.imports.lib.prefs.shortcut.shortcut;
  * @typedef {Object} ApplicationCopyProps
  * @property {'copy'} type
  * @property {boolean} [duplicateShortcuts]
- * @property {import('$types/gio-2.0').Gio.Settings} settings
+ * @property {import('@girs/gio-2.0').Gio.Settings} settings
  */
 
 /**
@@ -61,6 +61,7 @@ const Shortcut = Me.imports.lib.prefs.shortcut.shortcut;
  * @property {boolean} move-to-current-monitor
  * @property {boolean} resize-on-focus
  * @property {boolean} maximize
+ * @property {boolean} restrict-resize
  * @property {boolean} use-pixels
  * @property {number} top-left-x
  * @property {number} top-left-y
@@ -73,6 +74,8 @@ const Shortcut = Me.imports.lib.prefs.shortcut.shortcut;
  * @property {number} row-start
  * @property {number} height
  * @property {boolean} minimize
+ * @property {boolean} always-on-top
+ * @property {boolean} disable-animations
  */
 
 /** @typedef {typeof ApplicationClass} Application */
@@ -100,6 +103,7 @@ class ApplicationClass extends Adw.ExpanderRow {
     'move-to-current-monitor': 'active',
     'resize-on-focus': 'enable-expansion',
     maximize: 'active',
+    'restrict-resize': 'active',
     'use-pixels': 'active',
     'top-left-x': 'value',
     'top-left-y': 'value',
@@ -111,11 +115,13 @@ class ApplicationClass extends Adw.ExpanderRow {
     width: 'value',
     'row-start': 'value',
     height: 'value',
-    minimize: 'active'
+    minimize: 'active',
+    'always-on-top': 'active',
+    'disable-animations': 'active'
   };
 
   /**
-   * @param {import('$types/adw-1').Adw.ExpanderRow.ConstructorProperties} AdwExpanderRowProps
+   * @param {import('@girs/adw-1').Adw.ExpanderRow.ConstructorProperties} AdwExpanderRowProps
    * @param {(id: string) => void} deleteApplication
    * @param {(id: string) => void} duplicateApplication
    * @param {(id: string, increasePriority: boolean) => void} changeApplicationPriority
@@ -131,6 +137,10 @@ class ApplicationClass extends Adw.ExpanderRow {
     debug('Creating Application...');
     super(AdwExpanderRowProps);
 
+    // TODO: Add these properties
+    // Cycle Windows
+    // Always On Top
+
     /** @type {typeof deleteApplication} */
     this._deleteApplication = deleteApplication;
 
@@ -140,14 +150,17 @@ class ApplicationClass extends Adw.ExpanderRow {
     /** @type {typeof changeApplicationPriority} */
     this._changeApplicationPriority = changeApplicationPriority;
 
-    /** @type {import('$types/gtk-4.0').Gtk.StringList} */
+    /** @type {import('@girs/gtk-4.0').Gtk.StringList} */
     this._application_list = this._application_list;
 
-    /** @type {import('$types/adw-1').Adw.ComboRow} */
+    /** @type {import('@girs/adw-1').Adw.ComboRow} */
     this._application_item = this._application_item;
 
-    /** @type {import('$types/adw-1').Adw.ExpanderRow} */
+    /** @type {import('@girs/adw-1').Adw.ExpanderRow} */
     this._shortcuts = this._shortcuts;
+
+    /** @type {number[]} */
+    this._settingsConnections = [];
 
     this._populateApplications();
 
@@ -155,13 +168,13 @@ class ApplicationClass extends Adw.ExpanderRow {
       this._id = applicationProps.id;
     }
 
-    /** @type {import('$types/gio-2.0').Gio.Settings} */
+    /** @type {import('@girs/gio-2.0').Gio.Settings} */
     this.settings = new Gio.Settings({
       settings_schema: SETTINGS_SCHEMA.lookup(
-        'org.gnome.shell.extensions.focus-window.application',
+        'org.gnome.shell.extensions.focus-window.applications',
         true
       ),
-      path: `/org/gnome/shell/extensions/focus-window/application/${this._id}/`
+      path: `/org/gnome/shell/extensions/focus-window/applications/${this._id}/`
     });
 
     Object.entries(this.bindingProperties).forEach(([key, property]) => {
@@ -199,10 +212,10 @@ class ApplicationClass extends Adw.ExpanderRow {
         applicationProps.settings.get_strv('shortcuts').forEach(shortcutId => {
           const shortcutSettings = new Gio.Settings({
             settings_schema: SETTINGS_SCHEMA.lookup(
-              'org.gnome.shell.extensions.focus-window.shortcut',
+              'org.gnome.shell.extensions.focus-window.shortcuts',
               true
             ),
-            path: `/org/gnome/shell/extensions/focus-window/shortcut/${shortcutId}/`
+            path: `/org/gnome/shell/extensions/focus-window/shortcuts/${shortcutId}/`
           });
           const shortcut = this._createShortcut({
             type: 'copy',
@@ -218,10 +231,75 @@ class ApplicationClass extends Adw.ExpanderRow {
     }
 
     this._application_item.set_selected(this._getApplicationPositionByString(this.title));
+
+    this._addSettingsListeners();
   }
 
   getId() {
     return this._id;
+  }
+
+  _addSettingsListeners() {
+    this._settingsConnections.push(
+      this.settings.connect('changed::grid-size', () => {
+        const gridSize = this.settings.get_int('grid-size');
+        if (this.settings.get_int('column-start') > gridSize) {
+          this.settings.set_int('column-start', gridSize);
+        }
+
+        if (this.settings.get_int('row-start') > gridSize) {
+          this.settings.set_int('row-start', gridSize);
+        }
+
+        if (this.settings.get_int('width') > gridSize) {
+          this.settings.set_int('width', gridSize);
+        }
+
+        if (this.settings.get_int('height') > gridSize) {
+          this.settings.set_int('height', gridSize);
+        }
+      })
+    );
+
+    this._settingsConnections.push(
+      this.settings.connect('changed::column-start', () => {
+        const gridSize = this.settings.get_int('grid-size');
+        const columnStart = this.settings.get_int('column-start') - 1;
+
+        if (this.settings.get_int('width') > gridSize - columnStart) {
+          this.settings.set_int('width', gridSize - columnStart);
+        }
+      })
+    );
+
+    this._settingsConnections.push(
+      this.settings.connect('changed::row-start', () => {
+        const gridSize = this.settings.get_int('grid-size');
+        const rowStart = this.settings.get_int('row-start') - 1;
+
+        if (this.settings.get_int('height') > gridSize - rowStart) {
+          this.settings.set_int('height', gridSize - rowStart);
+        }
+      })
+    );
+
+    this._settingsConnections.push(
+      this.settings.connect('changed::top-left-x', () => {
+        const topLeftX = this.settings.get_int('top-left-x');
+        if (this.settings.get_int('bottom-right-x') < topLeftX) {
+          this.settings.set_int('bottom-right-x', topLeftX);
+        }
+      })
+    );
+
+    this._settingsConnections.push(
+      this.settings.connect('changed::top-left-y', () => {
+        const topLeftY = this.settings.get_int('top-left-y');
+        if (this.settings.get_int('bottom-right-y') < topLeftY) {
+          this.settings.set_int('bottom-right-y', topLeftY);
+        }
+      })
+    );
   }
 
   onDuplicateApplication() {
@@ -231,6 +309,7 @@ class ApplicationClass extends Adw.ExpanderRow {
   onDeleteApplication() {
     debug('Deleting Application...');
     [...this._shortcutsList].forEach(shortcut => shortcut.onDeleteShortcut());
+    this._settingsConnections.forEach(connection => this.settings.disconnect(connection));
     this.settings.list_keys().forEach(key => this.settings.reset(key));
     this.settings.run_dispose();
     this._deleteApplication(this._id);
@@ -245,7 +324,7 @@ class ApplicationClass extends Adw.ExpanderRow {
   }
 
   onApplicationItem() {
-    const stringList = /** @type {import('$types/gtk-4.0').Gtk.StringList} **/ (
+    const stringList = /** @type {import('@girs/gtk-4.0').Gtk.StringList} **/ (
       this._application_item.get_model()
     );
 
@@ -367,6 +446,7 @@ var application = GObject.registerClass(
       'move-to-current-monitor',
       'resize-on-focus',
       'maximize',
+      'restrict-resize',
       'use-pixels',
       'top-left-x',
       'top-left-y',
@@ -378,7 +458,9 @@ var application = GObject.registerClass(
       'width',
       'row-start',
       'height',
-      'minimize'
+      'minimize',
+      'always-on-top',
+      'disable-animations'
     ]
   },
   ApplicationClass

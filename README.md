@@ -88,7 +88,8 @@ gnome-extensions prefs focus-window@chris.al
 - [x] Add Duplication Support
 - [x] Ensure Changing Priority also Changes Settings
 - [x] Add Settings to Extension Files
-- [ ] Implement Extension
+- [x] Implement Extension
+- [ ] Show Resize Square in Preferences
 
 ## :open_book: Usage
 
@@ -173,17 +174,11 @@ If you're planning on submitting a pull request, here are some helpful tips when
 
 #### **External Import Types**
 
-Use the [`ts-for-gir`](https://github.com/sammydre/ts-for-gir) npm package to generate types. This will make autocomplete for the `imports.gi` global import possible within any `gjs` file. To use the npm package, navigate to the root of your directory and run the following:
+Use the [`@girs`](https://github.com/gjsify/types) npm packages to add types. This will make autocomplete for the `imports` global variable possible within any `gjs` file. To use the npm package, navigate to the root of your directory and run the following:
 
 ```bash
-npm run setup
+npm install
 ```
-
-You may need to install some dependencies to get this to work. The command will let you know which dependencies are missing. Check the package for documentation.
-
-Sometimes, you have multiple versions of different dependencies already installed. Make sure you use the same version that will be used by the extension
-
-*Typically, these versions can be found by navigating [here](https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/js/ui/environment.js) and making sure to select the branch/tag that specifies the correct shell. These are the base versions, though the versions in [this file](https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/main/js/dbusServices/extensions/main.js) do override the aforementioned ones. For context, I had Gdk 3.0 and 4.0 as well as Soup 2.4 and 3.0 on my system, and I selected 4.0 and 3.0 respectively based on gnome-shell 42. You do not need to keep the other versions.*)
 
 #### **Internal Import Types**
 

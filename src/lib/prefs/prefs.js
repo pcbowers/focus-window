@@ -24,10 +24,10 @@ const Profile = Me.imports.lib.prefs.profile.profile;
 /** @typedef {PrefsClass} PrefsInstance */
 class PrefsClass extends Adw.PreferencesPage {
   /**
-   * @param {import('$types/adw-1').Adw.PreferencesPage.ConstructorProperties} AdwPreferencesPageProps
+   * @param {import('@girs/adw-1').Adw.PreferencesPage.ConstructorProperties} AdwPreferencesPageProps
    */
   constructor(AdwPreferencesPageProps = {}) {
-    debug('Creating Preferences Page...');
+debug('Creating Preferences Page...');
     super(AdwPreferencesPageProps);
 
     /** @type {import('$lib/prefs/profile').ProfileInstance[]} */

@@ -9,7 +9,7 @@ function init() {
 }
 
 /**
- * @param {import('$types/adw-1').Adw.PreferencesWindow} window
+ * @param {import('@girs/adw-1').Adw.PreferencesWindow} window
  */
 function fillPreferencesWindow(window) {
   window.add(new Prefs({}));
