@@ -27,3 +27,14 @@ function debug(message) {
 function createId() {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
+
+/** @typedef {typeof range} Range */
+/**
+ * A function that returns an array of numbers from a start to an end
+ * @param {number} start A number that should be the start of the range
+ * @param {*} end A number that should be the end of the range
+ * @returns {number[]} An array of numbers
+ */
+function range(start, end) {
+  return Array.from({ length: end - start }, (_, i) => i + start);
+}

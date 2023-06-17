@@ -4,6 +4,19 @@ import Shell from '@girs/shell-12';
 // Check GJS types here: https://gitlab.gnome.org/GNOME/gjs
 // Check Gnome Shell types here: https://gitlab.gnome.org/GNOME/gnome-shell
 
+declare module '@girs/cairo-1.0' {
+  namespace cairo {
+    interface Context {
+      setLineWidth: (width: number) => void;
+      moveTo: (x: number, y: number) => void;
+      lineTo: (x: number, y: number) => void;
+      stroke: () => void;
+      strokePreserve: () => void;
+      fill: () => void;
+    }
+  }
+}
+
 declare module '@girs/gdk-4.0' {
   namespace Gdk {
     interface Surface {

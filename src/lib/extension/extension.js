@@ -155,28 +155,25 @@ var extension = class FocusWindowExtension {
    * @param {number} focusedWindowId
    */
   handleMultiWindows(application, windows, focusedWindowId) {
+    /** @type {import('@girs/meta-12').Meta.Window} */
+    let window;
+
     if (focusedWindowId === windows[0].get_id()) {
-      const window = windows[windows.length - 1];
+      window = windows[windows.length - 1];
       const workspace = this.getWorkspace(application, window);
       const monitor = this.getMonitor(application, window);
-      main.moveWindowToMonitorAndWorkspace(window, monitor, workspace, true);
-      main.activateWindow(window);
-      this.handleResizeWindow(application, window);
 
-      if (application.minimize) {
-        windows
-          .filter(appWindow => appWindow.get_id() !== window.get_id())
-          .forEach(appWindow => {
-            this.handleMinimizeAnimations(application['disable-animations']);
-            appWindow.minimize();
-          });
-      }
+      this.handleResizeAnimations(window, application['disable-animations']);
+      main.moveWindowToMonitorAndWorkspace(window, monitor, workspace, true);
+
+      this.handleResizeAnimations(window, application['disable-animations']);
+      main.activateWindow(window);
+
+      this.handleResizeWindow(application, window);
     } else {
-      const window = windows[0];
+      window = windows[0];
       const workspace = this.getWorkspace(application, window);
       const monitor = this.getMonitor(application, window);
-
-      if (window.minimized) this.handleUnminimizeAnimations(application['disable-animations']);
 
       this.handleResizeAnimations(window, application['disable-animations']);
       main.moveWindowToMonitorAndWorkspace(window, monitor, workspace, true);
@@ -185,6 +182,15 @@ var extension = class FocusWindowExtension {
       main.activateWindow(window);
 
       this.handleResizeWindow(application, window);
+    }
+
+    if (application.minimize) {
+      windows
+        .filter(appWindow => appWindow.get_id() !== window.get_id())
+        .forEach(appWindow => {
+          this.handleMinimizeAnimations(application['disable-animations']);
+          appWindow.minimize();
+        });
     }
   }
 
@@ -264,25 +270,6 @@ var extension = class FocusWindowExtension {
     );
 
     if (windowActor) windowActor.remove_all_transitions();
-  }
-
-  /**
-   * @param {boolean} disableAnimations
-   */
-  handleUnminimizeAnimations(disableAnimations) {
-    if (!disableAnimations) return;
-
-    this.signalManager.connectSignal(
-      global.window_manager,
-      'unminimize',
-      true,
-      /** @type {import('@girs/shell-12').Shell.WM.MinimizeSignalCallback} */ (
-        (shellWindowManager, windowActor) => {
-          windowActor.remove_all_transitions();
-          shellWindowManager.completed_unminimize(windowActor);
-        }
-      )
-    );
   }
 
   /**

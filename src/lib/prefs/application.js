@@ -1,4 +1,4 @@
-const { GObject, Adw, Gio } = imports.gi;
+const { GObject, Adw, Gio, Gdk } = imports.gi;
 const { extensionUtils } = imports.misc;
 const Me = extensionUtils.getCurrentExtension();
 const Gettext = imports.gettext;
@@ -11,6 +11,9 @@ const SETTINGS_SCHEMA = Me.imports.lib.common.utils.SETTINGS_SCHEMA;
 
 /** @type {import('$lib/common/utils').Debug} */
 const debug = Me.imports.lib.common.utils.debug;
+
+/** @type {import('$lib/common/utils').Range} */
+const range = Me.imports.lib.common.utils.range;
 
 /** @type {import('$lib/common/utils').CreateId} */
 const createId = Me.imports.lib.common.utils.createId;
@@ -156,6 +159,9 @@ class ApplicationClass extends Adw.ExpanderRow {
     /** @type {import('@girs/adw-1').Adw.ComboRow} */
     this._application_item = this._application_item;
 
+    /** @type {import('@girs/gtk-4.0').Gtk.DrawingArea} */
+    this._drawing_area_proportions = this._drawing_area_proportions;
+
     /** @type {import('@girs/adw-1').Adw.ExpanderRow} */
     this._shortcuts = this._shortcuts;
 
@@ -233,10 +239,59 @@ class ApplicationClass extends Adw.ExpanderRow {
     this._application_item.set_selected(this._getApplicationPositionByString(this.title));
 
     this._addSettingsListeners();
+
+    this._drawProportions();
   }
 
   getId() {
     return this._id;
+  }
+
+  _drawProportions() {
+    const gridSize = this.settings.get_int('grid-size');
+    const columnStart = this.settings.get_int('column-start');
+    const width = this.settings.get_int('width');
+    const rowStart = this.settings.get_int('row-start');
+    const height = this.settings.get_int('height');
+
+    this._drawing_area_proportions.set_draw_func((drawingArea, context) => {
+      const areaWidth = drawingArea.get_allocated_width();
+      const areaHeight = drawingArea.get_allocated_height();
+
+      const color = new Gdk.RGBA();
+      color.parse('rgba(131, 131, 131, 0.8)');
+
+      Gdk.cairo_set_source_rgba(context, color);
+      context.setLineWidth(1);
+
+      const gap = 10;
+      const cellWidth = (areaWidth - gap * 2) / gridSize;
+      const cellHeight = (areaHeight - gap * 2) / gridSize;
+
+      range(0, gridSize + 1).forEach(column => {
+        context.moveTo(column * cellWidth + gap, gap);
+        context.lineTo(column * cellWidth + gap, areaHeight - gap);
+        context.stroke();
+      });
+
+      range(0, gridSize + 1).forEach(row => {
+        context.moveTo(gap, row * cellHeight + gap);
+        context.lineTo(areaWidth - gap, row * cellHeight + gap);
+        context.stroke();
+      });
+
+      range(columnStart, columnStart + width).forEach(column => {
+        range(rowStart, rowStart + height).forEach(row => {
+          context.moveTo((column - 1) * cellWidth + gap, (row - 1) * cellHeight + gap);
+          context.lineTo(column * cellWidth + gap, (row - 1) * cellHeight + gap);
+          context.lineTo(column * cellWidth + gap, row * cellHeight + gap);
+          context.lineTo((column - 1) * cellWidth + gap, row * cellHeight + gap);
+          context.lineTo((column - 1) * cellWidth + gap, (row - 1) * cellHeight + gap);
+          context.strokePreserve();
+          context.fill();
+        });
+      });
+    });
   }
 
   _addSettingsListeners() {
@@ -258,6 +313,8 @@ class ApplicationClass extends Adw.ExpanderRow {
         if (this.settings.get_int('height') > gridSize) {
           this.settings.set_int('height', gridSize);
         }
+
+        this._drawProportions();
       })
     );
 
@@ -269,6 +326,8 @@ class ApplicationClass extends Adw.ExpanderRow {
         if (this.settings.get_int('width') > gridSize - columnStart) {
           this.settings.set_int('width', gridSize - columnStart);
         }
+
+        this._drawProportions();
       })
     );
 
@@ -280,6 +339,20 @@ class ApplicationClass extends Adw.ExpanderRow {
         if (this.settings.get_int('height') > gridSize - rowStart) {
           this.settings.set_int('height', gridSize - rowStart);
         }
+
+        this._drawProportions();
+      })
+    );
+
+    this._settingsConnections.push(
+      this.settings.connect('changed::width', () => {
+        this._drawProportions();
+      })
+    );
+
+    this._settingsConnections.push(
+      this.settings.connect('changed::height', () => {
+        this._drawProportions();
       })
     );
 
@@ -460,7 +533,8 @@ var application = GObject.registerClass(
       'height',
       'minimize',
       'always-on-top',
-      'disable-animations'
+      'disable-animations',
+      'drawing-area-proportions'
     ]
   },
   ApplicationClass

@@ -236,6 +236,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
     }
 
     Adw.ActionRow {
+      visible: bind-property maximize.active inverted;
       title: _("Restrict to Current Monitor");
       subtitle: _("Restrict the window to the current monitor when resizing");
       activatable-widget: restrict-resize;
@@ -245,94 +246,8 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
         active: true;        
       }
     }
-    
-    Adw.ExpanderRow {
-      visible: bind-property maximize.active inverted;
-      title: _("Use Pixels");
-      subtitle: _("Define the application window size by its pixels");
-      show-enable-switch: false;
-      enable-expansion: bind-property use-pixels.active;
-      
-      [prefix]
-      CheckButton use-pixels {
-        valign: center;
-        active: false;        
-      }
-      
-      Adw.ActionRow {
-        title: _("Top Left X Coordinate");
-        subtitle: _("The x coordinate for the top left corner of the application window");
-        activatable-widget: top-left-x;
-        
-        SpinButton top-left-x {
-          valign: center;
-          adjustment: Adjustment {
-            lower: 0;
-            upper: 1000000000;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 0;
-          };          
-        }
-      }
-      
-      Adw.ActionRow {
-        title: _("Top Left Y Coordinate");
-        subtitle: _("The y coordinate for the top left corner of the application window");
-        activatable-widget: top-left-y;
-        
-        SpinButton top-left-y {
-          valign: center;
-          adjustment: Adjustment {
-            lower: 0;
-            upper: 1000000000;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 0;
-          };          
-        }
-      }
-      
-      Adw.ActionRow {
-        title: _("Bottom Right X Coordinate");
-        subtitle: _("The x coordinate for the bottom right corner of the application window");
-        activatable-widget: bottom-right-x;
-        
-        SpinButton bottom-right-x {
-          valign: center;
-          adjustment: Adjustment {
-            lower: bind-property top-left-x.value;
-            upper: 1000000000;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 0;
-          };          
-        }
-      }
-      
-      Adw.ActionRow {
-        title: _("Bottom Right Y Coordinate");
-        subtitle: _("The y coordinate for the bottom right corner of the application window");
-        activatable-widget: bottom-right-y;
-        
-        SpinButton bottom-right-y {
-          valign: center;
-          adjustment: Adjustment {
-            lower: bind-property top-left-y.value;
-            upper: 1000000000;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 0;
-          };          
-        }
-      }
-    }
-    
-    Adw.ExpanderRow {
+
+        Adw.ExpanderRow {
       visible: bind-property maximize.active inverted;
       title: _("Use Proportions");
       subtitle: _("Define the application window size by its relative proportions to the screen");
@@ -344,6 +259,16 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
         valign: center;
         active: true;
         group: use-pixels;        
+      }
+
+      Adw.PreferencesRow {
+        can-focus: false;
+        activatable: false;
+
+        DrawingArea drawing-area-proportions {
+          width-request: 300;
+          height-request: 300;
+        }
       }
       
       Adw.ActionRow {
@@ -432,6 +357,123 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
             page-size: 0;
             page-increment: 1;
             value: 8;
+          };          
+        }
+      }
+    }
+    
+    Adw.ExpanderRow {
+      visible: bind-property maximize.active inverted;
+      title: _("Use Pixels");
+      subtitle: _("Define the application window size by its pixels");
+      show-enable-switch: false;
+      enable-expansion: bind-property use-pixels.active;
+      
+      [prefix]
+      CheckButton use-pixels {
+        valign: center;
+        active: false;        
+      }
+
+      Adw.PreferencesRow {
+        activatable: false;
+        can-focus: false;
+
+        Box {
+          orientation: vertical;
+          can-focus: false;
+          margin-top: 12;
+          margin-bottom: 12;
+          margin-start: 12;
+          margin-end: 12;
+
+          Label {
+            styles ["dim-label"]
+            
+            justify: center;
+            can-focus: false;
+            margin-bottom: 5;
+            label: _("If you are unsure of your monitor's resolution,\nyou can use the following command to find out:");
+          }
+
+          Label {
+            styles ["dim-label"]
+
+            justify: center;
+            selectable: true;
+            label: "xrandr | grep ' connected'";
+          }
+        }
+      }
+      
+      Adw.ActionRow {
+        title: _("Top Left X Coordinate");
+        subtitle: _("The x coordinate for the top left corner of the application window");
+        activatable-widget: top-left-x;
+        
+        SpinButton top-left-x {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 1000000000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 0;
+          };          
+        }
+      }
+      
+      Adw.ActionRow {
+        title: _("Top Left Y Coordinate");
+        subtitle: _("The y coordinate for the top left corner of the application window");
+        activatable-widget: top-left-y;
+        
+        SpinButton top-left-y {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 1000000000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 0;
+          };          
+        }
+      }
+      
+      Adw.ActionRow {
+        title: _("Bottom Right X Coordinate");
+        subtitle: _("The x coordinate for the bottom right corner of the application window");
+        activatable-widget: bottom-right-x;
+        
+        SpinButton bottom-right-x {
+          valign: center;
+          adjustment: Adjustment {
+            lower: bind-property top-left-x.value;
+            upper: 1000000000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 0;
+          };          
+        }
+      }
+      
+      Adw.ActionRow {
+        title: _("Bottom Right Y Coordinate");
+        subtitle: _("The y coordinate for the bottom right corner of the application window");
+        activatable-widget: bottom-right-y;
+        
+        SpinButton bottom-right-y {
+          valign: center;
+          adjustment: Adjustment {
+            lower: bind-property top-left-y.value;
+            upper: 1000000000;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+            value: 0;
           };          
         }
       }

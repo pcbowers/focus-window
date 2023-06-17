@@ -89,7 +89,7 @@ gnome-extensions prefs focus-window@chris.al
 - [x] Ensure Changing Priority also Changes Settings
 - [x] Add Settings to Extension Files
 - [x] Implement Extension
-- [ ] Show Resize Square in Preferences
+- [x] Show Resize Square in Preferences
 
 ## :open_book: Usage
 
