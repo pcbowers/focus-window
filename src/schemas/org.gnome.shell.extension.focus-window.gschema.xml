@@ -159,7 +159,7 @@
       <description>The grid size</description>
     </key>
     <key name="column-start" type="i">
-      <default>2</default>
+      <default>3</default>
       <summary>Column Start</summary>
       <description>The column start</description>
     </key>
@@ -169,7 +169,7 @@
       <description>The width</description>
     </key>
     <key name="row-start" type="i">
-      <default>2</default>
+      <default>3</default>
       <summary>Row Start</summary>
       <description>The row start</description>
     </key>

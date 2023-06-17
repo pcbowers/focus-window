@@ -72,7 +72,7 @@ class ShortcutClass extends Adw.ActionRow {
    * @param {ShortcutProps} shortcutProps
    */
   constructor(AdwActionRowProps = {}, deleteShortcut, setApplicationSubtitle, shortcutProps) {
-debug('Creating Shortcut...');
+    debug('Creating Shortcut...');
     super(AdwActionRowProps);
 
     /** @type {typeof deleteShortcut} */
@@ -142,7 +142,7 @@ debug('Creating Shortcut...');
   }
 
   onDeleteShortcut() {
-debug('Deleting Shortcut...');
+    debug('Deleting Shortcut...');
     this.settings.list_keys().forEach(key => this.settings.reset(key));
     this.settings.run_dispose();
     this._keyController.disconnect(this._keyPressedId);
@@ -188,6 +188,7 @@ debug('Deleting Shortcut...');
     this._keyboardIsGrabbed = true;
     this._lastAccelerator = this._accelerator.get_accelerator();
     this._accelerator.set_accelerator('');
+    // The disabled text that is shown when no shortcut is bound but the keyboard is grabbed
     this._accelerator.set_disabled_text(_('Listening For Shortcut...'));
     this.setApplicationSubtitle();
   }
@@ -196,6 +197,7 @@ debug('Deleting Shortcut...');
     this.root.get_surface().restore_system_shortcuts();
     this._keyboardIsGrabbed = false;
     this._accelerator.set_accelerator(this._lastAccelerator || '');
+    // The disabled text that is shown when no shortcut is bound
     this._accelerator.set_disabled_text(_('Not Bound'));
     this.setApplicationSubtitle();
   }

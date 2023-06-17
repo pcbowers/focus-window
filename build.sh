@@ -22,7 +22,7 @@ function remove_debugs {
   if compgen -G $FILE_PATH >/dev/null; then
     for file in $FILE_PATH; do
       print_message " - Removing Debug Statements from $file..."
-      sed -i 's/^\s*debug(/\/\/ REMOVED FOR PRODUCTION: debug(/g' $file \
+      sed -i 's/^\(\s*\)debug(/\1\/\/ REMOVED FOR PRODUCTION: debug(/g' $file \
         && print_message "   Debug Statements in $file Removed!" || {
         echo >&2 "ERROR: Failed to remove debug statements from $file"
         exit 1
@@ -36,7 +36,7 @@ function readd_debugs {
   if compgen -G $FILE_PATH >/dev/null; then
     for file in $FILE_PATH; do
       print_message " - Readding Debug Statements to $file..."
-      sed -i 's/\/\/ REMOVED FOR PRODUCTION: debug(/debug(/g' $file \
+      sed -i 's/\(\s*\)\/\/ REMOVED FOR PRODUCTION: debug(/\1debug(/g' $file \
         && print_message "   Debug Statements in $file Removed!" || {
         echo >&2 "ERROR: Failed to readd debug statements to $file"
         exit 1

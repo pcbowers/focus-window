@@ -2,7 +2,9 @@ using Gtk 4.0;
 using Adw 1;
 
 template $ApplicationExpanderRow : Adw.ExpanderRow {
+  // The default application name when creating a new application
   title: _("No App Selected");
+  // The default application subtitle when no keyboard shortcuts are defined
   subtitle: _("No Keyboard Shortcuts");
   show-enable-switch: true;
   expanded: false;
@@ -17,6 +19,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
       styles ["error", "raised"]
 
       valign: center;
+      // The tooltip-markup text when hovering over the delete application button
       tooltip-markup: _("Delete Application Shortcut");
       icon-name: "edit-delete-symbolic";
       
@@ -25,6 +28,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
 
     Button {        
       valign: center;
+      // The tooltip-markup text that appears when hovering over the duplicate application button
       tooltip-markup: _("Duplicate Application Shortcut");
       icon-name: "edit-copy-symbolic";
       
@@ -33,6 +37,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
 
     Button {
       valign: center;
+      // The tooltip-markup text when hovering over the increase priority button
       tooltip-markup: _("Increase Priority");
       icon-name: "pan-up-symbolic";
       
@@ -41,6 +46,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
 
     Button {
       valign: center;
+      // The tooltip-markup text when hovering over the decrease priority button
       tooltip-markup: _("Decrease Priority");
       icon-name: "pan-down-symbolic";
       
@@ -49,9 +55,12 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
   }
 
   Adw.ComboRow application-item {
+    // The title of the application expander row
     title: _("Application");
+    // The subtitle of the application expander row
     subtitle: _("The application that will be focused");
     model: StringList application-list {
+      // The default application name when creating a new application
       strings [_("No App Selected")]
     };
     
@@ -59,7 +68,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
   }
 
   Adw.ExpanderRow shortcuts {
+    // The title of the shortcuts expander row
     title: _("Keyboard Shortcuts");
+    // The subtitle of the shortcuts expander row
     subtitle: _("All the shortcuts used to focus your application");
     expanded: true;
     
@@ -68,9 +79,11 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
       styles ["suggested-action"]
       
       valign: center;
+      // The tooltip-markup text when hovering over the add shortcut button
       tooltip-markup: _("Add Shortcut");
       
       Adw.ButtonContent {
+        // The label of the add shortcut button
         label: _("Add");
         icon-name: "preferences-desktop-keyboard-shortcuts-symbolic";
       }
@@ -80,51 +93,65 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
   }
   
   Adw.ExpanderRow launch-application {
+    // The title of the launch application expander row
     title: _("Launch Application");
+    // The subtitle of the launch application expander row
     subtitle: _("Launch the application if no windows are found");
     show-enable-switch: true;
     enable-expansion: true;
     
     Adw.ActionRow {
+      // The title of the command line arguments action row
       title: _("Command Line Arguments");
+      // The subtitle of the command line arguments action row
       subtitle: _("Override any arguments passed to the application");
       activatable-widget: command-line-arguments;
 
       Entry command-line-arguments {
         width-chars: 30;
         valign: center;
+        // The placeholder text of the command line arguments entry
         placeholder-text: _("Arguments");        
       }
     }
   }
   
   Adw.ExpanderRow filter-by-title {
+    // The title of the filter by title expander row
     title: _("Filter by Title");
+    // The subtitle of the filter by title expander row
     subtitle: _("Filter the application windows by a specified title");
     show-enable-switch: true;
     enable-expansion: false;
     
     Adw.ActionRow {
+      // The title of the title to match action row
       title: _("Title to Match");
+      // The subtitle of the title to match action row
       subtitle: _("Match window titles against a regular expression");
       activatable-widget: title-to-match;
 
       Entry title-to-match {
         width-chars: 30;
         valign: center;
+        // The placeholder text of the title to match entry
         placeholder-text: _("Window Title");        
       }
     }
   }
   
   Adw.ExpanderRow filter-by-workspace {
+    // The title of the filter by workspace expander row
     title: _("Filter by Workspace");
+    // The subtitle of the filter by workspace expander row
     subtitle: _("Filter the application windows based on its workspace");
     show-enable-switch: true;
     enable-expansion: false;
     
     Adw.ActionRow {
+      // The title of the filter to current workspace action row
       title: _("Filter to Current Workspace");
+      // The subtitle of the filter to current workspace action row
       subtitle: _("Only consider application windows in the current workspace");
       activatable-widget: filter-to-current-workspace;
 
@@ -136,7 +163,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
 
     Adw.ActionRow {
       visible: bind-property filter-to-current-workspace.active inverted;
+      // The title of the workspace to match action row
       title: _("Workspace to Match");
+      // The subtitle of the workspace to match action row
       subtitle: _("The specific workspace that should be matched\nWorkspaces are numbered starting from 0");
       activatable-widget: workspace-to-match;
 
@@ -154,13 +183,17 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
   }
   
   Adw.ExpanderRow filter-by-monitor {
+    // The title of the filter by monitor expander row
     title: _("Filter by Monitor");
+    // The subtitle of the filter by monitor expander row
     subtitle: _("Filter the application windows based on its monitor");
     show-enable-switch: true;
     enable-expansion: false;
     
     Adw.ActionRow {
+      // The title of the filter to current monitor action row
       title: _("Filter to Current Monitor");
+      // The subtitle of the filter to current monitor action row
       subtitle: _("Only consider application windows in the current monitor");
       activatable-widget: filter-to-current-monitor;
 
@@ -172,7 +205,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
 
     Adw.ActionRow {
       visible: bind-property filter-to-current-monitor.active inverted;
+      // The title of the monitor to match action row
       title: _("Monitor to Match");
+      // The subtitle of the monitor to match action row
       subtitle: _("The specific monitor that should be matched\Monitors are numbered starting from 0");
       activatable-widget: monitor-to-match;
 
@@ -190,13 +225,17 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
   }
   
   Adw.ExpanderRow move-on-focus {
+    // The title of the move on focus expander row
     title: _("Move On Focus");
+    // The subtitle of the move on focus expander row
     subtitle: _("Move the window on focus");
     show-enable-switch: true;
     enable-expansion: false;
     
     Adw.ActionRow {
+      // The title of the move to current workspace action row
       title: _("Move to Current Workspace");
+      // The subtitle of the move to current workspace action row
       subtitle: _("Move the window to the current workspace unless filtered to a specific workspace");
       activatable-widget: move-to-current-workspace;
 
@@ -207,7 +246,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
     }
 
     Adw.ActionRow {
+      // The title of the move to current monitor action row
       title: _("Move to Current Monitor");
+      // The subtitle of the move to current monitor action row
       subtitle: _("Move the window to the current monitor unless filtered to a specific monitor");
       activatable-widget: move-to-current-monitor;
 
@@ -219,13 +260,17 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
   }
   
   Adw.ExpanderRow resize-on-focus {
+    // The title of the resize on focus expander row
     title: _("Resize On Focus");
+    // The subtitle of the resize on focus expander row
     subtitle: _("Resize the window on focus");
     show-enable-switch: true;
     enable-expansion: false;    
     
     Adw.ActionRow {
+      // The title of the maximize window action row
       title: _("Maximize Window");
+      // The subtitle of the maximize window action row
       subtitle: _("Maximize the application window");
       activatable-widget: maximize;
 
@@ -237,7 +282,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
 
     Adw.ActionRow {
       visible: bind-property maximize.active inverted;
+      // The title of the restrict to current monitor action row
       title: _("Restrict to Current Monitor");
+      // The subtitle of the restrict to current monitor action row
       subtitle: _("Restrict the window to the current monitor when resizing");
       activatable-widget: restrict-resize;
 
@@ -249,7 +296,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
 
         Adw.ExpanderRow {
       visible: bind-property maximize.active inverted;
+      // The title of the use proportions expander row
       title: _("Use Proportions");
+      // The subtitle of the use proportions expander row
       subtitle: _("Define the application window size by its relative proportions to the screen");
       show-enable-switch: false;
       enable-expansion: bind-property use-proportions.active;
@@ -260,19 +309,11 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
         active: true;
         group: use-pixels;        
       }
-
-      Adw.PreferencesRow {
-        can-focus: false;
-        activatable: false;
-
-        DrawingArea drawing-area-proportions {
-          width-request: 300;
-          height-request: 300;
-        }
-      }
-      
+     
       Adw.ActionRow {
+        // The title of the grid size action row
         title: _("Grid Size");
+        // The subtitle of the grid size action row
         subtitle: _("The number of screen slices that should be made\nThis defines the units used to resize the application window");
         activatable-widget: grid-size;
         
@@ -288,9 +329,21 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
           };          
         }
       }
-      
+
+      Adw.PreferencesRow {
+        can-focus: false;
+        activatable: false;
+
+        DrawingArea drawing-area-proportions {
+          width-request: 300;
+          height-request: 300;
+        }
+      }
+
       Adw.ActionRow {
-        title: _("Application Column Start");
+        // The title of the column start action row
+        title: _("Window Column Start");
+        // The subtitle of the column start action row
         subtitle: _("The grid cell column representing the left of the application window");
         activatable-widget: column-start;
         
@@ -308,13 +361,15 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
       }
       
       Adw.ActionRow {
-        title: _("Application Width");
+        // The title of the window width action row
+        title: _("Window Width");
+        // The subtitle of the window width action row
         subtitle: _("The width in grid cells of the application window");
         activatable-widget: width;
         
         SpinButton width {
           valign: center;
-          adjustment: Adjustment {
+          adjustment: Adjustment width-adjustment {
             lower: 1;
             upper: bind-property grid-size.value;
             step-increment: 1;
@@ -326,7 +381,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
       }
       
       Adw.ActionRow {
-        title: _("Application Row Start");
+        // The title of the row start action row
+        title: _("Window Row Start");
+        // The subtitle of the row start action row
         subtitle: _("The grid cell row representing the top of the application window");
         activatable-widget: row-start;
         
@@ -344,13 +401,15 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
       }
       
       Adw.ActionRow {
-        title: _("Application Window Height");
+        // The title of the window height action row
+        title: _("Window Height");
+        // The subtitle of the window height action row
         subtitle: _("The height in grid cells of the application window");
         activatable-widget: height;
         
         SpinButton height {
           valign: center;
-          adjustment: Adjustment {
+          adjustment: Adjustment height-adjustment {
             lower: 1;
             upper: bind-property grid-size.value;
             step-increment: 1;
@@ -364,7 +423,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
     
     Adw.ExpanderRow {
       visible: bind-property maximize.active inverted;
+      // The title of the use pixels expander row
       title: _("Use Pixels");
+      // The subtitle of the use pixels expander row
       subtitle: _("Define the application window size by its pixels");
       show-enable-switch: false;
       enable-expansion: bind-property use-pixels.active;
@@ -393,6 +454,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
             justify: center;
             can-focus: false;
             margin-bottom: 5;
+            // The label of the use pixels expander row explaining how to find the monitor resolution
             label: _("If you are unsure of your monitor's resolution,\nyou can use the following command to find out:");
           }
 
@@ -407,7 +469,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
       }
       
       Adw.ActionRow {
+        // The title of the top left x coordinate action row
         title: _("Top Left X Coordinate");
+        // The subtitle of the top left x coordinate action row
         subtitle: _("The x coordinate for the top left corner of the application window");
         activatable-widget: top-left-x;
         
@@ -425,7 +489,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
       }
       
       Adw.ActionRow {
+        // The title of the top left y coordinate action row
         title: _("Top Left Y Coordinate");
+        // The subtitle of the top left y coordinate action row
         subtitle: _("The y coordinate for the top left corner of the application window");
         activatable-widget: top-left-y;
         
@@ -443,7 +509,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
       }
       
       Adw.ActionRow {
+        // The title of the bottom right x coordinate action row
         title: _("Bottom Right X Coordinate");
+        // The subtitle of the bottom right x coordinate action row
         subtitle: _("The x coordinate for the bottom right corner of the application window");
         activatable-widget: bottom-right-x;
         
@@ -461,7 +529,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
       }
       
       Adw.ActionRow {
+        // The title of the bottom right y coordinate action row
         title: _("Bottom Right Y Coordinate");
+        // The subtitle of the bottom right y coordinate action row
         subtitle: _("The y coordinate for the bottom right corner of the application window");
         activatable-widget: bottom-right-y;
         
@@ -481,7 +551,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
   }
 
   Adw.ActionRow {
+    // The title of the minimize when unfocused action row
     title: _("Minimize When Unfocused");
+    // The subtitle of the minimize when unfocused action row
     subtitle: _("Minimize the application window if already focused\nBy default, the application window is sent to the back");
     activatable-widget: minimize;
     
@@ -491,8 +563,10 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
     }
   }
 
-    Adw.ActionRow {
+  Adw.ActionRow {
+    // The title of the always on top action row
     title: _("Always On Top");
+    // The subtitle of the always on top action row
     subtitle: _("Keep all matching application windows on top of other windows\nThis will take effect the next time the application shortcut is pressed");
     activatable-widget: always-on-top;
     
@@ -503,7 +577,9 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
   }
 
   Adw.ActionRow {
+    // The title of the disable animations action row
     title: _("Disable Animations");
+    // The subtitle of the disable animations action row
     subtitle: _("Disable animations when moving, focusing, and resizing the application window\nThis may improve performance on some systems");
     activatable-widget: disable-animations;
     

@@ -12,6 +12,7 @@ template $ShortcutActionRow : Adw.ActionRow {
     styles ["error", "raised"]
 
     valign: center;
+    // The tooltip-markup text that is shown when hovering the delete shortcut button
     tooltip-markup: _("Delete Shortcut");
     icon-name: "edit-delete-symbolic";
     
@@ -20,6 +21,7 @@ template $ShortcutActionRow : Adw.ActionRow {
 
   ShortcutLabel accelerator {
   valign: center;
+  // The disabled text that is shown when no shortcut is bound
   disabled-text: _("Not Bound");
   focus-on-click: true;
   accelerator: "";

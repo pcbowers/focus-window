@@ -3,7 +3,9 @@ using Adw 1;
 
 template $FocusWindowPreferencesPage : Adw.PreferencesPage {
   Adw.PreferencesGroup focusWindowPreferencesGroup {
+    // The title of the application
     title: _("Focus Window");
+    // A description beneath the title indicating how to get started
     description: _("Add a profile to get started!");
     
     [header-suffix]
@@ -11,9 +13,11 @@ template $FocusWindowPreferencesPage : Adw.PreferencesPage {
       styles ["suggested-action"]
 
       valign: center;
+      // The tooltip-markup text that is shown when hovering over the add profile button
       tooltip-markup: _("Add a new profile to the list.");
 
       Adw.ButtonContent {
+        // The label of the add profile button
         label: _("Add Profile");
         icon-name: "list-add-symbolic";
       }

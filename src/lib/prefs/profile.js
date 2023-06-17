@@ -70,7 +70,7 @@ class ProfileClass extends Adw.PreferencesGroup {
     changeProfilePriority,
     profileProps
   ) {
-debug('Creating Profile...');
+    debug('Creating Profile...');
     super(AdwPreferencesGroupProps);
 
     /** @type {typeof deleteProfile} */
@@ -121,6 +121,7 @@ debug('Creating Profile...');
         if (key === 'applications') return;
         this.settings.set_value(key, profileProps.settings.get_value(key));
       });
+      // The prefix that is added to the name of the copied profile
       this._profile_name.set_text(this._profile_name.get_text() + ' ' + _('Copy'));
 
       profileProps.settings.get_strv('applications').forEach(applicationId => {
@@ -149,7 +150,7 @@ debug('Creating Profile...');
   }
 
   onDeleteProfile() {
-debug('Deleting Profile...');
+    debug('Deleting Profile...');
     [...this._applicationsList].forEach(application => application.onDeleteApplication());
     this.settings.list_keys().forEach(key => this.settings.reset(key));
     this.settings.run_dispose();
@@ -169,6 +170,7 @@ debug('Deleting Profile...');
   }
 
   onAddApplication() {
+    // The default application name when creating a new application
     const application = this._createApplication({ type: 'new', name: _('No App Selected') });
     this._applicationsList.push(application);
     this._applications.add_row(application);
@@ -228,9 +230,11 @@ debug('Deleting Profile...');
   }
 
   _setSubtitle() {
+    // The default subtitle when no application shortcuts are present on the profile
     let subtitle = _('No Application Shortcuts');
     if (this._applicationsList.length > 0) {
       subtitle = ngettext(
+        // The subtitle when there are application shortcuts present on the profile, prefixed with the number of application shortcuts
         '%d Application Shortcut',
         '%d Application Shortcuts',
         this._applicationsList.length

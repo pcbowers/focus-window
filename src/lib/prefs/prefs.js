@@ -27,7 +27,7 @@ class PrefsClass extends Adw.PreferencesPage {
    * @param {import('@girs/adw-1').Adw.PreferencesPage.ConstructorProperties} AdwPreferencesPageProps
    */
   constructor(AdwPreferencesPageProps = {}) {
-debug('Creating Preferences Page...');
+    debug('Creating Preferences Page...');
     super(AdwPreferencesPageProps);
 
     /** @type {import('$lib/prefs/profile').ProfileInstance[]} */
@@ -48,6 +48,7 @@ debug('Creating Preferences Page...');
   onAddProfile() {
     const profile = this._createProfile({
       type: 'new',
+      // The default name of a new profile, suffixed with the number of profiles
       name: ngettext('Profile %d', 'Profile %d', this._profilesList.length + 1).format(
         this._profilesList.length + 1
       )

@@ -165,6 +165,12 @@ class ApplicationClass extends Adw.ExpanderRow {
     /** @type {import('@girs/adw-1').Adw.ExpanderRow} */
     this._shortcuts = this._shortcuts;
 
+    /** @type {import('@girs/gtk-4.0').Gtk.Adjustment} */
+    this._width_adjustment = this._width_adjustment;
+
+    /** @type {import('@girs/gtk-4.0').Gtk.Adjustment} */
+    this._height_adjustment = this._height_adjustment;
+
     /** @type {number[]} */
     this._settingsConnections = [];
 
@@ -236,7 +242,12 @@ class ApplicationClass extends Adw.ExpanderRow {
       }
     }
 
+    const gridSize = this.settings.get_int('grid-size');
+    const columnStart = this.settings.get_int('column-start');
+    const rowStart = this.settings.get_int('row-start');
     this._application_item.set_selected(this._getApplicationPositionByString(this.title));
+    this._width_adjustment.set_upper(gridSize - columnStart + 1);
+    this._height_adjustment.set_upper(gridSize - rowStart + 1);
 
     this._addSettingsListeners();
 
@@ -306,13 +317,18 @@ class ApplicationClass extends Adw.ExpanderRow {
           this.settings.set_int('row-start', gridSize);
         }
 
-        if (this.settings.get_int('width') > gridSize) {
-          this.settings.set_int('width', gridSize);
+        const columnStart = this.settings.get_int('column-start') - 1;
+        if (this.settings.get_int('width') > gridSize - columnStart) {
+          this.settings.set_int('width', gridSize - columnStart);
         }
 
-        if (this.settings.get_int('height') > gridSize) {
-          this.settings.set_int('height', gridSize);
+        const rowStart = this.settings.get_int('row-start') - 1;
+        if (this.settings.get_int('height') > gridSize - rowStart) {
+          this.settings.set_int('height', gridSize - rowStart);
         }
+
+        this._width_adjustment.set_upper(gridSize - columnStart);
+        this._height_adjustment.set_upper(gridSize - rowStart);
 
         this._drawProportions();
       })
@@ -327,6 +343,8 @@ class ApplicationClass extends Adw.ExpanderRow {
           this.settings.set_int('width', gridSize - columnStart);
         }
 
+        this._width_adjustment.set_upper(gridSize - columnStart);
+
         this._drawProportions();
       })
     );
@@ -339,6 +357,8 @@ class ApplicationClass extends Adw.ExpanderRow {
         if (this.settings.get_int('height') > gridSize - rowStart) {
           this.settings.set_int('height', gridSize - rowStart);
         }
+
+        this._height_adjustment.set_upper(gridSize - rowStart);
 
         this._drawProportions();
       })
@@ -402,6 +422,7 @@ class ApplicationClass extends Adw.ExpanderRow {
     );
 
     this.set_title(
+      // The default application name when creating a new application
       stringList.get_string(this._application_item.get_selected()) || _('No App Selected')
     );
   }
@@ -419,6 +440,7 @@ class ApplicationClass extends Adw.ExpanderRow {
   }
 
   _getNextShortcutName() {
+    // The name of a keyboard shortcut, suffixed with the number of the shortcut
     return ngettext('Shortcut %d', 'Shortcut %d', this._shortcutsList.length + 1).format(
       this._shortcutsList.length + 1
     );
@@ -457,6 +479,7 @@ class ApplicationClass extends Adw.ExpanderRow {
     this._shortcutsList.splice(shortcutIndex, 1);
 
     this._shortcutsList.forEach((shortcut, index) =>
+      // The name of a keyboard shortcut, suffixed with the number of the shortcut
       shortcut.set_title(ngettext('Shortcut %d', 'Shortcut %d', index + 1).format(index + 1))
     );
     this._setSubtitle();
@@ -477,9 +500,11 @@ class ApplicationClass extends Adw.ExpanderRow {
 
   _setSubtitle() {
     const boundShortcuts = this._shortcutsList.filter(shortcut => shortcut.isBound());
+    // The default application subtitle when no keyboard shortcuts are defined
     let subtitle = _('No Keyboard Shortcuts');
     if (boundShortcuts.length > 0) {
       subtitle = ngettext(
+        // The subtitle of the application row, showing the number of keyboard shortcuts
         '%d Keyboard Shortcut',
         '%d Keyboard Shortcuts',
         boundShortcuts.length
@@ -534,7 +559,9 @@ var application = GObject.registerClass(
       'minimize',
       'always-on-top',
       'disable-animations',
-      'drawing-area-proportions'
+      'drawing-area-proportions',
+      'height-adjustment',
+      'width-adjustment'
     ]
   },
   ApplicationClass

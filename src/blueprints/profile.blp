@@ -4,6 +4,7 @@ using Adw 1;
 template $ProfileExpanderRow : Adw.PreferencesGroup {
   Adw.ExpanderRow profile {
     title: bind-property profile-name.text;
+    // The default subtitle when no application shortcuts are present on the profile
     subtitle: _("No Application Shortcuts");
     show-enable-switch: true;
     expanded: false;
@@ -18,6 +19,7 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
         styles ["error", "raised"]
         
         valign: center;
+        // The tooltip-markup text when hovering over the delete profile button
         tooltip-markup: _("Delete Profile");
         icon-name: "edit-delete-symbolic";
         
@@ -26,6 +28,7 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
 
       Button {
         valign: center;
+        // The tooltip-markup text when hovering over the duplicate profile button
         tooltip-markup: _("Duplicate Profile");
         icon-name: "edit-copy-symbolic";
         
@@ -34,6 +37,7 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
 
       Button {
         valign: center;
+        // The tooltip-markup text when hovering over the increase priority button
         tooltip-markup: _("Increase Priority");
         icon-name: "pan-up-symbolic";
         
@@ -42,6 +46,7 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
 
       Button {
         valign: center;
+        // The tooltip-markup text when hovering over the decrease priority button
         tooltip-markup: _("Decrease Priority");
         icon-name: "pan-down-symbolic";
         
@@ -50,19 +55,24 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
     }
     
     Adw.ActionRow {
+      // The title of the profile name entry
       title: _("Profile Name");
+      // The subtitle of the profile name entry
       subtitle: _("The name of the profile");
       activatable-widget: profile-name;
       
       Entry profile-name {
         width-chars: 30;
         valign: center;
+        // The placeholder text describing the profile name entry
         placeholder-text: _("Profile Name");
       }
     }
     
     Adw.ExpanderRow applications {
+      // The title of the application shortcuts expander
       title: _("Application Shortcuts");
+      // The subtitle of the application shortcuts expander
       subtitle: _("Add an application shortcut to the profile");
       expanded: true;
 
@@ -71,9 +81,11 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
         styles ["suggested-action"]
         
         valign: center;
+        // The tooltip-markup text when hovering over the add application button
         tooltip-markup: _("Add Application");
         
         Adw.ButtonContent {
+          // The label of the add application button
           label: _("Add");
           icon-name: "application-x-addon-symbolic";
         }
