@@ -337,6 +337,10 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
         DrawingArea drawing-area-proportions {
           width-request: 300;
           height-request: 300;
+          margin-bottom: 12;
+          margin-top: 12;
+          margin-start: 12;
+          margin-end: 12;
         }
       }
 
@@ -567,7 +571,7 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
     // The title of the always on top action row
     title: _("Always On Top");
     // The subtitle of the always on top action row
-    subtitle: _("Keep all matching application windows on top of other windows\nThis will take effect the next time the application shortcut is pressed");
+    subtitle: _("Keep all matching application windows on top of other windows");
     activatable-widget: always-on-top;
     
     Switch always-on-top {

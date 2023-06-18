@@ -13,10 +13,10 @@ var SETTINGS_SCHEMA = Gio.SettingsSchemaSource.new_from_directory(
 /**@typedef {typeof debug} Debug */
 /**
  * A replacement for GJS's `log` function so that every statement is prefixed with the uuid
- * @param {any} message A string that should be logged to the console
+ * @param {any[]} message A string that should be logged to the console
  */
-function debug(message) {
-  log(`\n${Me.metadata.uuid}: [${new Date().toLocaleString()}] ${message}`);
+function debug(...message) {
+  log(`\n${Me.metadata.uuid}: [${new Date().toLocaleString()}] ${message.join(' ')}`);
 }
 
 /** @typedef {typeof createId} CreateId */

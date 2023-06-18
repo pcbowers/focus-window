@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Focus Window 1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-16 23:38-0400\n"
+"POT-Creation-Date: 2023-06-18 12:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgid "Copy"
 msgstr ""
 
 #. The default application name when creating a new application
-#: src/lib/prefs/profile.js:174 src/lib/prefs/application.js:426
+#: src/lib/prefs/profile.js:174 src/lib/prefs/application.js:488
 #: src/blueprints/application.blp:6 src/blueprints/application.blp:64
 msgid "No App Selected"
 msgstr ""
@@ -61,7 +61,7 @@ msgid "Not Bound"
 msgstr ""
 
 #. The name of a keyboard shortcut, suffixed with the number of the shortcut
-#: src/lib/prefs/application.js:444 src/lib/prefs/application.js:483
+#: src/lib/prefs/application.js:506 src/lib/prefs/application.js:545
 #, javascript-format
 msgid "Shortcut %d"
 msgid_plural "Shortcut %d"
@@ -69,12 +69,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. The default application subtitle when no keyboard shortcuts are defined
-#: src/lib/prefs/application.js:504 src/blueprints/application.blp:8
+#: src/lib/prefs/application.js:566 src/blueprints/application.blp:8
 msgid "No Keyboard Shortcuts"
 msgstr ""
 
 #. The subtitle of the application row, showing the number of keyboard shortcuts
-#: src/lib/prefs/application.js:508
+#: src/lib/prefs/application.js:570
 #, javascript-format
 msgid "%d Keyboard Shortcut"
 msgid_plural "%d Keyboard Shortcuts"
@@ -400,133 +400,131 @@ msgid ""
 msgstr ""
 
 #. The title of the column start action row
-#: src/blueprints/application.blp:345
+#: src/blueprints/application.blp:349
 msgid "Window Column Start"
 msgstr ""
 
 #. The subtitle of the column start action row
-#: src/blueprints/application.blp:347
+#: src/blueprints/application.blp:351
 msgid "The grid cell column representing the left of the application window"
 msgstr ""
 
 #. The title of the window width action row
-#: src/blueprints/application.blp:365
+#: src/blueprints/application.blp:369
 msgid "Window Width"
 msgstr ""
 
 #. The subtitle of the window width action row
-#: src/blueprints/application.blp:367
+#: src/blueprints/application.blp:371
 msgid "The width in grid cells of the application window"
 msgstr ""
 
 #. The title of the row start action row
-#: src/blueprints/application.blp:385
+#: src/blueprints/application.blp:389
 msgid "Window Row Start"
 msgstr ""
 
 #. The subtitle of the row start action row
-#: src/blueprints/application.blp:387
+#: src/blueprints/application.blp:391
 msgid "The grid cell row representing the top of the application window"
 msgstr ""
 
 #. The title of the window height action row
-#: src/blueprints/application.blp:405
+#: src/blueprints/application.blp:409
 msgid "Window Height"
 msgstr ""
 
 #. The subtitle of the window height action row
-#: src/blueprints/application.blp:407
+#: src/blueprints/application.blp:411
 msgid "The height in grid cells of the application window"
 msgstr ""
 
 #. The title of the use pixels expander row
-#: src/blueprints/application.blp:427
+#: src/blueprints/application.blp:431
 msgid "Use Pixels"
 msgstr ""
 
 #. The subtitle of the use pixels expander row
-#: src/blueprints/application.blp:429
+#: src/blueprints/application.blp:433
 msgid "Define the application window size by its pixels"
 msgstr ""
 
 #. The label of the use pixels expander row explaining how to find the monitor resolution
-#: src/blueprints/application.blp:458
+#: src/blueprints/application.blp:462
 msgid ""
 "If you are unsure of your monitor's resolution,\n"
 "you can use the following command to find out:"
 msgstr ""
 
 #. The title of the top left x coordinate action row
-#: src/blueprints/application.blp:473
+#: src/blueprints/application.blp:477
 msgid "Top Left X Coordinate"
 msgstr ""
 
 #. The subtitle of the top left x coordinate action row
-#: src/blueprints/application.blp:475
+#: src/blueprints/application.blp:479
 msgid "The x coordinate for the top left corner of the application window"
 msgstr ""
 
 #. The title of the top left y coordinate action row
-#: src/blueprints/application.blp:493
+#: src/blueprints/application.blp:497
 msgid "Top Left Y Coordinate"
 msgstr ""
 
 #. The subtitle of the top left y coordinate action row
-#: src/blueprints/application.blp:495
+#: src/blueprints/application.blp:499
 msgid "The y coordinate for the top left corner of the application window"
 msgstr ""
 
 #. The title of the bottom right x coordinate action row
-#: src/blueprints/application.blp:513
+#: src/blueprints/application.blp:517
 msgid "Bottom Right X Coordinate"
 msgstr ""
 
 #. The subtitle of the bottom right x coordinate action row
-#: src/blueprints/application.blp:515
+#: src/blueprints/application.blp:519
 msgid "The x coordinate for the bottom right corner of the application window"
 msgstr ""
 
 #. The title of the bottom right y coordinate action row
-#: src/blueprints/application.blp:533
+#: src/blueprints/application.blp:537
 msgid "Bottom Right Y Coordinate"
 msgstr ""
 
 #. The subtitle of the bottom right y coordinate action row
-#: src/blueprints/application.blp:535
+#: src/blueprints/application.blp:539
 msgid "The y coordinate for the bottom right corner of the application window"
 msgstr ""
 
 #. The title of the minimize when unfocused action row
-#: src/blueprints/application.blp:555
+#: src/blueprints/application.blp:559
 msgid "Minimize When Unfocused"
 msgstr ""
 
 #. The subtitle of the minimize when unfocused action row
-#: src/blueprints/application.blp:557
+#: src/blueprints/application.blp:561
 msgid ""
 "Minimize the application window if already focused\n"
 "By default, the application window is sent to the back"
 msgstr ""
 
 #. The title of the always on top action row
-#: src/blueprints/application.blp:568
+#: src/blueprints/application.blp:572
 msgid "Always On Top"
 msgstr ""
 
 #. The subtitle of the always on top action row
-#: src/blueprints/application.blp:570
-msgid ""
-"Keep all matching application windows on top of other windows\n"
-"This will take effect the next time the application shortcut is pressed"
+#: src/blueprints/application.blp:574
+msgid "Keep all matching application windows on top of other windows"
 msgstr ""
 
 #. The title of the disable animations action row
-#: src/blueprints/application.blp:581
+#: src/blueprints/application.blp:585
 msgid "Disable Animations"
 msgstr ""
 
 #. The subtitle of the disable animations action row
-#: src/blueprints/application.blp:583
+#: src/blueprints/application.blp:587
 msgid ""
 "Disable animations when moving, focusing, and resizing the application "
 "window\n"

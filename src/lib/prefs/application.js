@@ -1,4 +1,4 @@
-const { GObject, Adw, Gio, Gdk } = imports.gi;
+const { GObject, Adw, Gio, Gdk, Gtk } = imports.gi;
 const { extensionUtils } = imports.misc;
 const Me = extensionUtils.getCurrentExtension();
 const Gettext = imports.gettext;
@@ -84,6 +84,15 @@ const Shortcut = Me.imports.lib.prefs.shortcut.shortcut;
 /** @typedef {typeof ApplicationClass} Application */
 /** @typedef {ApplicationClass} ApplicationInstance */
 class ApplicationClass extends Adw.ExpanderRow {
+  /** @type {number} */
+  _gestureIdBegin;
+
+  /** @type {number} */
+  _gestureIdUpdate;
+
+  /** @type {number} */
+  _gestureIdEnd;
+
   /** @type {string} */
   _id = createId();
 
@@ -171,9 +180,13 @@ class ApplicationClass extends Adw.ExpanderRow {
     /** @type {import('@girs/gtk-4.0').Gtk.Adjustment} */
     this._height_adjustment = this._height_adjustment;
 
+    /** @type {import('@girs/gtk-4.0').Gtk.GestureDrag} */
+    this._gestureDrag = new Gtk.GestureDrag();
+
     /** @type {number[]} */
     this._settingsConnections = [];
 
+    this._addPointerListeners();
     this._populateApplications();
 
     if (applicationProps.type === 'settings') {
@@ -258,6 +271,53 @@ class ApplicationClass extends Adw.ExpanderRow {
     return this._id;
   }
 
+  _addPointerListeners() {
+    this._drawing_area_proportions.add_controller(this._gestureDrag);
+    let x = 0;
+    let y = 0;
+    this._gestureIdBegin = this._gestureDrag.connect('drag-begin', (_, newX, newY) => {
+      x = newX;
+      y = newY;
+      this._calculatePosition(x, y, 0, 0);
+    });
+
+    this._gestureIdUpdate = this._gestureDrag.connect('drag-update', (_, width, height) => {
+      this._calculatePosition(x, y, width, height);
+    });
+
+    this._gestureIdEnd = this._gestureDrag.connect('drag-end', (_, width, height) => {
+      this._calculatePosition(x, y, width, height);
+    });
+  }
+
+  /**
+   * @param {number} x
+   * @param {number} y
+   */
+  _calculatePosition(x, y, width, height) {
+    const gridSize = this.settings.get_int('grid-size');
+    const areaWidth = this._drawing_area_proportions.get_allocated_width();
+    const areaHeight = this._drawing_area_proportions.get_allocated_height();
+
+    const cellWidth = areaWidth / gridSize;
+    const cellHeight = areaHeight / gridSize;
+
+    const x1 = Math.floor(x / cellWidth);
+    const y1 = Math.floor(y / cellHeight);
+    const x2 = Math.floor((x + width) / cellWidth);
+    const y2 = Math.floor((y + height) / cellHeight);
+
+    const startX = Math.min(x1, x2);
+    const startY = Math.min(y1, y2);
+    const endX = Math.max(x1, x2);
+    const endY = Math.max(y1, y2);
+
+    this.settings.set_int('column-start', startX + 1);
+    this.settings.set_int('row-start', startY + 1);
+    this.settings.set_int('width', endX - startX + 1);
+    this.settings.set_int('height', endY - startY + 1);
+  }
+
   _drawProportions() {
     const gridSize = this.settings.get_int('grid-size');
     const columnStart = this.settings.get_int('column-start');
@@ -275,29 +335,28 @@ class ApplicationClass extends Adw.ExpanderRow {
       Gdk.cairo_set_source_rgba(context, color);
       context.setLineWidth(1);
 
-      const gap = 10;
-      const cellWidth = (areaWidth - gap * 2) / gridSize;
-      const cellHeight = (areaHeight - gap * 2) / gridSize;
+      const cellWidth = areaWidth / gridSize;
+      const cellHeight = areaHeight / gridSize;
 
       range(0, gridSize + 1).forEach(column => {
-        context.moveTo(column * cellWidth + gap, gap);
-        context.lineTo(column * cellWidth + gap, areaHeight - gap);
+        context.moveTo(column * cellWidth, 0);
+        context.lineTo(column * cellWidth, areaHeight);
         context.stroke();
       });
 
       range(0, gridSize + 1).forEach(row => {
-        context.moveTo(gap, row * cellHeight + gap);
-        context.lineTo(areaWidth - gap, row * cellHeight + gap);
+        context.moveTo(0, row * cellHeight);
+        context.lineTo(areaWidth, row * cellHeight);
         context.stroke();
       });
 
       range(columnStart, columnStart + width).forEach(column => {
         range(rowStart, rowStart + height).forEach(row => {
-          context.moveTo((column - 1) * cellWidth + gap, (row - 1) * cellHeight + gap);
-          context.lineTo(column * cellWidth + gap, (row - 1) * cellHeight + gap);
-          context.lineTo(column * cellWidth + gap, row * cellHeight + gap);
-          context.lineTo((column - 1) * cellWidth + gap, row * cellHeight + gap);
-          context.lineTo((column - 1) * cellWidth + gap, (row - 1) * cellHeight + gap);
+          context.moveTo((column - 1) * cellWidth, (row - 1) * cellHeight);
+          context.lineTo(column * cellWidth, (row - 1) * cellHeight);
+          context.lineTo(column * cellWidth, row * cellHeight);
+          context.lineTo((column - 1) * cellWidth, row * cellHeight);
+          context.lineTo((column - 1) * cellWidth, (row - 1) * cellHeight);
           context.strokePreserve();
           context.fill();
         });
@@ -402,6 +461,9 @@ class ApplicationClass extends Adw.ExpanderRow {
   onDeleteApplication() {
     debug('Deleting Application...');
     [...this._shortcutsList].forEach(shortcut => shortcut.onDeleteShortcut());
+    this._gestureDrag.disconnect(this._gestureIdBegin);
+    this._gestureDrag.disconnect(this._gestureIdUpdate);
+    this._gestureDrag.disconnect(this._gestureIdEnd);
     this._settingsConnections.forEach(connection => this.settings.disconnect(connection));
     this.settings.list_keys().forEach(key => this.settings.reset(key));
     this.settings.run_dispose();

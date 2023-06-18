@@ -65,6 +65,7 @@ var extension = class FocusWindowExtension {
             if (openedApp.get_id() !== shellApp.get_id()) return;
 
             this.signalManager.disconnectSignal(windowCreatedId);
+            this.handleAlwaysOnTop(application, window);
             this.handleSingleWindowFocus(application, window);
           });
         }
@@ -115,6 +116,10 @@ var extension = class FocusWindowExtension {
     const workspace = this.getWorkspace(application, window);
     const monitor = this.getMonitor(application, window);
 
+    if (window.minimized) {
+      this.handleUnminimizeAnimations(application['disable-animations']);
+    }
+
     this.handleResizeAnimations(window, application['disable-animations']);
     main.moveWindowToMonitorAndWorkspace(window, monitor, workspace, true);
 
@@ -163,6 +168,10 @@ var extension = class FocusWindowExtension {
       const workspace = this.getWorkspace(application, window);
       const monitor = this.getMonitor(application, window);
 
+      if (window.minimized) {
+        this.handleUnminimizeAnimations(application['disable-animations']);
+      }
+
       this.handleResizeAnimations(window, application['disable-animations']);
       main.moveWindowToMonitorAndWorkspace(window, monitor, workspace, true);
 
@@ -174,6 +183,10 @@ var extension = class FocusWindowExtension {
       window = windows[0];
       const workspace = this.getWorkspace(application, window);
       const monitor = this.getMonitor(application, window);
+
+      if (window.minimized) {
+        this.handleUnminimizeAnimations(application['disable-animations']);
+      }
 
       this.handleResizeAnimations(window, application['disable-animations']);
       main.moveWindowToMonitorAndWorkspace(window, monitor, workspace, true);
@@ -221,6 +234,11 @@ var extension = class FocusWindowExtension {
     activeApplications.forEach(application => {
       application.shortcuts.forEach(shortcut => {
         debug(`Registering ${shortcut.accelerator}`);
+
+        const shellApp = this.getShellApp(application.name);
+        const appWindows = this.getAppWindows(application, shellApp.get_windows());
+        appWindows.forEach(window => this.handleAlwaysOnTop(application, window));
+
         this.shortcutManager.bind(shortcut.accelerator, () => {
           debug(`Pressing ${shortcut.accelerator}`);
           this.handleShortcut(application);
@@ -269,7 +287,9 @@ var extension = class FocusWindowExtension {
       window.get_compositor_private()
     );
 
-    if (windowActor) windowActor.remove_all_transitions();
+    if (!windowActor) return;
+
+    windowActor.remove_all_transitions();
   }
 
   /**
@@ -286,6 +306,25 @@ var extension = class FocusWindowExtension {
         (shellWindowManager, windowActor) => {
           windowActor.remove_all_transitions();
           shellWindowManager.completed_minimize(windowActor);
+        }
+      )
+    );
+  }
+
+  /**
+   * @param {boolean} disableAnimations
+   */
+  handleUnminimizeAnimations(disableAnimations) {
+    if (!disableAnimations) return;
+
+    this.signalManager.connectSignal(
+      global.window_manager,
+      'unminimize',
+      true,
+      /** @type {import('@girs/shell-12').Shell.WM.MinimizeSignalCallback} */ (
+        (shellWindowManager, windowActor) => {
+          windowActor.remove_all_transitions();
+          shellWindowManager.completed_unminimize(windowActor);
         }
       )
     );
