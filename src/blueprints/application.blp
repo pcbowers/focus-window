@@ -1,15 +1,13 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $ApplicationExpanderRow : Adw.ExpanderRow {
+template $ApplicationPreferencesGroup : Adw.PreferencesGroup {
   // The default application name when creating a new application
   title: _("No App Selected");
   // The default application subtitle when no keyboard shortcuts are defined
-  subtitle: _("No Keyboard Shortcuts");
-  show-enable-switch: true;
-  expanded: false;
+  description: _("No Keyboard Shortcuts");
 
-  [prefix]
+  [header-suffix]
   Box {
     styles ["linked"]
 
@@ -54,17 +52,33 @@ template $ApplicationExpanderRow : Adw.ExpanderRow {
     }
   }
 
-  Adw.ComboRow application-item {
+  Adw.ActionRow {
+      // The title of the enable application action row
+      title: _("Enable Application");
+      // The subtitle of the enable application action row
+      subtitle: _("Enable this application");
+      activatable-widget: enabled;
+
+      Switch enabled {
+        valign: center;
+        active: false;
+      }
+    }
+
+  Adw.ActionRow {
     // The title of the application expander row
     title: _("Application");
     // The subtitle of the application expander row
     subtitle: _("The application that will be focused");
-    model: StringList application-list {
-      // The default application name when creating a new application
-      strings [_("No App Selected")]
-    };
+    activatable-widget: application-item;
+
+    DropDown application-item {
+      valign: center;
+      enable-search: true;
+
+      notify::selected => $onApplicationItem();
+    }
     
-    notify::selected => $onApplicationItem();
   }
 
   Adw.ExpanderRow shortcuts {

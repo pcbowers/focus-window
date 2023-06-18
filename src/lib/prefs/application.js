@@ -21,6 +21,12 @@ const createId = Me.imports.lib.common.utils.createId;
 /** @type {import('$lib/prefs/shortcut').Shortcut} */
 const Shortcut = Me.imports.lib.prefs.shortcut.shortcut;
 
+/** @type {import('$lib/prefs/factory').Factory} */
+const Factory = Me.imports.lib.prefs.factory.factory;
+
+/** @type {import('$lib/prefs/appname').AppName} */
+const AppName = Me.imports.lib.prefs.appname.appname;
+
 /**
  * @typedef {Object} ApplicationSettingsProps
  * @property {'settings'} type
@@ -83,7 +89,7 @@ const Shortcut = Me.imports.lib.prefs.shortcut.shortcut;
 
 /** @typedef {typeof ApplicationClass} Application */
 /** @typedef {ApplicationClass} ApplicationInstance */
-class ApplicationClass extends Adw.ExpanderRow {
+class ApplicationClass extends Adw.PreferencesGroup {
   /** @type {number} */
   _gestureIdBegin;
 
@@ -99,7 +105,11 @@ class ApplicationClass extends Adw.ExpanderRow {
   /** @type {import('$lib/prefs/shortcut').ShortcutInstance[]} */
   _shortcutsList = [];
 
+  /** @type {import('$lib/prefs/factory').FactoryInstance} */
+  _factory;
+
   bindingProperties = {
+    enabled: 'active',
     'launch-application': 'enable-expansion',
     'command-line-arguments': 'text',
     'filter-by-title': 'enable-expansion',
@@ -162,10 +172,7 @@ class ApplicationClass extends Adw.ExpanderRow {
     /** @type {typeof changeApplicationPriority} */
     this._changeApplicationPriority = changeApplicationPriority;
 
-    /** @type {import('@girs/gtk-4.0').Gtk.StringList} */
-    this._application_list = this._application_list;
-
-    /** @type {import('@girs/adw-1').Adw.ComboRow} */
+    /** @type {import('@girs/gtk-4.0').Gtk.DropDown} */
     this._application_item = this._application_item;
 
     /** @type {import('@girs/gtk-4.0').Gtk.DrawingArea} */
@@ -211,7 +218,6 @@ class ApplicationClass extends Adw.ExpanderRow {
       );
     });
 
-    this.settings.bind('enabled', this, 'enable-expansion', Gio.SettingsBindFlags.DEFAULT);
     this.settings.bind('name', this, 'title', Gio.SettingsBindFlags.DEFAULT);
 
     if (applicationProps.type === 'settings') {
@@ -223,7 +229,7 @@ class ApplicationClass extends Adw.ExpanderRow {
         });
         this._shortcutsList.push(application);
         this._shortcuts.add_row(application);
-        this._setSubtitle();
+        this._setDescription();
       });
     } else if (applicationProps.type === 'new') {
       this.set_title(applicationProps.name);
@@ -249,7 +255,7 @@ class ApplicationClass extends Adw.ExpanderRow {
           });
           this._shortcutsList.push(shortcut);
           this._shortcuts.add_row(shortcut);
-          this._setSubtitle();
+          this._setDescription();
           this._setShortcuts();
         });
       }
@@ -258,7 +264,7 @@ class ApplicationClass extends Adw.ExpanderRow {
     const gridSize = this.settings.get_int('grid-size');
     const columnStart = this.settings.get_int('column-start');
     const rowStart = this.settings.get_int('row-start');
-    this._application_item.set_selected(this._getApplicationPositionByString(this.title));
+    this._application_item.set_selected(this._factory.getPosition(this.title));
     this._width_adjustment.set_upper(gridSize - columnStart + 1);
     this._height_adjustment.set_upper(gridSize - rowStart + 1);
 
@@ -306,7 +312,6 @@ class ApplicationClass extends Adw.ExpanderRow {
     const y1 = Math.floor(y / cellHeight);
     const x2 = Math.floor((x + width) / cellWidth);
     const y2 = Math.floor((y + height) / cellHeight);
-
     const startX = Math.min(x1, x2);
     const startY = Math.min(y1, y2);
     const endX = Math.max(x1, x2);
@@ -479,13 +484,9 @@ class ApplicationClass extends Adw.ExpanderRow {
   }
 
   onApplicationItem() {
-    const stringList = /** @type {import('@girs/gtk-4.0').Gtk.StringList} **/ (
-      this._application_item.get_model()
-    );
-
     this.set_title(
       // The default application name when creating a new application
-      stringList.get_string(this._application_item.get_selected()) || _('No App Selected')
+      this._factory.getItem(this._application_item.get_selected()).title || _('New Application')
     );
   }
 
@@ -497,7 +498,7 @@ class ApplicationClass extends Adw.ExpanderRow {
     this._shortcutsList.push(newShortcut);
     this._shortcuts.add_row(newShortcut);
     this._shortcuts.set_expanded(true);
-    this._setSubtitle();
+    this._setDescription();
     this._setShortcuts();
   }
 
@@ -508,30 +509,28 @@ class ApplicationClass extends Adw.ExpanderRow {
     );
   }
 
-  /**
-   * @param {string} string
-   */
-  _getApplicationPositionByString(string) {
-    const indexPosition = Array.from(Array(this._application_list.get_n_items()).keys()).findIndex(
-      position => this._application_list.get_string(position) === string
-    );
-
-    return indexPosition === -1 ? 0 : indexPosition;
-  }
-
   _populateApplications() {
-    this.allApplications = Gio.AppInfo.get_all()
+    const applications = Gio.AppInfo.get_all()
       .filter(a => a.should_show())
       .sort((app1, app2) =>
         app1.get_name().toLowerCase().localeCompare(app2.get_name().toLowerCase())
       )
-      .map((a, index) => ({
-        name: a.get_name(),
-        id: a.get_id(),
-        position: index + 1
+      .map(application => ({
+        title: application.get_name(),
+        value: application.get_name()
       }));
 
-    this.allApplications.forEach(a => this._application_list.append(a.name));
+    applications.unshift({
+      // The default application name when creating a new application
+      title: _('No App Selected'),
+      // The default application name when creating a new application
+      value: _('No App Selected')
+    });
+
+    this._factory = new Factory({}, AppName, applications);
+    this._application_item.set_model(this._factory.getModel());
+    this._application_item.set_expression(this._factory.getExpression());
+    this._application_item.set_factory(this._factory);
   }
 
   _deleteShortcut(id) {
@@ -544,7 +543,7 @@ class ApplicationClass extends Adw.ExpanderRow {
       // The name of a keyboard shortcut, suffixed with the number of the shortcut
       shortcut.set_title(ngettext('Shortcut %d', 'Shortcut %d', index + 1).format(index + 1))
     );
-    this._setSubtitle();
+    this._setDescription();
     this._setShortcuts();
   }
 
@@ -555,24 +554,24 @@ class ApplicationClass extends Adw.ExpanderRow {
     return new Shortcut(
       {},
       this._deleteShortcut.bind(this),
-      this._setSubtitle.bind(this),
+      this._setDescription.bind(this),
       shortcutProps
     );
   }
 
-  _setSubtitle() {
+  _setDescription() {
     const boundShortcuts = this._shortcutsList.filter(shortcut => shortcut.isBound());
-    // The default application subtitle when no keyboard shortcuts are defined
-    let subtitle = _('No Keyboard Shortcuts');
+    // The default application description when no keyboard shortcuts are defined
+    let description = _('No Keyboard Shortcuts');
     if (boundShortcuts.length > 0) {
-      subtitle = ngettext(
-        // The subtitle of the application row, showing the number of keyboard shortcuts
+      description = ngettext(
+        // The description of the application row, showing the number of keyboard shortcuts
         '%d Keyboard Shortcut',
         '%d Keyboard Shortcuts',
         boundShortcuts.length
       ).format(boundShortcuts.length);
     }
-    this.set_subtitle(subtitle);
+    this.set_description(description);
   }
 
   _setShortcuts() {
@@ -585,10 +584,10 @@ class ApplicationClass extends Adw.ExpanderRow {
 
 var application = GObject.registerClass(
   {
-    GTypeName: 'ApplicationExpanderRow',
+    GTypeName: 'ApplicationPreferencesGroup',
     Template: Me.dir.get_child('ui/application.ui').get_uri(),
     InternalChildren: [
-      'application-list',
+      'enabled',
       'application-item',
       'shortcuts',
       'launch-application',

@@ -2,6 +2,12 @@ using Gtk 4.0;
 using Adw 1;
 
 template $FocusWindowPreferencesPage : Adw.PreferencesPage {
+  // The title of the application
+  title: _("Focus Window");
+  // The title of the application
+  name: _("Focus Window");
+  icon-name: "dialog-information-symbolic";
+
   Adw.PreferencesGroup focusWindowPreferencesGroup {
     // The title of the application
     title: _("Focus Window");

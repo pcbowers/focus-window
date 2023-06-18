@@ -12,6 +12,8 @@ function init() {
  * @param {import('@girs/adw-1').Adw.PreferencesWindow} window
  */
 function fillPreferencesWindow(window) {
-  window.add(new Prefs({}));
+  const prefsPage = new Prefs({}, window);
+  window.add(prefsPage);
+  prefsPage.init();
   window.search_enabled = true;
 }

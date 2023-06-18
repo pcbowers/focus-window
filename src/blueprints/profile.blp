@@ -1,15 +1,18 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $ProfileExpanderRow : Adw.PreferencesGroup {
-  Adw.ExpanderRow profile {
-    title: bind-property profile-name.text;
+template $ProfilePreferencesPage : Adw.PreferencesPage {
+  name: bind-property profile-name.text;
+  title: bind-property profile-name.text;
+  icon-name: "settings-app-symbolic";
+
+  Adw.PreferencesGroup profile {
+    // The title of the profile preferences groups
+    title: _("Profile Preferences");
     // The default subtitle when no application shortcuts are present on the profile
-    subtitle: _("No Application Shortcuts");
-    show-enable-switch: true;
-    expanded: false;
-    
-    [prefix]
+    description: _("No Application Shortcuts");
+
+    [header-suffix]
     Box {
       styles ["linked"]
 
@@ -53,7 +56,36 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
         clicked => $onDecreasePriority();
       }
     }
-    
+
+    Adw.ActionRow {
+      // The title of the enable profile action row
+      title: _("Enable Profile");
+      // The subtitle of the enable profile action row
+      subtitle: _("Enable this profile");
+      activatable-widget: enabled;
+
+      Switch enabled {
+        valign: center;
+        active: false;
+      }
+    }
+
+    Adw.ActionRow {
+      // The title of the profile icon action row
+      title: _("Profile Icon");
+      // The subtitle of the profile icon action row
+      subtitle: _("The icon of the profile");
+      activatable-widget: profile-icon;
+
+      DropDown profile-icon {
+        valign: center;
+        enable-search: true;
+
+        notify::selected => $onProfileIcon();
+      }
+
+    }
+
     Adw.ActionRow {
       // The title of the profile name entry
       title: _("Profile Name");
@@ -68,16 +100,15 @@ template $ProfileExpanderRow : Adw.PreferencesGroup {
         placeholder-text: _("Profile Name");
       }
     }
-    
-    Adw.ExpanderRow applications {
+
+    Adw.ActionRow applications {
       // The title of the application shortcuts expander
       title: _("Application Shortcuts");
       // The subtitle of the application shortcuts expander
       subtitle: _("Add an application shortcut to the profile");
-      expanded: true;
+      activatable-widget: add-application-button;
 
-      [action]
-      Button {    
+      Button add-application-button {    
         styles ["suggested-action"]
         
         valign: center;

@@ -1,4 +1,4 @@
-const { GObject, Adw, Gio } = imports.gi;
+const { GObject, Adw, Gio, Gtk, Gdk } = imports.gi;
 const { extensionUtils } = imports.misc;
 const Me = extensionUtils.getCurrentExtension();
 const Gettext = imports.gettext;
@@ -17,6 +17,12 @@ const createId = Me.imports.lib.common.utils.createId;
 
 /** @type {import('$lib/prefs/application').Application} */
 const Application = Me.imports.lib.prefs.application.application;
+
+/** @type {import('$lib/prefs/factory').Factory} */
+const Factory = Me.imports.lib.prefs.factory.factory;
+
+/** @type {import('$lib/prefs/icon').Icon} */
+const Icon = Me.imports.lib.prefs.icon.icon;
 
 /**
  * @typedef {Object} ProfileSettingsProps
@@ -49,12 +55,15 @@ const Application = Me.imports.lib.prefs.application.application;
 
 /** @typedef {typeof ProfileClass} Profile */
 /** @typedef {ProfileClass} ProfileInstance */
-class ProfileClass extends Adw.PreferencesGroup {
+class ProfileClass extends Adw.PreferencesPage {
   /** @type {string} */
   _id = createId();
 
   /** @type {import('$lib/prefs/application').ApplicationInstance[]} */
   _applicationsList = [];
+
+  /** @type {import('$lib/prefs/factory').FactoryInstance} */
+  _factory;
 
   /**
    * @param {import('@girs/adw-1').Adw.PreferencesGroup.ConstructorProperties} AdwPreferencesGroupProps
@@ -64,7 +73,7 @@ class ProfileClass extends Adw.PreferencesGroup {
    * @param {ProfileSettingsProps | ProfileNewProps | ProfileCopyProps} profileProps
    */
   constructor(
-    AdwPreferencesGroupProps = {},
+    AdwPreferencesGroupProps,
     deleteProfile,
     duplicateProfile,
     changeProfilePriority,
@@ -85,11 +94,14 @@ class ProfileClass extends Adw.PreferencesGroup {
     /** @type {import('@girs/gtk-4.0').Gtk.Entry} */
     this._profile_name = this._profile_name;
 
-    /** @type {import('@girs/adw-1').Adw.ExpanderRow}*/
-    this._profile = this._profile;
+    /** @type {import('@girs/gtk-4.0').Gtk.DropDown} */
+    this._profile_icon = this._profile_icon;
 
-    /** @type {import('@girs/adw-1').Adw.ExpanderRow}*/
-    this._applications = this._applications;
+    /** @type {import('@girs/gtk-4.0').Gtk.Switch}*/
+    this._enabled = this._enabled;
+
+    /** @type {import('@girs/adw-1').Adw.PreferencesGroup}*/
+    this._profile = this._profile;
 
     if (profileProps.type === 'settings') {
       this._id = profileProps.id;
@@ -104,15 +116,15 @@ class ProfileClass extends Adw.PreferencesGroup {
       path: `/org/gnome/shell/extensions/focus-window/profiles/${this._id}/`
     });
 
-    this.settings.bind('enabled', this._profile, 'enable-expansion', Gio.SettingsBindFlags.DEFAULT);
+    this.settings.bind('enabled', this._enabled, 'active', Gio.SettingsBindFlags.DEFAULT);
     this.settings.bind('name', this._profile_name, 'text', Gio.SettingsBindFlags.DEFAULT);
 
     if (profileProps.type === 'settings') {
       this.settings.get_strv('applications').forEach(applicationId => {
         const application = this._createApplication({ type: 'settings', id: applicationId });
         this._applicationsList.push(application);
-        this._applications.add_row(application);
-        this._setSubtitle();
+        this.add(application);
+        this._setDescription();
       });
     } else if (profileProps.type === 'new') {
       this._profile_name.set_text(profileProps.name);
@@ -138,11 +150,13 @@ class ProfileClass extends Adw.PreferencesGroup {
           duplicateShortcuts: true
         });
         this._applicationsList.push(application);
-        this._applications.add_row(application);
-        this._setSubtitle();
+        this.add(application);
+        this._setDescription();
         this._setApplications();
       });
     }
+
+    this._populateIcons();
   }
 
   getId() {
@@ -154,6 +168,7 @@ class ProfileClass extends Adw.PreferencesGroup {
     [...this._applicationsList].forEach(application => application.onDeleteApplication());
     this.settings.list_keys().forEach(key => this.settings.reset(key));
     this.settings.run_dispose();
+    this._factory.destroy();
     this._deleteProfile(this._id);
   }
 
@@ -173,11 +188,26 @@ class ProfileClass extends Adw.PreferencesGroup {
     // The default application name when creating a new application
     const application = this._createApplication({ type: 'new', name: _('No App Selected') });
     this._applicationsList.push(application);
-    this._applications.add_row(application);
+    this.add(application);
 
-    this._setSubtitle();
-    this._applications.set_expanded(true);
+    this._setDescription();
     this._setApplications();
+  }
+
+  onProfileIcon() {
+    this.set_icon_name(this._factory.getItem(this._profile_icon.get_selected()).value);
+  }
+
+  _populateIcons() {
+    const icons = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+      .get_icon_names()
+      .sort()
+      .map(icon => ({ value: icon, title: icon }));
+    this._factory = new Factory({}, Icon, icons);
+    this._profile_icon.set_model(this._factory.getModel());
+    this._profile_icon.set_expression(this._factory.getExpression());
+    this._profile_icon.set_factory(this._factory);
+    this._profile_icon.set_selected(this._factory.getPosition('settings-app-symbolic'));
   }
 
   _deleteApplication(id) {
@@ -185,9 +215,9 @@ class ProfileClass extends Adw.PreferencesGroup {
       application => application.getId() === id
     );
     const application = this._applicationsList[applicationIndex];
-    this._applications.remove(application);
+    this.remove(application);
     this._applicationsList.splice(applicationIndex, 1);
-    this._setSubtitle();
+    this._setDescription();
     this._setApplications();
   }
 
@@ -203,10 +233,10 @@ class ProfileClass extends Adw.PreferencesGroup {
       settings: application.settings
     });
 
-    this._applicationsList.forEach(application => this._applications.remove(application));
+    this._applicationsList.forEach(application => this.remove(application));
     this._applicationsList.splice(applicationIndex + 1, 0, newApplication);
-    this._applicationsList.forEach(application => this._applications.add_row(application));
-    this._setSubtitle();
+    this._applicationsList.forEach(application => this.add(application));
+    this._setDescription();
     this._setApplications();
   }
 
@@ -224,24 +254,24 @@ class ProfileClass extends Adw.PreferencesGroup {
     this._applicationsList[applicationIndex] = newApplication;
     this._applicationsList[newApplicationIndex] = application;
 
-    this._applicationsList.forEach(application => this._applications.remove(application));
-    this._applicationsList.forEach(application => this._applications.add_row(application));
+    this._applicationsList.forEach(application => this.remove(application));
+    this._applicationsList.forEach(application => this.add(application));
     this._setApplications();
   }
 
-  _setSubtitle() {
-    // The default subtitle when no application shortcuts are present on the profile
-    let subtitle = _('No Application Shortcuts');
+  _setDescription() {
+    // The default description when no application shortcuts are present on the profile
+    let description = _('No Application Shortcuts');
     if (this._applicationsList.length > 0) {
-      subtitle = ngettext(
-        // The subtitle when there are application shortcuts present on the profile, prefixed with the number of application shortcuts
+      description = ngettext(
+        // The description when there are application shortcuts present on the profile, prefixed with the number of application shortcuts
         '%d Application Shortcut',
         '%d Application Shortcuts',
         this._applicationsList.length
       ).format(this._applicationsList.length);
     }
-    this._profile.set_subtitle(subtitle);
-    return subtitle;
+    this._profile.set_description(description);
+    return description;
   }
 
   /**
@@ -267,9 +297,9 @@ class ProfileClass extends Adw.PreferencesGroup {
 
 var profile = GObject.registerClass(
   {
-    GTypeName: 'ProfileExpanderRow',
+    GTypeName: 'ProfilePreferencesPage',
     Template: Me.dir.get_child('ui/profile.ui').get_uri(),
-    InternalChildren: ['profile', 'profile-name', 'applications']
+    InternalChildren: ['enabled', 'profile', 'profile-icon', 'profile-name']
   },
   ProfileClass
 );

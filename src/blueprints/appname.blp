@@ -1,0 +1,12 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $AppNameButtonContent : Gtk.Box {
+  Image icon {}
+
+  Label label {
+    margin-start: 6;
+    // The default application name when creating a new application
+    label: _("No App Selected");
+  }
+}
