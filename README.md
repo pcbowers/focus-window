@@ -90,14 +90,14 @@ gnome-extensions prefs focus-window@chris.al
 - [x] Add Settings to Extension Files
 - [x] Implement Extension
 - [x] Show Resize Square in Preferences
-- [ ] Use `set_content` in windows and implement ADW Leaflet manually
-- [ ] Potentially add sidebar with applications/profiles
-- [ ] Add toast with an undo button on deletions?
+- [x] Use `set_content` in windows and implement ADW Leaflet manually
+- [x] ~~Potentially add sidebar with applications/profiles?~~
+- [x] ~~Add toast with an undo button on deletions?~~
+- [x] ~~Improve Disable Animations?~~ _Couldn't figure this one out_ 
+- [x] Improve npm package commands
 - [ ] Improve Info Actions & Documentation
-- [ ] Improve Animations
-- [ ] Add Disclaimer about pixel resizing with multiple monitors
-- [ ] Add Disclaimer about always-on-top and launching new windows
-- [ ] Improve npm package commands
+  - [ ] Add Disclaimer about pixel resizing with multiple monitors
+  - [ ] Add Disclaimer about always-on-top and launching new windows
 
 ## :open_book: Usage
 

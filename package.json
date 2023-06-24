@@ -1,20 +1,21 @@
 {
   "name": "focus-window",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "This extension allows one to create various shortcuts for applications, enabling the ability to have one shortcut that triggers both the launch and focus of an application window.",
   "scripts": {
-    "test:prefs": "npm run test:build && npm run prefs && npm run test:log:prefs",
-    "test:extension": "npm run enable && npm run test:build && dbus-run-session -- gnome-shell --nested --wayland",
-    "test:build": "./build.sh -irv",
-    "test:log": "journalctl -f -o cat | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
-    "test:log:prefs": "journalctl -f -o cat /usr/bin/gjs | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
-    "test:log:extension": "journalctl -f -o cat GNOME_SHELL_EXTENSION_UUID=focus-window@chris.al | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
+    "test:prefs": "npm run test:install && npm run prefs && npm run log:prefs",
+    "test:extension": "npm run enable && npm run test:install && dbus-run-session -- gnome-shell --nested --wayland",
+    "test:build": "./build.sh -v",
+    "test:install": "./build.sh -irv",
+    "log": "journalctl -f -o cat | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
+    "log:prefs": "journalctl -f -o cat /usr/bin/gjs | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
+    "log:extension": "journalctl -f -o cat GNOME_SHELL_EXTENSION_UUID=focus-window@chris.al | awk '/focus-window@chris.al:/ {gsub(/^.*focus-window@chris.al:\\s/, \"\"); print }'",
     "uninstall": "gnome-extensions uninstall focus-window@chris.al",
     "prefs": "gnome-extensions prefs focus-window@chris.al",
     "enable": "gnome-extensions enable focus-window@chris.al",
     "disable": "gnome-extensions disable focus-window@chris.al",
     "build": "./build.sh -ptv",
-    "build:install": "./build.sh -ptir",
+    "install": "./build.sh -ptirv",
     "settings": "dconf dump /org/gnome/shell/extensions/focus-window/",
     "settings:clear": "dconf reset -f /org/gnome/shell/extensions/focus-window/"
   },
@@ -30,8 +31,13 @@
   "homepage": "https://github.com/pcbowers/focus-window#readme",
   "devDependencies": {
     "@girs/adw-1": "^1.3.2-3.0.4",
+    "@girs/cairo-1.0": "^1.0.0-3.2.0",
+    "@girs/gio-2.0": "^2.76.1-3.2.0",
     "@girs/gjs": "^3.0.4",
     "@girs/gnome-shell": "^3.0.0",
-    "@girs/gtk-4.0": "^4.10.3-3.0.4"
+    "@girs/gobject-2.0": "^2.76.1-3.2.0",
+    "@girs/gtk-4.0": "^4.10.3-3.0.4",
+    "@girs/meta-12": "^12.0.0-3.2.0",
+    "@girs/shell-12": "^12.0.0-3.2.0"
   }
 }
