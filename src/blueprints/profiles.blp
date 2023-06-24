@@ -1,0 +1,135 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $FWProfiles : Box {
+  Adw.Leaflet leaflet {
+    can-navigate-back: false;
+    can-unfold: false;
+
+    Adw.LeafletPage {
+      name: "mainPage";
+      child: Box {
+        orientation: vertical;
+
+        Adw.HeaderBar {
+          decoration-layout: ":minimize,maximize,close";
+          valign: start;
+          halign: fill;
+          title-widget: Adw.WindowTitle {
+            title: "Focus Window";
+            // The subtitle of the profiles window
+            subtitle: _("Configure your Profiles");
+          };
+          
+          [start]
+          Box {
+            MenuButton {
+              valign: center;
+              // The tooltip-markup text that is shown when hovering over the info button
+              tooltip-markup: _("Info");
+              icon-name: "dialog-information-symbolic";
+              menu-model: infoMenu;
+            }
+          }
+        }
+
+        Adw.PreferencesPage {
+          Adw.PreferencesGroup {
+            // The title of the profiles preferences group
+            title: _("Profiles");
+            // The description of the profiles preferences group
+            description: _("Manage your profiles");
+            
+            [header-suffix]
+            Button {
+              styles ["suggested-action"]
+
+              valign: center;
+              // The tooltip-markup text that is shown when hovering over the add profile button
+              tooltip-markup: _("Add a new profile to the list");
+
+              Adw.ButtonContent {
+                // The label of the add profile button
+                label: _("Add Profile");
+                icon-name: "one-tag-symbolic";
+              }
+              
+              clicked => $addProfile();
+            }
+
+            Adw.PreferencesRow noProfiles {
+              Box {
+                opacity: 0.7;
+                valign: center;
+                halign: center;
+                margin-top: 20;
+                spacing: 5;
+                margin-bottom: 20;
+                margin-start: 20;
+                margin-end: 20;
+                orientation: vertical;
+                
+                Image {
+                  pixel-size: 96;
+                  margin-bottom: 12;
+                  icon-name: "multiple-tags-symbolic";
+                }
+                
+                Label {
+                  styles ["heading"]
+                  // The title of the no profiles preferences row
+                  label: _("No Profiles");
+                }
+                
+                Label {
+                  styles ["caption"]
+                  // The subtitle of the no profiles preferences row
+                  label: _("No profiles could be found");
+                }
+              }
+            }
+
+            ListBox profiles {
+              styles ["boxed-list"]
+
+              selection-mode: none;
+            }
+          }
+        }
+      };
+    }
+  }
+  
+  
+}
+
+menu infoMenu {
+  section {
+    item {
+      label: _("About Focus Window");
+      action: "info.about";
+    }
+  }
+
+  section {
+    item {
+      label: _("Report Bug");
+      action: "info.bug";
+    }
+
+    item {
+      label: _("View License");
+      action: "info.license";
+    }
+
+    item {
+      label: _("See Guide");
+      action: "info.guide";
+    }
+
+    item {
+      label: _("Contribute");
+      action: "info.contribute";
+    }
+  }
+}

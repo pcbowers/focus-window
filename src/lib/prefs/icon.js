@@ -2,20 +2,16 @@ const { GObject, Gtk } = imports.gi;
 const { extensionUtils } = imports.misc;
 const Me = extensionUtils.getCurrentExtension();
 
-/** @type {import('$lib/common/utils').Debug} */
-const debug = Me.imports.lib.common.utils.debug;
+/** @type {import('$lib/common/utils').Utils} */
+const { debug } = Me.imports.lib.common.utils.utils;
 
 /** @typedef {typeof IconClass} Icon */
-/** @typedef {IconClass} IconInstance */
 class IconClass extends Gtk.Box {
   /**
-   * @param {import('@girs/gtk-4.0').Gtk.Box.ConstructorProperties} GtkBoxProps
+   * @param {string} [icon]
    */
-  constructor(GtkBoxProps, icon = 'settings-app-symbolic') {
-    super(GtkBoxProps);
-
-    /** @type {import('@girs/adw-1').Adw.ButtonContent} */
-    this._content = this._content;
+  constructor(icon = 'settings-app-symbolic') {
+    super({});
 
     this.icon = icon;
 
@@ -23,10 +19,15 @@ class IconClass extends Gtk.Box {
   }
 
   /**
-   * @param {import('$lib/prefs/listitem').ListItemInstance} listItem
+   * @param {InstanceType<import('$lib/common/listItem').ListItem>} listItem
    */
   setup(listItem) {
     this._content.set_icon_name(listItem.value);
+  }
+
+  _typeWidgets() {
+    /** @type {import('@girs/adw-1').Adw.ButtonContent} */
+    this._content;
   }
 }
 
@@ -34,16 +35,7 @@ var icon = GObject.registerClass(
   {
     GTypeName: 'IconButtonContent',
     Template: Me.dir.get_child('ui/icon.ui').get_uri(),
-    InternalChildren: ['content'],
-    Properties: {
-      icon: GObject.ParamSpec.string(
-        'icon',
-        'Icon',
-        'The icon name',
-        GObject.ParamFlags.READWRITE,
-        null
-      )
-    }
+    InternalChildren: ['content']
   },
   IconClass
 );

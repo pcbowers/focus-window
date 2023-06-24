@@ -1,128 +1,214 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $ProfilePreferencesPage : Adw.PreferencesPage {
-  name: bind-property profile-name.text;
-  title: bind-property profile-name.text;
-  icon-name: "settings-app-symbolic";
+template $FWProfile : Box {
+  orientation: vertical;
 
-  Adw.PreferencesGroup profile {
-    // The title of the profile preferences groups
-    title: _("Profile Preferences");
-    // The default subtitle when no application shortcuts are present on the profile
-    description: _("No Application Shortcuts");
-
-    [header-suffix]
-    Box {
-      styles ["linked"]
-
-      homogeneous: true;
-
-      Button {
-        styles ["error", "raised"]
-        
-        valign: center;
-        // The tooltip-markup text when hovering over the delete profile button
-        tooltip-markup: _("Delete Profile");
-        icon-name: "edit-delete-symbolic";
-        
-        clicked => $onDeleteProfile();
-      }
-
+  Adw.HeaderBar {
+    decoration-layout: ":minimize,maximize,close";
+    valign: start;
+    halign: fill;
+    title-widget: Adw.WindowTitle {
+      title: "Focus Window";
+      // The subtitle of the profiles window
+      subtitle: _("Configure your Profile");
+    };
+    
+    [start]
+    Box {        
       Button {
         valign: center;
-        // The tooltip-markup text when hovering over the duplicate profile button
-        tooltip-markup: _("Duplicate Profile");
-        icon-name: "edit-copy-symbolic";
-        
-        clicked => $onDuplicateProfile();
+        // The tooltip-markup text that is shown when hovering over the go back button
+        tooltip-markup: _("Go Back");
+        icon-name: "go-previous-symbolic";
+
+        clicked => $goBack();
       }
-
-      Button {
-        valign: center;
-        // The tooltip-markup text when hovering over the increase priority button
-        tooltip-markup: _("Increase Priority");
-        icon-name: "pan-up-symbolic";
-        
-        clicked => $onIncreasePriority();
-      }
-
-      Button {
-        valign: center;
-        // The tooltip-markup text when hovering over the decrease priority button
-        tooltip-markup: _("Decrease Priority");
-        icon-name: "pan-down-symbolic";
-        
-        clicked => $onDecreasePriority();
-      }
-    }
-
-    Adw.ActionRow {
-      // The title of the enable profile action row
-      title: _("Enable Profile");
-      // The subtitle of the enable profile action row
-      subtitle: _("Enable this profile");
-      activatable-widget: enabled;
-
-      Switch enabled {
-        valign: center;
-        active: false;
-      }
-    }
-
-    Adw.ActionRow {
-      // The title of the profile icon action row
-      title: _("Profile Icon");
-      // The subtitle of the profile icon action row
-      subtitle: _("The icon of the profile");
-      activatable-widget: profile-icon;
-
-      DropDown profile-icon {
-        valign: center;
-        enable-search: true;
-
-        notify::selected => $onProfileIcon();
-      }
-
-    }
-
-    Adw.ActionRow {
-      // The title of the profile name entry
-      title: _("Profile Name");
-      // The subtitle of the profile name entry
-      subtitle: _("The name of the profile");
-      activatable-widget: profile-name;
       
-      Entry profile-name {
-        width-chars: 30;
+      MenuButton {
         valign: center;
-        // The placeholder text describing the profile name entry
-        placeholder-text: _("Profile Name");
+        // The tooltip-markup text that is shown when hovering over the info button
+        tooltip-markup: _("Info");
+        icon-name: "dialog-information-symbolic";
+        menu-model: infoMenu;
       }
     }
 
-    Adw.ActionRow applications {
-      // The title of the application shortcuts expander
-      title: _("Application Shortcuts");
-      // The subtitle of the application shortcuts expander
-      subtitle: _("Add an application shortcut to the profile");
-      activatable-widget: add-application-button;
+    [end]
+    Button {
+      styles ["error", "circular", "image-button"]
+      
+      valign: center;
+      // The tooltip-markup text that is shown when hovering over the delete profile button
+      tooltip-markup: _("Delete Profile");
+      icon-name: "edit-delete-symbolic";
 
-      Button add-application-button {    
+      clicked => $deleteProfile();
+    }
+  }
+
+  Adw.PreferencesPage {    
+    Adw.PreferencesGroup {
+      Box {
+        orientation: horizontal;
+        halign: center;
+        spacing: 10;
+        
+        Image iconHeader {
+          pixel-size: 48;
+          icon-name: 'settings-app-symbolic';
+        }
+        
+        Label {
+          styles ["title-1"]
+          
+          label: bind-property name.text;
+        }
+      }
+    }
+
+    Adw.PreferencesGroup {
+      // The title of the profile preferences groups
+      title: _("Profile");
+      // The description of the profile preferences groups
+      description: _("Configure your profile");
+
+      Adw.ActionRow {
+        // The title of the enable profile action row
+        title: _("Enable Profile");
+        // The subtitle of the enable profile action row
+        subtitle: _("Enable this profile");
+        activatable-widget: enabled;
+
+        Switch enabled {
+          valign: center;
+          active: false;
+        }
+      }
+
+      Adw.ActionRow {
+        // The title of the profile icon action row
+        title: _("Profile Icon");
+        // The subtitle of the profile icon action row
+        subtitle: _("The icon of the profile");
+        activatable-widget: icon;
+
+        DropDown icon {
+          valign: center;
+          enable-search: true;
+
+          notify::selected => $setProfileIcon();
+        }
+      }
+
+      Adw.ActionRow {
+        // The title of the profile name entry
+        title: _("Profile Name");
+        // The subtitle of the profile name entry
+        subtitle: _("The name of the profile");
+        activatable-widget: name;
+        
+        Entry name {
+          width-chars: 30;
+          valign: center;
+          // The placeholder text describing the profile name entry
+          placeholder-text: _("Profile Name");
+          text: _("My Profile");
+        }
+      }
+    }
+
+    Adw.PreferencesGroup {
+      // The title of the profiles preferences group
+      title: _("Applications");
+      // The description of the profiles preferences group
+      description: _("Manage your applications");
+      
+      [header-suffix]
+      Button {
         styles ["suggested-action"]
-        
+
         valign: center;
-        // The tooltip-markup text when hovering over the add application button
-        tooltip-markup: _("Add Application");
-        
+        // The tooltip-markup text that is shown when hovering over the add profile button
+        tooltip-markup: _("Add a new application to the list");
+
         Adw.ButtonContent {
           // The label of the add application button
-          label: _("Add");
+          label: _("Add Application");
           icon-name: "application-x-addon-symbolic";
         }
-
-        clicked => $onAddApplication();
+        
+        clicked => $addApplication();
       }
+
+      Adw.PreferencesRow noApplications {
+        Box {
+          opacity: 0.7;
+          valign: center;
+          halign: center;
+          margin-top: 20;
+          spacing: 5;
+          margin-bottom: 20;
+          margin-start: 20;
+          margin-end: 20;
+          orientation: vertical;
+          
+          Image {
+            pixel-size: 96;
+            margin-bottom: 12;
+            icon-name: "applications-other-symbolic";
+          }
+          
+          Label {
+            styles ["heading"]
+            // The title of the no applications preferences row
+            label: _("No Applications");
+          }
+          
+          Label {
+            styles ["caption"]
+            // The subtitle of the no applications preferences row
+            label: _("No applications could be found");
+          }
+        }
+      }
+
+      ListBox applications {
+        styles ["boxed-list"]
+
+        selection-mode: none;
+      }
+    }
+  }
+}
+
+menu infoMenu {
+  section {
+    item {
+      label: _("About Focus Window");
+      action: "info.about";
+    }
+  }
+
+  section {
+    item {
+      label: _("Report Bug");
+      action: "info.bug";
+    }
+
+    item {
+      label: _("View License");
+      action: "info.license";
+    }
+
+    item {
+      label: _("See Guide");
+      action: "info.guide";
+    }
+
+    item {
+      label: _("Contribute");
+      action: "info.contribute";
     }
   }
 }

@@ -1,161 +1,69 @@
-const { GObject, Adw, Gio, Gtk, Gdk } = imports.gi;
+const { GObject, Gtk, Gio, Gdk } = imports.gi;
 const { extensionUtils } = imports.misc;
 const Me = extensionUtils.getCurrentExtension();
-const Gettext = imports.gettext;
-const Domain = Gettext.domain(Me.metadata.uuid);
-const _ = Domain.gettext;
-const ngettext = Domain.ngettext;
 
-/** @type { import('$lib/common/utils').SETTINGS_SCHEMA} */
-const SETTINGS_SCHEMA = Me.imports.lib.common.utils.SETTINGS_SCHEMA;
+/** @type {import('$lib/common/utils').Utils} */
+const { debug, createId, wrapCallback } = Me.imports.lib.common.utils.utils;
 
-/** @type {import('$lib/common/utils').Debug} */
-const debug = Me.imports.lib.common.utils.debug;
+/** @type {import('$lib/common/manager').Manager} */
+const Manager = Me.imports.lib.common.manager.manager;
 
-/** @type {import('$lib/common/utils').CreateId} */
-const createId = Me.imports.lib.common.utils.createId;
-
-/** @type {import('$lib/prefs/application').Application} */
-const Application = Me.imports.lib.prefs.application.application;
-
-/** @type {import('$lib/prefs/factory').Factory} */
-const Factory = Me.imports.lib.prefs.factory.factory;
+/** @type {import('$lib/common/listFactory').ListFactory} */
+const ListFactory = Me.imports.lib.common.listFactory.listFactory;
 
 /** @type {import('$lib/prefs/icon').Icon} */
 const Icon = Me.imports.lib.prefs.icon.icon;
 
-/**
- * @typedef {Object} ProfileSettingsProps
- * @property {'settings'} type
- * @property {string} id
- */
+/** @type {import('$lib/prefs/applicationItem').ApplicationItem} */
+const ApplicationItem = Me.imports.lib.prefs.applicationItem.applicationItem;
 
-/**
- * @typedef {Object} ProfileNewProps
- * @property {'new'} type
- * @property {string} name
- */
-
-/**
- * @typedef {Object} ProfileCopyProps
- * @property {'copy'} type
- * @property {import('@girs/gio-2.0').Gio.Settings} settings
- */
-
-/**
- * @typedef {ProfileSettingsProps | ProfileNewProps | ProfileCopyProps} ProfileProps
- */
-
-/**
- * @typedef {Object} ProfileSettings
- * @property {boolean} enabled
- * @property {string} name
- * @property {import('$lib/prefs/application').ApplicationSettings[]} applications
- */
+/** @type {import('$lib/prefs/application').Application} */
+const Application = Me.imports.lib.prefs.application.application;
 
 /** @typedef {typeof ProfileClass} Profile */
-/** @typedef {ProfileClass} ProfileInstance */
-class ProfileClass extends Adw.PreferencesPage {
+class ProfileClass extends Gtk.Box {
+  /** @type {Record<string, string>} */
+  static bindings = {
+    enabled: 'active',
+    name: 'text'
+  };
+
+  /** @type {Map<string, InstanceType<import('$lib/prefs/applicationItem').ApplicationItem>>} */
+  applicationItems = new Map();
+
+  /** @type {InstanceType<import('$lib/prefs/application').Application>} */
+  applicationPage;
+
+  /** @type {InstanceType<import('$lib/common/listFactory').ListFactory>} */
+  listFactory;
+
+  /**@type {InstanceType<import('$lib/common/manager').Manager>} */
+  manager;
+
+  /** @type {import('@girs/adw-1').Adw.Leaflet} */
+  _leaflet;
+
+  /** @type {InstanceType<import('$lib/prefs/profiles').Profiles>} */
+  _parent;
+
   /** @type {string} */
-  _id = createId();
-
-  /** @type {import('$lib/prefs/application').ApplicationInstance[]} */
-  _applicationsList = [];
-
-  /** @type {import('$lib/prefs/factory').FactoryInstance} */
-  _factory;
+  _id;
 
   /**
-   * @param {import('@girs/adw-1').Adw.PreferencesGroup.ConstructorProperties} AdwPreferencesGroupProps
-   * @param {(id: string) => void} deleteProfile
-   * @param {(id: string) => void} duplicateProfile
-   * @param {(id: string, increasePriority: boolean) => void} changeProfilePriority
-   * @param {ProfileSettingsProps | ProfileNewProps | ProfileCopyProps} profileProps
+   * @param {InstanceType<import('$lib/prefs/profiles').Profiles>} parent
+   * @param {string} id
    */
-  constructor(
-    AdwPreferencesGroupProps,
-    deleteProfile,
-    duplicateProfile,
-    changeProfilePriority,
-    profileProps
-  ) {
-    debug('Creating Profile...');
-    super(AdwPreferencesGroupProps);
+  constructor(parent, id) {
+    super({});
 
-    /** @type {typeof deleteProfile} */
-    this._deleteProfile = deleteProfile;
+    this.manager = new Manager({ id, subpath: 'profiles' });
 
-    /** @type {typeof duplicateProfile} */
-    this._duplicateProfile = duplicateProfile;
+    this._leaflet = parent._leaflet;
+    this._parent = parent;
+    this._id = id;
 
-    /** @type {typeof changeProfilePriority} */
-    this._changeProfilePriority = changeProfilePriority;
-
-    /** @type {import('@girs/gtk-4.0').Gtk.Entry} */
-    this._profile_name = this._profile_name;
-
-    /** @type {import('@girs/gtk-4.0').Gtk.DropDown} */
-    this._profile_icon = this._profile_icon;
-
-    /** @type {import('@girs/gtk-4.0').Gtk.Switch}*/
-    this._enabled = this._enabled;
-
-    /** @type {import('@girs/adw-1').Adw.PreferencesGroup}*/
-    this._profile = this._profile;
-
-    if (profileProps.type === 'settings') {
-      this._id = profileProps.id;
-    }
-
-    /** @type {import('@girs/gio-2.0').Gio.Settings} */
-    this.settings = new Gio.Settings({
-      settings_schema: SETTINGS_SCHEMA.lookup(
-        'org.gnome.shell.extensions.focus-window.profiles',
-        true
-      ),
-      path: `/org/gnome/shell/extensions/focus-window/profiles/${this._id}/`
-    });
-
-    this.settings.bind('enabled', this._enabled, 'active', Gio.SettingsBindFlags.DEFAULT);
-    this.settings.bind('name', this._profile_name, 'text', Gio.SettingsBindFlags.DEFAULT);
-
-    if (profileProps.type === 'settings') {
-      this.settings.get_strv('applications').forEach(applicationId => {
-        const application = this._createApplication({ type: 'settings', id: applicationId });
-        this._applicationsList.push(application);
-        this.add(application);
-        this._setDescription();
-      });
-    } else if (profileProps.type === 'new') {
-      this._profile_name.set_text(profileProps.name);
-    } else if (profileProps.type === 'copy') {
-      profileProps.settings.list_keys().forEach(key => {
-        if (key === 'applications') return;
-        this.settings.set_value(key, profileProps.settings.get_value(key));
-      });
-      // The prefix that is added to the name of the copied profile
-      this._profile_name.set_text(this._profile_name.get_text() + ' ' + _('Copy'));
-
-      profileProps.settings.get_strv('applications').forEach(applicationId => {
-        const appSettings = new Gio.Settings({
-          settings_schema: SETTINGS_SCHEMA.lookup(
-            'org.gnome.shell.extensions.focus-window.applications',
-            true
-          ),
-          path: `/org/gnome/shell/extensions/focus-window/applications/${applicationId}/`
-        });
-        const application = this._createApplication({
-          type: 'copy',
-          settings: appSettings,
-          duplicateShortcuts: true
-        });
-        this._applicationsList.push(application);
-        this.add(application);
-        this._setDescription();
-        this._setApplications();
-      });
-    }
-
+    this._initFromSettings();
+    this._setSortFunc();
     this._populateIcons();
   }
 
@@ -163,143 +71,214 @@ class ProfileClass extends Adw.PreferencesPage {
     return this._id;
   }
 
-  onDeleteProfile() {
-    debug('Deleting Profile...');
-    [...this._applicationsList].forEach(application => application.onDeleteApplication());
-    this.settings.list_keys().forEach(key => this.settings.reset(key));
-    this.settings.run_dispose();
-    this._factory.destroy();
-    this._deleteProfile(this._id);
+  setProfileIcon() {
+    const icon = this.listFactory.getItem(this._icon.get_selected()).value;
+    this._iconHeader.set_from_icon_name(icon);
   }
 
-  onDuplicateProfile() {
-    this._duplicateProfile(this._id);
+  addApplication(_, id = '') {
+    const newId = id || createId();
+    const application = new ApplicationItem(this, newId);
+
+    this.applicationItems.set(newId, application);
+
+    if (!id) {
+      const applicationIds = this.manager.getSettings().get_strv('applications');
+      applicationIds.push(newId);
+      this.manager.getSettings().set_strv('applications', applicationIds);
+    }
+
+    this._applications.append(application);
   }
 
-  onIncreasePriority() {
-    this._changeProfilePriority(this._id, true);
+  /**
+   * @param {string} id
+   */
+  deleteApplication(id) {
+    const applicationIds = this.manager.getSettings().get_strv('applications');
+    const index = applicationIds.findIndex(a => a === id);
+    applicationIds.splice(index, 1);
+    this.manager.getSettings().set_strv('applications', applicationIds);
+
+    /** @type {InstanceType<import('$lib/prefs/applicationItem').ApplicationItem>} */
+    const application = this.applicationItems.get(id);
+    this._applications.remove(application);
+    application.cleanup(true, ['shortcuts']);
+    this.applicationItems.delete(id);
   }
 
-  onDecreasePriority() {
-    this._changeProfilePriority(this._id, false);
+  /**
+   * @param {string} id
+   * @param {import('@girs/gio-2.0').Gio.Settings} settings
+   */
+  duplicateApplication(id, settings) {
+    const newId = createId();
+    const application = new ApplicationItem(this, newId);
+    application.copyFrom(settings);
+
+    this.applicationItems.set(newId, application);
+
+    const applicationIds = this.manager.getSettings().get_strv('applications');
+    const index = applicationIds.findIndex(a => a === id);
+    applicationIds.splice(index + 1, 0, newId);
+    this.manager.getSettings().set_strv('applications', applicationIds);
+
+    this._applications.append(application);
   }
 
-  onAddApplication() {
-    // The default application name when creating a new application
-    const application = this._createApplication({ type: 'new', name: _('No App Selected') });
-    this._applicationsList.push(application);
-    this.add(application);
-
-    this._setDescription();
-    this._setApplications();
+  deleteProfile() {
+    this.goBack(null, true);
   }
 
-  onProfileIcon() {
-    this.set_icon_name(this._factory.getItem(this._profile_icon.get_selected()).value);
+  /**
+   * @param {string} id
+   * @param {boolean} increase
+   */
+  changeApplicationPriority(id, increase) {
+    const applicationIds = this.manager.getSettings().get_strv('applications');
+    const index = applicationIds.findIndex(a => a === id);
+    const newIndex = increase ? index - 1 : index + 1;
+
+    if (newIndex < 0) return;
+    if (newIndex > applicationIds.length - 1) return;
+
+    applicationIds.splice(newIndex, 0, applicationIds.splice(index, 1)[0]);
+    this.manager.getSettings().set_strv('applications', applicationIds);
+
+    this._applications.invalidate_sort();
+  }
+
+  openApplicationPreferences(id) {
+    this.applicationPage = new Application(this, id);
+    this._leaflet.append(this.applicationPage);
+    this._leaflet.set_visible_child(this.applicationPage);
+  }
+
+  removePage() {
+    /** @type {InstanceType<import('$lib/prefs/application').Application>} */
+    this._leaflet.remove(this.applicationPage);
+    this.applicationPage.cleanup();
+    this.applicationPage = null;
+  }
+
+  goBack(_, deleteProfile = false) {
+    if (deleteProfile) this._parent.deleteProfile(this._id);
+
+    const signalId = this.manager.connectSignal(
+      this._leaflet,
+      'notify::child-transition-running',
+      false,
+      (/** @type {import('@girs/adw-1').Adw.Leaflet} */ leaflet) => {
+        const transitionRunning = leaflet.child_transition_running;
+        if (!transitionRunning) {
+          this.manager.disconnectSignal(signalId);
+          this._parent.removePage();
+        }
+      }
+    );
+
+    this._leaflet.set_visible_child_name('mainPage');
+  }
+
+  cleanup(withSettings = false, subpaths = []) {
+    this.applicationItems.forEach(applicationItem => {
+      wrapCallback(() => this._applications.remove(applicationItem));
+      applicationItem.cleanup();
+    });
+
+    this.manager.cleanup(withSettings, subpaths);
+    this.manager = null;
+
+    this.listFactory.cleanup();
+    this.listFactory = null;
+
+    this.applicationItems.clear();
+    this.applicationItems = null;
+
+    if (this.applicationPage) {
+      this._leaflet.remove(this.applicationPage);
+      this.applicationPage.cleanup();
+    }
+    this.applicationPage = null;
+
+    this._leaflet = null;
+    this._parent = null;
+    this._id = null;
+
+    wrapCallback(() => this.run_dispose());
+  }
+
+  _initFromSettings() {
+    this.manager.bindDefaultSettings(this, ProfileClass.bindings);
+
+    this.manager.getSettings().get_strv('applications').forEach(this.addApplication.bind(this, null));
+
+    this.manager.connectSettings('changed::applications', false, this._changeNoApplicationsVisibility.bind(this));
+
+    this.manager.bindSettings('icon', this._iconHeader, 'icon-name', Gio.SettingsBindFlags.DEFAULT);
+  }
+
+  /**
+   * @param {string[]} applications
+   */
+  _changeNoApplicationsVisibility(applications) {
+    this._noApplications.set_visible(applications.length === 0);
+  }
+
+  _setSortFunc() {
+    this._applications.set_sort_func((a, b) => {
+      const applicationIds = this.manager.getSettings().get_strv('applications');
+      return (
+        // @ts-ignore
+        applicationIds.findIndex(p => p === a.getId()) -
+        // @ts-ignore
+        applicationIds.findIndex(p => p === b.getId())
+      );
+    });
   }
 
   _populateIcons() {
+    const originalIcon = this.manager.getSettings().get_string('icon');
     const icons = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
       .get_icon_names()
       .sort()
       .map(icon => ({ value: icon, title: icon }));
-    this._factory = new Factory({}, Icon, icons);
-    this._profile_icon.set_model(this._factory.getModel());
-    this._profile_icon.set_expression(this._factory.getExpression());
-    this._profile_icon.set_factory(this._factory);
-    this._profile_icon.set_selected(this._factory.getPosition('settings-app-symbolic'));
+
+    this.listFactory = new ListFactory(Icon, icons);
+    this._icon.set_factory(this.listFactory);
+    this._icon.set_model(this.listFactory.getModel());
+    this._icon.set_expression(this.listFactory.getExpression());
+    this._icon.set_selected(this.listFactory.getPosition(originalIcon));
   }
 
-  _deleteApplication(id) {
-    const applicationIndex = this._applicationsList.findIndex(
-      application => application.getId() === id
-    );
-    const application = this._applicationsList[applicationIndex];
-    this.remove(application);
-    this._applicationsList.splice(applicationIndex, 1);
-    this._setDescription();
-    this._setApplications();
-  }
+  _typeWidgets() {
+    /** @type {import('@girs/gtk-4.0').Gtk.DropDown} */
+    this._icon;
 
-  _duplicateApplication(id) {
-    const applicationIndex = this._applicationsList.findIndex(
-      application => application.getId() === id
-    );
+    /** @type {import('@girs/gtk-4.0').Gtk.Image} */
+    this._iconHeader;
 
-    // TODO: implement duplicate application from old application
-    const application = this._applicationsList[applicationIndex];
-    const newApplication = this._createApplication({
-      type: 'copy',
-      settings: application.settings
-    });
+    /** @type {import('@girs/gtk-4.0').Gtk.ListBox} */
+    this._applications;
 
-    this._applicationsList.forEach(application => this.remove(application));
-    this._applicationsList.splice(applicationIndex + 1, 0, newApplication);
-    this._applicationsList.forEach(application => this.add(application));
-    this._setDescription();
-    this._setApplications();
-  }
-
-  _changeApplicationPriority(id, increasePriority) {
-    const applicationIndex = this._applicationsList.findIndex(
-      application => application.getId() === id
-    );
-
-    if (increasePriority && applicationIndex === 0) return;
-    if (!increasePriority && applicationIndex === this._applicationsList.length - 1) return;
-
-    const application = this._applicationsList[applicationIndex];
-    const newApplicationIndex = increasePriority ? applicationIndex - 1 : applicationIndex + 1;
-    const newApplication = this._applicationsList[newApplicationIndex];
-    this._applicationsList[applicationIndex] = newApplication;
-    this._applicationsList[newApplicationIndex] = application;
-
-    this._applicationsList.forEach(application => this.remove(application));
-    this._applicationsList.forEach(application => this.add(application));
-    this._setApplications();
-  }
-
-  _setDescription() {
-    // The default description when no application shortcuts are present on the profile
-    let description = _('No Application Shortcuts');
-    if (this._applicationsList.length > 0) {
-      description = ngettext(
-        // The description when there are application shortcuts present on the profile, prefixed with the number of application shortcuts
-        '%d Application Shortcut',
-        '%d Application Shortcuts',
-        this._applicationsList.length
-      ).format(this._applicationsList.length);
-    }
-    this._profile.set_description(description);
-    return description;
-  }
-
-  /**
-   * @param {import('$lib/prefs/application').ApplicationProps} applicationProps
-   */
-  _createApplication(applicationProps) {
-    return new Application(
-      {},
-      this._deleteApplication.bind(this),
-      this._duplicateApplication.bind(this),
-      this._changeApplicationPriority.bind(this),
-      applicationProps
-    );
-  }
-
-  _setApplications() {
-    this.settings.set_strv(
-      'applications',
-      this._applicationsList.map(application => application.getId())
-    );
+    /** @type {import('@girs/adw-1').Adw.ActionRow} */
+    this._noApplications;
   }
 }
 
 var profile = GObject.registerClass(
   {
-    GTypeName: 'ProfilePreferencesPage',
+    GTypeName: 'FWProfile',
     Template: Me.dir.get_child('ui/profile.ui').get_uri(),
-    InternalChildren: ['enabled', 'profile', 'profile-icon', 'profile-name']
+    InternalChildren: ['icon', 'iconHeader', 'applications', 'noApplications', ...Object.keys(ProfileClass.bindings)]
   },
   ProfileClass
 );
+
+/**
+ * @typedef {Object} ProfilePreferences
+ * @property {import('$lib/prefs/application').ApplicationPreferences[]} applications
+ * @property {boolean} enabled
+ * @property {string} name
+ * @property {string} icon
+ */

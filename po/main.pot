@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Focus Window 1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-18 12:12-0400\n"
+"POT-Creation-Date: 2023-06-24 17:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,515 +18,648 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#. The prefix that is added to the name of the copied profile
-#: src/lib/prefs/profile.js:125
-msgid "Copy"
-msgstr ""
-
 #. The default application name when creating a new application
-#: src/lib/prefs/profile.js:174 src/lib/prefs/application.js:488
-#: src/blueprints/application.blp:6 src/blueprints/application.blp:64
+#: src/lib/prefs/applicationItem.js:126 src/lib/prefs/appName.js:22
+#: src/lib/prefs/application.js:108 src/lib/prefs/application.js:400
+#: src/blueprints/application.blp:66 src/blueprints/appName.blp:10
 msgid "No App Selected"
 msgstr ""
 
-#. The default subtitle when no application shortcuts are present on the profile
-#: src/lib/prefs/profile.js:234 src/blueprints/profile.blp:8
-msgid "No Application Shortcuts"
-msgstr ""
-
-#. The subtitle when there are application shortcuts present on the profile, prefixed with the number of application shortcuts
-#: src/lib/prefs/profile.js:238
+#. A count of the number of shortcuts in the application
+#: src/lib/prefs/applicationItem.js:144
 #, javascript-format
-msgid "%d Application Shortcut"
-msgid_plural "%d Application Shortcuts"
-msgstr[0] ""
-msgstr[1] ""
-
-#. The default name of a new profile, suffixed with the number of profiles
-#: src/lib/prefs/prefs.js:52
-#, javascript-format
-msgid "Profile %d"
-msgid_plural "Profile %d"
+msgid "1 Shortcut"
+msgid_plural "%d Shortcuts"
 msgstr[0] ""
 msgstr[1] ""
 
 #. The disabled text that is shown when no shortcut is bound but the keyboard is grabbed
-#: src/lib/prefs/shortcut.js:192
+#: src/lib/prefs/shortcutItem.js:157
 msgid "Listening For Shortcut..."
 msgstr ""
 
 #. The disabled text that is shown when no shortcut is bound
-#: src/lib/prefs/shortcut.js:201 src/blueprints/shortcut.blp:25
+#: src/lib/prefs/shortcutItem.js:165 src/blueprints/shortcutItem.blp:28
 msgid "Not Bound"
 msgstr ""
 
-#. The name of a keyboard shortcut, suffixed with the number of the shortcut
-#: src/lib/prefs/application.js:506 src/lib/prefs/application.js:545
+#. A count of the number of applications in the profile
+#: src/lib/prefs/profileItem.js:148
 #, javascript-format
-msgid "Shortcut %d"
-msgid_plural "Shortcut %d"
+msgid "1 Application"
+msgid_plural "%d Applications"
 msgstr[0] ""
 msgstr[1] ""
 
-#. The default application subtitle when no keyboard shortcuts are defined
-#: src/lib/prefs/application.js:566 src/blueprints/application.blp:8
-msgid "No Keyboard Shortcuts"
+#. The subtitle of the profiles window
+#: src/blueprints/profile.blp:14
+msgid "Configure your Profile"
 msgstr ""
 
-#. The subtitle of the application row, showing the number of keyboard shortcuts
-#: src/lib/prefs/application.js:570
-#, javascript-format
-msgid "%d Keyboard Shortcut"
-msgid_plural "%d Keyboard Shortcuts"
-msgstr[0] ""
-msgstr[1] ""
-
-#. The title of the application
-#: src/blueprints/prefs.blp:7
-msgid "Focus Window"
+#. The tooltip-markup text that is shown when hovering over the go back button
+#: src/blueprints/profile.blp:22 src/blueprints/application.blp:22
+msgid "Go Back"
 msgstr ""
 
-#. A description beneath the title indicating how to get started
-#: src/blueprints/prefs.blp:9
-msgid "Add a profile to get started!"
+#. The tooltip-markup text that is shown when hovering over the info button
+#: src/blueprints/profile.blp:31 src/blueprints/application.blp:31
+#: src/blueprints/profiles.blp:29
+msgid "Info"
 msgstr ""
 
-#. The tooltip-markup text that is shown when hovering over the add profile button
-#: src/blueprints/prefs.blp:17
-msgid "Add a new profile to the list."
-msgstr ""
-
-#. The label of the add profile button
-#: src/blueprints/prefs.blp:21
-msgid "Add Profile"
-msgstr ""
-
+#. The tooltip-markup text that is shown when hovering over the delete profile button
 #. The tooltip-markup text when hovering over the delete profile button
-#: src/blueprints/profile.blp:23
+#: src/blueprints/profile.blp:43 src/blueprints/profileItem.blp:31
 msgid "Delete Profile"
 msgstr ""
 
-#. The tooltip-markup text when hovering over the duplicate profile button
-#: src/blueprints/profile.blp:32
-msgid "Duplicate Profile"
+#. The title of the profile preferences groups
+#: src/blueprints/profile.blp:72
+msgid "Profile"
 msgstr ""
 
-#. The tooltip-markup text when hovering over the increase priority button
-#: src/blueprints/profile.blp:41 src/blueprints/application.blp:41
-msgid "Increase Priority"
+#. The description of the profile preferences groups
+#: src/blueprints/profile.blp:74
+msgid "Configure your profile"
 msgstr ""
 
-#. The tooltip-markup text when hovering over the decrease priority button
-#: src/blueprints/profile.blp:50 src/blueprints/application.blp:50
-msgid "Decrease Priority"
+#. The title of the enable profile action row
+#: src/blueprints/profile.blp:78
+msgid "Enable Profile"
+msgstr ""
+
+#. The subtitle of the enable profile action row
+#: src/blueprints/profile.blp:80
+msgid "Enable this profile"
+msgstr ""
+
+#. The title of the profile icon action row
+#: src/blueprints/profile.blp:91
+msgid "Profile Icon"
+msgstr ""
+
+#. The subtitle of the profile icon action row
+#: src/blueprints/profile.blp:93
+msgid "The icon of the profile"
 msgstr ""
 
 #. The title of the profile name entry
 #. The placeholder text describing the profile name entry
-#: src/blueprints/profile.blp:59 src/blueprints/profile.blp:68
+#: src/blueprints/profile.blp:106 src/blueprints/profile.blp:115
 msgid "Profile Name"
 msgstr ""
 
 #. The subtitle of the profile name entry
-#: src/blueprints/profile.blp:61
+#: src/blueprints/profile.blp:108
 msgid "The name of the profile"
 msgstr ""
 
-#. The title of the application shortcuts expander
-#: src/blueprints/profile.blp:74
-msgid "Application Shortcuts"
+#: src/blueprints/profile.blp:116
+msgid "My Profile"
 msgstr ""
 
-#. The subtitle of the application shortcuts expander
-#: src/blueprints/profile.blp:76
-msgid "Add an application shortcut to the profile"
+#. The title of the profiles preferences group
+#: src/blueprints/profile.blp:123
+msgid "Applications"
 msgstr ""
 
-#. The tooltip-markup text when hovering over the add application button
-#: src/blueprints/profile.blp:85
-msgid "Add Application"
+#. The description of the profiles preferences group
+#: src/blueprints/profile.blp:125
+msgid "Manage your applications"
+msgstr ""
+
+#. The tooltip-markup text that is shown when hovering over the add profile button
+#: src/blueprints/profile.blp:133
+msgid "Add a new application to the list"
 msgstr ""
 
 #. The label of the add application button
-#. The label of the add shortcut button
-#: src/blueprints/profile.blp:89 src/blueprints/application.blp:87
-msgid "Add"
+#: src/blueprints/profile.blp:137
+msgid "Add Application"
 msgstr ""
 
-#: src/blueprints/shortcut.blp:5
-msgid ""
-"A shortcut that focuses the application\n"
-"Press 'Esc' to cancel or 'Backspace' to unbind"
+#. The title of the no applications preferences row
+#: src/blueprints/profile.blp:165
+msgid "No Applications"
 msgstr ""
 
-#. The tooltip-markup text that is shown when hovering the delete shortcut button
-#: src/blueprints/shortcut.blp:16
-msgid "Delete Shortcut"
+#. The subtitle of the no applications preferences row
+#: src/blueprints/profile.blp:171
+msgid "No applications could be found"
 msgstr ""
 
+#: src/blueprints/profile.blp:188 src/blueprints/application.blp:717
+#: src/blueprints/profiles.blp:109
+msgid "About Focus Window"
+msgstr ""
+
+#: src/blueprints/profile.blp:195 src/blueprints/application.blp:724
+#: src/blueprints/profiles.blp:116
+msgid "Report Bug"
+msgstr ""
+
+#: src/blueprints/profile.blp:200 src/blueprints/application.blp:729
+#: src/blueprints/profiles.blp:121
+msgid "View License"
+msgstr ""
+
+#: src/blueprints/profile.blp:205 src/blueprints/application.blp:734
+#: src/blueprints/profiles.blp:126
+msgid "See Guide"
+msgstr ""
+
+#: src/blueprints/profile.blp:210 src/blueprints/application.blp:739
+#: src/blueprints/profiles.blp:131
+msgid "Contribute"
+msgstr ""
+
+#. The subtitle of the profiles window
+#: src/blueprints/application.blp:14
+msgid "Configure your Application"
+msgstr ""
+
+#. The tooltip-markup text that is shown when hovering over the delete application button
 #. The tooltip-markup text when hovering over the delete application button
-#: src/blueprints/application.blp:23
-msgid "Delete Application Shortcut"
+#: src/blueprints/application.blp:43 src/blueprints/applicationItem.blp:31
+msgid "Delete Application"
 msgstr ""
 
-#. The tooltip-markup text that appears when hovering over the duplicate application button
-#: src/blueprints/application.blp:32
-msgid "Duplicate Application Shortcut"
-msgstr ""
-
+#. The title of the application preferences groups
 #. The title of the application expander row
-#: src/blueprints/application.blp:59
+#: src/blueprints/application.blp:73 src/blueprints/application.blp:92
 msgid "Application"
 msgstr ""
 
+#. The description of the application preferences groups
+#: src/blueprints/application.blp:75
+msgid "Configure your application"
+msgstr ""
+
+#. The title of the enable application action row
+#: src/blueprints/application.blp:79
+msgid "Enable Application"
+msgstr ""
+
+#. The subtitle of the enable application action row
+#: src/blueprints/application.blp:81
+msgid "Enable this application"
+msgstr ""
+
 #. The subtitle of the application expander row
-#: src/blueprints/application.blp:61
+#: src/blueprints/application.blp:94
 msgid "The application that will be focused"
 msgstr ""
 
-#. The title of the shortcuts expander row
-#: src/blueprints/application.blp:72
-msgid "Keyboard Shortcuts"
+#. The title of the shortcuts preferences group
+#: src/blueprints/application.blp:108
+msgid "Shortcuts"
 msgstr ""
 
-#. The subtitle of the shortcuts expander row
-#: src/blueprints/application.blp:74
-msgid "All the shortcuts used to focus your application"
+#. The description of the shortcuts preferences group
+#: src/blueprints/application.blp:110
+msgid "Manage your shortcuts"
 msgstr ""
 
-#. The tooltip-markup text when hovering over the add shortcut button
-#: src/blueprints/application.blp:83
+#. The tooltip-markup text that is shown when hovering over the add shortcut button
+#: src/blueprints/application.blp:118
+msgid "Add a new shortcut to the list"
+msgstr ""
+
+#. The label of the add shortcut button
+#: src/blueprints/application.blp:122
 msgid "Add Shortcut"
 msgstr ""
 
-#. The title of the launch application expander row
-#: src/blueprints/application.blp:97
-msgid "Launch Application"
+#. The title of the no shortcuts preferences row
+#: src/blueprints/application.blp:150
+msgid "No Shortcuts"
 msgstr ""
 
-#. The subtitle of the launch application expander row
-#: src/blueprints/application.blp:99
+#. The subtitle of the no shortcuts preferences row
+#: src/blueprints/application.blp:156
+msgid "No keyboard shortcuts could be found"
+msgstr ""
+
+#. The title of the launch application preferences group
+#: src/blueprints/application.blp:170
+msgid "Launch"
+msgstr ""
+
+#. The description of the launch application preferences group
+#: src/blueprints/application.blp:172
 msgid "Launch the application if no windows are found"
 msgstr ""
 
 #. The title of the command line arguments action row
-#: src/blueprints/application.blp:105
+#: src/blueprints/application.blp:183
 msgid "Command Line Arguments"
 msgstr ""
 
 #. The subtitle of the command line arguments action row
-#: src/blueprints/application.blp:107
+#: src/blueprints/application.blp:185
 msgid "Override any arguments passed to the application"
 msgstr ""
 
 #. The placeholder text of the command line arguments entry
-#: src/blueprints/application.blp:114
+#: src/blueprints/application.blp:192
 msgid "Arguments"
 msgstr ""
 
-#. The title of the filter by title expander row
-#: src/blueprints/application.blp:121
+#. The title of the filter by title preferences group
+#: src/blueprints/application.blp:199
 msgid "Filter by Title"
 msgstr ""
 
-#. The subtitle of the filter by title expander row
-#: src/blueprints/application.blp:123
+#. The description of the filter by title preferences group
+#: src/blueprints/application.blp:201
 msgid "Filter the application windows by a specified title"
 msgstr ""
 
 #. The title of the title to match action row
-#: src/blueprints/application.blp:129
+#: src/blueprints/application.blp:212
 msgid "Title to Match"
 msgstr ""
 
 #. The subtitle of the title to match action row
-#: src/blueprints/application.blp:131
+#: src/blueprints/application.blp:214
 msgid "Match window titles against a regular expression"
 msgstr ""
 
 #. The placeholder text of the title to match entry
-#: src/blueprints/application.blp:138
+#: src/blueprints/application.blp:221
 msgid "Window Title"
 msgstr ""
 
-#. The title of the filter by workspace expander row
-#: src/blueprints/application.blp:145
+#. The title of the filter by workspace preferences group
+#: src/blueprints/application.blp:228
 msgid "Filter by Workspace"
 msgstr ""
 
-#. The subtitle of the filter by workspace expander row
-#: src/blueprints/application.blp:147
+#. The description of the filter by workspace preferences group
+#: src/blueprints/application.blp:230
 msgid "Filter the application windows based on its workspace"
 msgstr ""
 
 #. The title of the filter to current workspace action row
-#: src/blueprints/application.blp:153
+#: src/blueprints/application.blp:241
 msgid "Filter to Current Workspace"
 msgstr ""
 
 #. The subtitle of the filter to current workspace action row
-#: src/blueprints/application.blp:155
+#: src/blueprints/application.blp:243
 msgid "Only consider application windows in the current workspace"
 msgstr ""
 
 #. The title of the workspace to match action row
-#: src/blueprints/application.blp:167
+#: src/blueprints/application.blp:256
 msgid "Workspace to Match"
 msgstr ""
 
 #. The subtitle of the workspace to match action row
-#: src/blueprints/application.blp:169
+#: src/blueprints/application.blp:258
 msgid ""
 "The specific workspace that should be matched\n"
 "Workspaces are numbered starting from 0"
 msgstr ""
 
-#. The title of the filter by monitor expander row
-#: src/blueprints/application.blp:187
+#. The title of the filter by monitor preferences group
+#: src/blueprints/application.blp:276
 msgid "Filter by Monitor"
 msgstr ""
 
-#. The subtitle of the filter by monitor expander row
-#: src/blueprints/application.blp:189
+#. The description of the filter by monitor preferences group
+#: src/blueprints/application.blp:278
 msgid "Filter the application windows based on its monitor"
 msgstr ""
 
 #. The title of the filter to current monitor action row
-#: src/blueprints/application.blp:195
+#: src/blueprints/application.blp:289
 msgid "Filter to Current Monitor"
 msgstr ""
 
 #. The subtitle of the filter to current monitor action row
-#: src/blueprints/application.blp:197
-msgid "Only consider application windows in the current monitor"
+#: src/blueprints/application.blp:291
+msgid "Only consider application windows on the current monitor"
 msgstr ""
 
 #. The title of the monitor to match action row
-#: src/blueprints/application.blp:209
+#: src/blueprints/application.blp:304
 msgid "Monitor to Match"
 msgstr ""
 
 #. The subtitle of the monitor to match action row
-#: src/blueprints/application.blp:211
+#: src/blueprints/application.blp:306
 msgid ""
-"The specific monitor that should be matchedMonitors are numbered starting "
-"from 0"
+"The specific monitor that should be matched\n"
+"Monitors are numbered starting from 0"
 msgstr ""
 
-#. The title of the move on focus expander row
-#: src/blueprints/application.blp:229
-msgid "Move On Focus"
+#. The title of the move on focus preferences group
+#: src/blueprints/application.blp:324
+msgid "Move on Focus"
 msgstr ""
 
-#. The subtitle of the move on focus expander row
-#: src/blueprints/application.blp:231
+#. The description of the move on focus preferences group
+#: src/blueprints/application.blp:326
 msgid "Move the window on focus"
 msgstr ""
 
 #. The title of the move to current workspace action row
-#: src/blueprints/application.blp:237
+#: src/blueprints/application.blp:337
 msgid "Move to Current Workspace"
 msgstr ""
 
 #. The subtitle of the move to current workspace action row
-#: src/blueprints/application.blp:239
+#: src/blueprints/application.blp:339
 msgid ""
 "Move the window to the current workspace unless filtered to a specific "
 "workspace"
 msgstr ""
 
 #. The title of the move to current monitor action row
-#: src/blueprints/application.blp:250
+#: src/blueprints/application.blp:351
 msgid "Move to Current Monitor"
 msgstr ""
 
 #. The subtitle of the move to current monitor action row
-#: src/blueprints/application.blp:252
+#: src/blueprints/application.blp:353
 msgid ""
 "Move the window to the current monitor unless filtered to a specific monitor"
 msgstr ""
 
-#. The title of the resize on focus expander row
-#: src/blueprints/application.blp:264
-msgid "Resize On Focus"
+#. The title of the resize on focus preferences group
+#: src/blueprints/application.blp:365
+msgid "Resize on Focus"
 msgstr ""
 
-#. The subtitle of the resize on focus expander row
-#: src/blueprints/application.blp:266
+#. The description of the resize on focus preferences group
+#: src/blueprints/application.blp:367
 msgid "Resize the window on focus"
 msgstr ""
 
 #. The title of the maximize window action row
-#: src/blueprints/application.blp:272
+#: src/blueprints/application.blp:378
 msgid "Maximize Window"
 msgstr ""
 
 #. The subtitle of the maximize window action row
-#: src/blueprints/application.blp:274
+#: src/blueprints/application.blp:380
 msgid "Maximize the application window"
 msgstr ""
 
 #. The title of the restrict to current monitor action row
-#: src/blueprints/application.blp:286
+#: src/blueprints/application.blp:393
 msgid "Restrict to Current Monitor"
 msgstr ""
 
 #. The subtitle of the restrict to current monitor action row
-#: src/blueprints/application.blp:288
+#: src/blueprints/application.blp:395
 msgid "Restrict the window to the current monitor when resizing"
 msgstr ""
 
 #. The title of the use proportions expander row
-#: src/blueprints/application.blp:300
+#: src/blueprints/application.blp:408
 msgid "Use Proportions"
 msgstr ""
 
 #. The subtitle of the use proportions expander row
-#: src/blueprints/application.blp:302
+#: src/blueprints/application.blp:410
 msgid ""
 "Define the application window size by its relative proportions to the screen"
 msgstr ""
 
 #. The title of the grid size action row
-#: src/blueprints/application.blp:315
+#: src/blueprints/application.blp:422
 msgid "Grid Size"
 msgstr ""
 
 #. The subtitle of the grid size action row
-#: src/blueprints/application.blp:317
+#: src/blueprints/application.blp:424
 msgid ""
 "The number of screen slices that should be made\n"
 "This defines the units used to resize the application window"
 msgstr ""
 
 #. The title of the column start action row
-#: src/blueprints/application.blp:349
+#: src/blueprints/application.blp:456
 msgid "Window Column Start"
 msgstr ""
 
 #. The subtitle of the column start action row
-#: src/blueprints/application.blp:351
+#: src/blueprints/application.blp:458
 msgid "The grid cell column representing the left of the application window"
 msgstr ""
 
 #. The title of the window width action row
-#: src/blueprints/application.blp:369
+#: src/blueprints/application.blp:476
 msgid "Window Width"
 msgstr ""
 
 #. The subtitle of the window width action row
-#: src/blueprints/application.blp:371
+#: src/blueprints/application.blp:478
 msgid "The width in grid cells of the application window"
 msgstr ""
 
 #. The title of the row start action row
-#: src/blueprints/application.blp:389
+#: src/blueprints/application.blp:496
 msgid "Window Row Start"
 msgstr ""
 
 #. The subtitle of the row start action row
-#: src/blueprints/application.blp:391
+#: src/blueprints/application.blp:498
 msgid "The grid cell row representing the top of the application window"
 msgstr ""
 
 #. The title of the window height action row
-#: src/blueprints/application.blp:409
+#: src/blueprints/application.blp:516
 msgid "Window Height"
 msgstr ""
 
 #. The subtitle of the window height action row
-#: src/blueprints/application.blp:411
+#: src/blueprints/application.blp:518
 msgid "The height in grid cells of the application window"
 msgstr ""
 
 #. The title of the use pixels expander row
-#: src/blueprints/application.blp:431
+#: src/blueprints/application.blp:539
 msgid "Use Pixels"
 msgstr ""
 
 #. The subtitle of the use pixels expander row
-#: src/blueprints/application.blp:433
+#: src/blueprints/application.blp:541
 msgid "Define the application window size by its pixels"
 msgstr ""
 
 #. The label of the use pixels expander row explaining how to find the monitor resolution
-#: src/blueprints/application.blp:462
+#: src/blueprints/application.blp:571
 msgid ""
 "If you are unsure of your monitor's resolution,\n"
 "you can use the following command to find out:"
 msgstr ""
 
 #. The title of the top left x coordinate action row
-#: src/blueprints/application.blp:477
+#: src/blueprints/application.blp:586
 msgid "Top Left X Coordinate"
 msgstr ""
 
 #. The subtitle of the top left x coordinate action row
-#: src/blueprints/application.blp:479
+#: src/blueprints/application.blp:588
 msgid "The x coordinate for the top left corner of the application window"
 msgstr ""
 
 #. The title of the top left y coordinate action row
-#: src/blueprints/application.blp:497
+#: src/blueprints/application.blp:606
 msgid "Top Left Y Coordinate"
 msgstr ""
 
 #. The subtitle of the top left y coordinate action row
-#: src/blueprints/application.blp:499
+#: src/blueprints/application.blp:608
 msgid "The y coordinate for the top left corner of the application window"
 msgstr ""
 
 #. The title of the bottom right x coordinate action row
-#: src/blueprints/application.blp:517
+#: src/blueprints/application.blp:626
 msgid "Bottom Right X Coordinate"
 msgstr ""
 
 #. The subtitle of the bottom right x coordinate action row
-#: src/blueprints/application.blp:519
+#: src/blueprints/application.blp:628
 msgid "The x coordinate for the bottom right corner of the application window"
 msgstr ""
 
 #. The title of the bottom right y coordinate action row
-#: src/blueprints/application.blp:537
+#: src/blueprints/application.blp:646
 msgid "Bottom Right Y Coordinate"
 msgstr ""
 
 #. The subtitle of the bottom right y coordinate action row
-#: src/blueprints/application.blp:539
+#: src/blueprints/application.blp:648
 msgid "The y coordinate for the bottom right corner of the application window"
 msgstr ""
 
+#. The title of the miscellaneous preferences group
+#: src/blueprints/application.blp:668
+msgid "Miscellaneous"
+msgstr ""
+
+#. The description of the miscellaneous preferences group
+#: src/blueprints/application.blp:670
+msgid "Other miscellaneous preferences"
+msgstr ""
+
 #. The title of the minimize when unfocused action row
-#: src/blueprints/application.blp:559
+#: src/blueprints/application.blp:674
 msgid "Minimize When Unfocused"
 msgstr ""
 
 #. The subtitle of the minimize when unfocused action row
-#: src/blueprints/application.blp:561
+#: src/blueprints/application.blp:676
 msgid ""
 "Minimize the application window if already focused\n"
 "By default, the application window is sent to the back"
 msgstr ""
 
 #. The title of the always on top action row
-#: src/blueprints/application.blp:572
+#: src/blueprints/application.blp:687
 msgid "Always On Top"
 msgstr ""
 
 #. The subtitle of the always on top action row
-#: src/blueprints/application.blp:574
+#: src/blueprints/application.blp:689
 msgid "Keep all matching application windows on top of other windows"
 msgstr ""
 
 #. The title of the disable animations action row
-#: src/blueprints/application.blp:585
+#: src/blueprints/application.blp:700
 msgid "Disable Animations"
 msgstr ""
 
 #. The subtitle of the disable animations action row
-#: src/blueprints/application.blp:587
+#: src/blueprints/application.blp:702
 msgid ""
 "Disable animations when moving, focusing, and resizing the application "
 "window\n"
 "This may improve performance on some systems"
+msgstr ""
+
+#. The subtitle of the profiles window
+#: src/blueprints/profiles.blp:21
+msgid "Configure your Profiles"
+msgstr ""
+
+#. The title of the profiles preferences group
+#: src/blueprints/profiles.blp:39
+msgid "Profiles"
+msgstr ""
+
+#. The description of the profiles preferences group
+#: src/blueprints/profiles.blp:41
+msgid "Manage your profiles"
+msgstr ""
+
+#. The tooltip-markup text that is shown when hovering over the add profile button
+#: src/blueprints/profiles.blp:49
+msgid "Add a new profile to the list"
+msgstr ""
+
+#. The label of the add profile button
+#: src/blueprints/profiles.blp:53
+msgid "Add Profile"
+msgstr ""
+
+#. The title of the no profiles preferences row
+#: src/blueprints/profiles.blp:81
+msgid "No Profiles"
+msgstr ""
+
+#. The subtitle of the no profiles preferences row
+#: src/blueprints/profiles.blp:87
+msgid "No profiles could be found"
+msgstr ""
+
+#. The tooltip-markup text when hovering over the duplicate profile button
+#: src/blueprints/profileItem.blp:40
+msgid "Duplicate Profile"
+msgstr ""
+
+#. The tooltip-markup text when hovering over the increase priority button
+#: src/blueprints/profileItem.blp:49 src/blueprints/applicationItem.blp:49
+msgid "Increase Priority"
+msgstr ""
+
+#. The tooltip-markup text when hovering over the decrease priority button
+#: src/blueprints/profileItem.blp:58 src/blueprints/applicationItem.blp:58
+msgid "Decrease Priority"
+msgstr ""
+
+#. The tooltip-markup text when hovering over the profile preferences button
+#: src/blueprints/profileItem.blp:67
+msgid "Profile Preferences"
+msgstr ""
+
+#. The title of the shortcut item action row
+#: src/blueprints/shortcutItem.blp:6
+msgid "Keyboard Shortcut"
+msgstr ""
+
+#. The subtitle of the shortcut item action row
+#: src/blueprints/shortcutItem.blp:8
+msgid ""
+"A shortcut that focuses the application\n"
+"Press 'Esc' to cancel or 'Backspace' to unbind"
+msgstr ""
+
+#. The tooltip-markup text that is shown when hovering the delete shortcut button
+#: src/blueprints/shortcutItem.blp:19
+msgid "Delete Shortcut"
+msgstr ""
+
+#. The tooltip-markup text when hovering over the duplicate application button
+#: src/blueprints/applicationItem.blp:40
+msgid "Duplicate Application"
+msgstr ""
+
+#. The tooltip-markup text when hovering over the application preferences button
+#: src/blueprints/applicationItem.blp:67
+msgid "Application Preferences"
 msgstr ""

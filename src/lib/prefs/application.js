@@ -1,309 +1,322 @@
-const { GObject, Adw, Gio, Gdk, Gtk } = imports.gi;
+const { GObject, Gtk, Gio, Gdk } = imports.gi;
 const { extensionUtils } = imports.misc;
 const Me = extensionUtils.getCurrentExtension();
-const Gettext = imports.gettext;
-const Domain = Gettext.domain(Me.metadata.uuid);
+const Domain = imports.gettext.domain(Me.metadata.uuid);
 const _ = Domain.gettext;
-const ngettext = Domain.ngettext;
 
-/** @type { import('$lib/common/utils').SETTINGS_SCHEMA} */
-const SETTINGS_SCHEMA = Me.imports.lib.common.utils.SETTINGS_SCHEMA;
+/** @type {import('$lib/common/utils').Utils} */
+const { debug, createId, range, wrapCallback } = Me.imports.lib.common.utils.utils;
 
-/** @type {import('$lib/common/utils').Debug} */
-const debug = Me.imports.lib.common.utils.debug;
+/** @type {import('$lib/common/manager').Manager} */
+const Manager = Me.imports.lib.common.manager.manager;
 
-/** @type {import('$lib/common/utils').Range} */
-const range = Me.imports.lib.common.utils.range;
+/** @type {import('$lib/common/listFactory').ListFactory} */
+const ListFactory = Me.imports.lib.common.listFactory.listFactory;
 
-/** @type {import('$lib/common/utils').CreateId} */
-const createId = Me.imports.lib.common.utils.createId;
+/** @type {import('$lib/common/gestureDrag').GestureDrag} */
+const GestureDrag = Me.imports.lib.common.gestureDrag.gestureDrag;
 
-/** @type {import('$lib/prefs/shortcut').Shortcut} */
-const Shortcut = Me.imports.lib.prefs.shortcut.shortcut;
+/** @type {import('$lib/prefs/appName').AppName} */
+const AppName = Me.imports.lib.prefs.appName.appName;
 
-/** @type {import('$lib/prefs/factory').Factory} */
-const Factory = Me.imports.lib.prefs.factory.factory;
-
-/** @type {import('$lib/prefs/appname').AppName} */
-const AppName = Me.imports.lib.prefs.appname.appname;
-
-/**
- * @typedef {Object} ApplicationSettingsProps
- * @property {'settings'} type
- * @property {string} id
- */
-
-/**
- * @typedef {Object} ApplicationNewProps
- * @property {'new'} type
- * @property {string} name
- */
-
-/**
- * @typedef {Object} ApplicationCopyProps
- * @property {'copy'} type
- * @property {boolean} [duplicateShortcuts]
- * @property {import('@girs/gio-2.0').Gio.Settings} settings
- */
-
-/**
- * @typedef {ApplicationSettingsProps | ApplicationNewProps | ApplicationCopyProps} ApplicationProps
- */
-
-/**
- * @typedef {Object} ApplicationSettings
- * @property {boolean} enabled
- * @property {string} name
- * @property {import('$lib/prefs/shortcut').ShortcutSettings[]} shortcuts
- * @property {boolean} launch-application
- * @property {string} command-line-arguments
- * @property {boolean} filter-by-title
- * @property {string} title-to-match
- * @property {boolean} filter-by-workspace
- * @property {boolean} filter-to-current-workspace
- * @property {number} workspace-to-match
- * @property {boolean} filter-by-monitor
- * @property {boolean} filter-to-current-monitor
- * @property {number} monitor-to-match
- * @property {boolean} move-on-focus
- * @property {boolean} move-to-current-workspace
- * @property {boolean} move-to-current-monitor
- * @property {boolean} resize-on-focus
- * @property {boolean} maximize
- * @property {boolean} restrict-resize
- * @property {boolean} use-pixels
- * @property {number} top-left-x
- * @property {number} top-left-y
- * @property {number} bottom-right-x
- * @property {number} bottom-right-y
- * @property {boolean} use-proportions
- * @property {number} grid-size
- * @property {number} column-start
- * @property {number} width
- * @property {number} row-start
- * @property {number} height
- * @property {boolean} minimize
- * @property {boolean} always-on-top
- * @property {boolean} disable-animations
- */
+/** @type {import('$lib/prefs/shortcutItem').ShortcutItem} */
+const ShortcutItem = Me.imports.lib.prefs.shortcutItem.shortcutItem;
 
 /** @typedef {typeof ApplicationClass} Application */
-/** @typedef {ApplicationClass} ApplicationInstance */
-class ApplicationClass extends Adw.PreferencesGroup {
-  /** @type {number} */
-  _gestureIdBegin;
-
-  /** @type {number} */
-  _gestureIdUpdate;
-
-  /** @type {number} */
-  _gestureIdEnd;
-
-  /** @type {string} */
-  _id = createId();
-
-  /** @type {import('$lib/prefs/shortcut').ShortcutInstance[]} */
-  _shortcutsList = [];
-
-  /** @type {import('$lib/prefs/factory').FactoryInstance} */
-  _factory;
-
-  bindingProperties = {
+class ApplicationClass extends Gtk.Box {
+  /** @type {Record<string, string>} */
+  static bindings = {
     enabled: 'active',
-    'launch-application': 'enable-expansion',
-    'command-line-arguments': 'text',
-    'filter-by-title': 'enable-expansion',
-    'title-to-match': 'text',
-    'filter-by-workspace': 'enable-expansion',
-    'filter-to-current-workspace': 'active',
-    'workspace-to-match': 'value',
-    'filter-by-monitor': 'enable-expansion',
-    'filter-to-current-monitor': 'active',
-    'monitor-to-match': 'value',
-    'move-on-focus': 'enable-expansion',
-    'move-to-current-workspace': 'active',
-    'move-to-current-monitor': 'active',
-    'resize-on-focus': 'enable-expansion',
+    launch: 'active',
+    commandLineArguments: 'text',
+    filterByTitle: 'active',
+    titleToMatch: 'text',
+    filterByWorkspace: 'active',
+    filterToCurrentWorkspace: 'active',
+    workspaceToMatch: 'value',
+    filterByMonitor: 'active',
+    filterToCurrentMonitor: 'active',
+    monitorToMatch: 'value',
+    moveOnFocus: 'active',
+    moveToCurrentWorkspace: 'active',
+    moveToCurrentMonitor: 'active',
+    resizeOnFocus: 'active',
     maximize: 'active',
-    'restrict-resize': 'active',
-    'use-pixels': 'active',
-    'top-left-x': 'value',
-    'top-left-y': 'value',
-    'bottom-right-x': 'value',
-    'bottom-right-y': 'value',
-    'use-proportions': 'active',
-    'grid-size': 'value',
-    'column-start': 'value',
+    restrictResize: 'active',
+    usePixels: 'active',
+    topLeftX: 'value',
+    topLeftY: 'value',
+    bottomRightX: 'value',
+    bottomRightY: 'value',
+    useProportions: 'active',
+    gridSize: 'value',
+    columnStart: 'value',
     width: 'value',
-    'row-start': 'value',
+    rowStart: 'value',
     height: 'value',
     minimize: 'active',
-    'always-on-top': 'active',
-    'disable-animations': 'active'
+    alwaysOnTop: 'active',
+    disableAnimations: 'active'
   };
 
+  /** @type {Map<string, InstanceType<import('$lib/prefs/shortcutItem').ShortcutItem>>} */
+  shortcutItems = new Map();
+
+  /** @type {InstanceType<import('$lib/common/listFactory').ListFactory>} */
+  listFactory;
+
+  /** @type {InstanceType<import('$lib/common/gestureDrag').GestureDrag>} */
+  gestureDrag;
+
+  /**@type {InstanceType<import('$lib/common/manager').Manager>} */
+  manager;
+
+  /** @type {import('@girs/adw-1').Adw.Leaflet} */
+  _leaflet;
+
+  /** @type {InstanceType<import('$lib/prefs/profile').Profile>} */
+  _parent;
+
+  /** @type {string} */
+  _id;
+
   /**
-   * @param {import('@girs/adw-1').Adw.ExpanderRow.ConstructorProperties} AdwExpanderRowProps
-   * @param {(id: string) => void} deleteApplication
-   * @param {(id: string) => void} duplicateApplication
-   * @param {(id: string, increasePriority: boolean) => void} changeApplicationPriority
-   * @param {ApplicationProps} applicationProps
+   * @param {InstanceType<import('$lib/prefs/profile').Profile>} parent
+   * @param {string} id
    */
-  constructor(
-    AdwExpanderRowProps = {},
-    deleteApplication,
-    duplicateApplication,
-    changeApplicationPriority,
-    applicationProps
-  ) {
-    debug('Creating Application...');
-    super(AdwExpanderRowProps);
+  constructor(parent, id) {
+    super({});
 
-    // TODO: Add these properties
-    // Cycle Windows
-    // Always On Top
+    this.manager = new Manager({ id, subpath: 'applications' });
 
-    /** @type {typeof deleteApplication} */
-    this._deleteApplication = deleteApplication;
+    this._leaflet = parent._leaflet;
+    this._parent = parent;
+    this._id = id;
 
-    /** @type {typeof duplicateApplication} */
-    this._duplicateApplication = duplicateApplication;
-
-    /** @type {typeof changeApplicationPriority} */
-    this._changeApplicationPriority = changeApplicationPriority;
-
-    /** @type {import('@girs/gtk-4.0').Gtk.DropDown} */
-    this._application_item = this._application_item;
-
-    /** @type {import('@girs/gtk-4.0').Gtk.DrawingArea} */
-    this._drawing_area_proportions = this._drawing_area_proportions;
-
-    /** @type {import('@girs/adw-1').Adw.ExpanderRow} */
-    this._shortcuts = this._shortcuts;
-
-    /** @type {import('@girs/gtk-4.0').Gtk.Adjustment} */
-    this._width_adjustment = this._width_adjustment;
-
-    /** @type {import('@girs/gtk-4.0').Gtk.Adjustment} */
-    this._height_adjustment = this._height_adjustment;
-
-    /** @type {import('@girs/gtk-4.0').Gtk.GestureDrag} */
-    this._gestureDrag = new Gtk.GestureDrag();
-
-    /** @type {number[]} */
-    this._settingsConnections = [];
-
-    this._addPointerListeners();
-    this._populateApplications();
-
-    if (applicationProps.type === 'settings') {
-      this._id = applicationProps.id;
-    }
-
-    /** @type {import('@girs/gio-2.0').Gio.Settings} */
-    this.settings = new Gio.Settings({
-      settings_schema: SETTINGS_SCHEMA.lookup(
-        'org.gnome.shell.extensions.focus-window.applications',
-        true
-      ),
-      path: `/org/gnome/shell/extensions/focus-window/applications/${this._id}/`
-    });
-
-    Object.entries(this.bindingProperties).forEach(([key, property]) => {
-      this.settings.bind(
-        key,
-        this[`_${key.replaceAll('-', '_')}`],
-        property,
-        Gio.SettingsBindFlags.DEFAULT
-      );
-    });
-
-    this.settings.bind('name', this, 'title', Gio.SettingsBindFlags.DEFAULT);
-
-    if (applicationProps.type === 'settings') {
-      this.settings.get_strv('shortcuts').forEach(shortcutId => {
-        const application = this._createShortcut({
-          type: 'settings',
-          id: shortcutId,
-          name: this._getNextShortcutName()
-        });
-        this._shortcutsList.push(application);
-        this._shortcuts.add_row(application);
-        this._setDescription();
-      });
-    } else if (applicationProps.type === 'new') {
-      this.set_title(applicationProps.name);
-    } else if (applicationProps.type === 'copy') {
-      applicationProps.settings.list_keys().forEach(key => {
-        if (key === 'shortcuts') return;
-        this.settings.set_value(key, applicationProps.settings.get_value(key));
-      });
-
-      if (applicationProps.duplicateShortcuts) {
-        applicationProps.settings.get_strv('shortcuts').forEach(shortcutId => {
-          const shortcutSettings = new Gio.Settings({
-            settings_schema: SETTINGS_SCHEMA.lookup(
-              'org.gnome.shell.extensions.focus-window.shortcuts',
-              true
-            ),
-            path: `/org/gnome/shell/extensions/focus-window/shortcuts/${shortcutId}/`
-          });
-          const shortcut = this._createShortcut({
-            type: 'copy',
-            name: this._getNextShortcutName(),
-            settings: shortcutSettings
-          });
-          this._shortcutsList.push(shortcut);
-          this._shortcuts.add_row(shortcut);
-          this._setDescription();
-          this._setShortcuts();
-        });
-      }
-    }
-
-    const gridSize = this.settings.get_int('grid-size');
-    const columnStart = this.settings.get_int('column-start');
-    const rowStart = this.settings.get_int('row-start');
-    this._application_item.set_selected(this._factory.getPosition(this.title));
-    this._width_adjustment.set_upper(gridSize - columnStart + 1);
-    this._height_adjustment.set_upper(gridSize - rowStart + 1);
-
-    this._addSettingsListeners();
-
-    this._drawProportions();
+    this._initFromSettings();
+    this._setSortFunc();
+    this._setupDrawingArea();
+    this._populateApplicationNames();
   }
 
   getId() {
     return this._id;
   }
 
-  _addPointerListeners() {
-    this._drawing_area_proportions.add_controller(this._gestureDrag);
-    let x = 0;
-    let y = 0;
-    this._gestureIdBegin = this._gestureDrag.connect('drag-begin', (_, newX, newY) => {
-      x = newX;
-      y = newY;
-      this._calculatePosition(x, y, 0, 0);
-    });
+  setApplicationName() {
+    // The default application name when creating a new application
+    const defaultTitle = _('No App Selected');
+    const selected = this.listFactory.getItem(this._applicationName.get_selected());
 
-    this._gestureIdUpdate = this._gestureDrag.connect('drag-update', (_, width, height) => {
-      this._calculatePosition(x, y, width, height);
-    });
+    this._labelHeader.set_label(selected.title || defaultTitle);
 
-    this._gestureIdEnd = this._gestureDrag.connect('drag-end', (_, width, height) => {
-      this._calculatePosition(x, y, width, height);
-    });
+    if (selected.metadata) {
+      this._iconHeader.set_from_gicon(selected.metadata.get_icon());
+    } else {
+      this._iconHeader.set_from_icon_name('application-x-addon-symbolic');
+    }
+
+    this._setApplicationId(selected.value);
+  }
+
+  addShortcut(_, id = '') {
+    const newId = id || createId();
+    const shortcut = new ShortcutItem(this, newId);
+
+    this.shortcutItems.set(newId, shortcut);
+
+    if (!id) {
+      const shortcutIds = this.manager.getSettings().get_strv('shortcuts');
+      shortcutIds.push(newId);
+      this.manager.getSettings().set_strv('shortcuts', shortcutIds);
+    }
+
+    this._shortcuts.append(shortcut);
   }
 
   /**
+   * @param {string} id
+   */
+  deleteShortcut(id) {
+    const shortcutIds = this.manager.getSettings().get_strv('shortcuts');
+    const index = shortcutIds.findIndex(a => a === id);
+    shortcutIds.splice(index, 1);
+    this.manager.getSettings().set_strv('shortcuts', shortcutIds);
+
+    const shortcut = this.shortcutItems.get(id);
+    this._shortcuts.remove(shortcut);
+    shortcut.cleanup(true);
+    this.shortcutItems.delete(id);
+  }
+
+  deleteApplication() {
+    this.goBack(null, true);
+  }
+
+  goBack(_, deleteApplication = false) {
+    this.manager
+      .getSettings()
+      .get_strv('shortcuts')
+      .forEach(id => {
+        const shortcut = this.shortcutItems.get(id);
+        if (shortcut && !shortcut.isBound()) this.deleteShortcut(id);
+      });
+
+    if (deleteApplication) this._parent.deleteApplication(this._id);
+
+    const signalId = this.manager.connectSignal(
+      this._leaflet,
+      'notify::child-transition-running',
+      true,
+      (/** @type {import('@girs/adw-1').Adw.Leaflet} */ leaflet) => {
+        const transitionRunning = leaflet.child_transition_running;
+        if (!transitionRunning) {
+          this.manager.disconnectSignal(signalId);
+          this._parent.removePage();
+        }
+      }
+    );
+
+    this._leaflet.set_visible_child(this._parent);
+  }
+
+  cleanup(withSettings = false, subpaths = []) {
+    this.shortcutItems.forEach(shortcutItem => {
+      wrapCallback(() => this._shortcuts.remove(shortcutItem));
+      shortcutItem.cleanup();
+    });
+
+    this.manager.cleanup(withSettings, subpaths);
+    this.manager = null;
+
+    this.listFactory.cleanup();
+    this.listFactory = null;
+
+    this.gestureDrag.destroy();
+    this.gestureDrag = null;
+
+    this.shortcutItems.clear();
+    this.shortcutItems = null;
+
+    this._leaflet = null;
+    this._parent = null;
+    this._id = null;
+
+    wrapCallback(() => this.run_dispose());
+  }
+
+  _initFromSettings() {
+    this.manager.bindDefaultSettings(this, ApplicationClass.bindings);
+
+    this.manager.getSettings().get_strv('shortcuts').forEach(this.addShortcut.bind(this, null));
+
+    this.manager.connectSettings('changed::shortcuts', false, this._changeNoShortcutsVisibility.bind(this));
+
+    this._setApplicationId(this.manager.getSettings().get_string('id'));
+
+    this.manager.connectSettings('changed::gridsize', false, this._enforceProportions.bind(this));
+    this.manager.connectSettings('changed::columnstart', false, this._enforceProportions.bind(this));
+    this.manager.connectSettings('changed::rowstart', false, this._enforceProportions.bind(this));
+    this.manager.connectSettings('changed::width', false, this._enforceProportions.bind(this));
+    this.manager.connectSettings('changed::height', false, this._enforceProportions.bind(this));
+    this.manager.connectSettings('changed::topleftx', false, this._enforcePixels.bind(this));
+    this.manager.connectSettings('changed::toplefty', false, this._enforcePixels.bind(this));
+  }
+
+  _enforcePixels() {
+    const topLeftX = this.manager.getSettings().get_int('topleftx');
+    const topLeftY = this.manager.getSettings().get_int('toplefty');
+    const bottomRightX = this.manager.getSettings().get_int('bottomrightx');
+    const bottomRightY = this.manager.getSettings().get_int('bottomrighty');
+
+    if (bottomRightX < topLeftX) {
+      this.manager.getSettings().set_int('bottomrightx', topLeftX);
+    }
+
+    if (bottomRightY < topLeftY) {
+      this.manager.getSettings().set_int('bottomrighty', topLeftY);
+    }
+  }
+
+  _enforceProportions() {
+    const gridSize = this.manager.getSettings().get_int('gridsize');
+    let columnStart = this.manager.getSettings().get_int('columnstart');
+    let rowStart = this.manager.getSettings().get_int('rowstart');
+    let width = this.manager.getSettings().get_int('width');
+    let height = this.manager.getSettings().get_int('height');
+
+    if (columnStart > gridSize) {
+      columnStart = gridSize;
+      this.manager.getSettings().set_int('columnstart', columnStart);
+    }
+
+    if (rowStart > gridSize) {
+      rowStart = gridSize;
+      this.manager.getSettings().set_int('rowstart', rowStart);
+    }
+
+    if (width > gridSize - columnStart + 1) {
+      width = gridSize - columnStart;
+      this.manager.getSettings().set_int('width', width);
+    }
+
+    if (height > gridSize - rowStart + 1) {
+      height = gridSize - rowStart;
+      this.manager.getSettings().set_int('height', height);
+    }
+
+    this._widthAdjustment.set_upper(gridSize - columnStart + 1);
+    this._heightAdjustment.set_upper(gridSize - rowStart + 1);
+
+    this._drawProportions();
+  }
+
+  /**
+   * @param {string} id
+   */
+  _setApplicationId(id) {
+    this.manager.getSettings().set_string('id', id);
+  }
+
+  /**
+   * @param {string[]} shortcuts
+   */
+  _changeNoShortcutsVisibility(shortcuts) {
+    this._noShortcuts.set_visible(shortcuts.length === 0);
+  }
+
+  _setSortFunc() {
+    this._shortcuts.set_sort_func((a, b) => {
+      const shortcutIds = this.manager.getSettings().get_strv('shortcuts');
+      return (
+        // @ts-ignore
+        shortcutIds.findIndex(p => p === a.getId()) -
+        // @ts-ignore
+        shortcutIds.findIndex(p => p === b.getId())
+      );
+    });
+  }
+
+  _setupDrawingArea() {
+    this.gestureDrag = new GestureDrag(this._drawingArea);
+    this.gestureDrag.dragBegin(this._calculatePosition.bind(this));
+    this.gestureDrag.dragUpdate(this._calculatePosition.bind(this));
+    this.gestureDrag.dragEnd(this._calculatePosition.bind(this));
+    this._enforceProportions();
+    this._enforcePixels();
+  }
+
+  /**
+   * @param {import('@girs/gtk-4.0').Gtk.GestureDrag} _
    * @param {number} x
    * @param {number} y
+   * @param {number} width
+   * @param {number} height
    */
-  _calculatePosition(x, y, width, height) {
-    const gridSize = this.settings.get_int('grid-size');
-    const areaWidth = this._drawing_area_proportions.get_allocated_width();
-    const areaHeight = this._drawing_area_proportions.get_allocated_height();
+  _calculatePosition(_, x, y, width, height) {
+    const gridSize = this.manager.getSettings().get_int('gridsize');
+    const areaWidth = this._drawingArea.get_allocated_width();
+    const areaHeight = this._drawingArea.get_allocated_height();
 
     const cellWidth = areaWidth / gridSize;
     const cellHeight = areaHeight / gridSize;
@@ -312,25 +325,25 @@ class ApplicationClass extends Adw.PreferencesGroup {
     const y1 = Math.floor(y / cellHeight);
     const x2 = Math.floor((x + width) / cellWidth);
     const y2 = Math.floor((y + height) / cellHeight);
-    const startX = Math.min(x1, x2);
-    const startY = Math.min(y1, y2);
-    const endX = Math.max(x1, x2);
-    const endY = Math.max(y1, y2);
+    const startX = Math.max(Math.min(x1, x2), 0);
+    const startY = Math.max(Math.min(y1, y2), 0);
+    const endX = Math.min(Math.max(x1, x2), gridSize - 1);
+    const endY = Math.min(Math.max(y1, y2), gridSize - 1);
 
-    this.settings.set_int('column-start', startX + 1);
-    this.settings.set_int('row-start', startY + 1);
-    this.settings.set_int('width', endX - startX + 1);
-    this.settings.set_int('height', endY - startY + 1);
+    this.manager.getSettings().set_int('columnstart', startX + 1);
+    this.manager.getSettings().set_int('rowstart', startY + 1);
+    this.manager.getSettings().set_int('width', endX - startX + 1);
+    this.manager.getSettings().set_int('height', endY - startY + 1);
   }
 
   _drawProportions() {
-    const gridSize = this.settings.get_int('grid-size');
-    const columnStart = this.settings.get_int('column-start');
-    const width = this.settings.get_int('width');
-    const rowStart = this.settings.get_int('row-start');
-    const height = this.settings.get_int('height');
+    const gridSize = this.manager.getSettings().get_int('gridsize');
+    const columnStart = this.manager.getSettings().get_int('columnstart');
+    const width = this.manager.getSettings().get_int('width');
+    const rowStart = this.manager.getSettings().get_int('rowstart');
+    const height = this.manager.getSettings().get_int('height');
 
-    this._drawing_area_proportions.set_draw_func((drawingArea, context) => {
+    this._drawingArea.set_draw_func((drawingArea, context) => {
       const areaWidth = drawingArea.get_allocated_width();
       const areaHeight = drawingArea.get_allocated_height();
 
@@ -366,264 +379,115 @@ class ApplicationClass extends Adw.PreferencesGroup {
           context.fill();
         });
       });
+
+      context.$dispose();
     });
   }
 
-  _addSettingsListeners() {
-    this._settingsConnections.push(
-      this.settings.connect('changed::grid-size', () => {
-        const gridSize = this.settings.get_int('grid-size');
-        if (this.settings.get_int('column-start') > gridSize) {
-          this.settings.set_int('column-start', gridSize);
-        }
-
-        if (this.settings.get_int('row-start') > gridSize) {
-          this.settings.set_int('row-start', gridSize);
-        }
-
-        const columnStart = this.settings.get_int('column-start') - 1;
-        if (this.settings.get_int('width') > gridSize - columnStart) {
-          this.settings.set_int('width', gridSize - columnStart);
-        }
-
-        const rowStart = this.settings.get_int('row-start') - 1;
-        if (this.settings.get_int('height') > gridSize - rowStart) {
-          this.settings.set_int('height', gridSize - rowStart);
-        }
-
-        this._width_adjustment.set_upper(gridSize - columnStart);
-        this._height_adjustment.set_upper(gridSize - rowStart);
-
-        this._drawProportions();
-      })
-    );
-
-    this._settingsConnections.push(
-      this.settings.connect('changed::column-start', () => {
-        const gridSize = this.settings.get_int('grid-size');
-        const columnStart = this.settings.get_int('column-start') - 1;
-
-        if (this.settings.get_int('width') > gridSize - columnStart) {
-          this.settings.set_int('width', gridSize - columnStart);
-        }
-
-        this._width_adjustment.set_upper(gridSize - columnStart);
-
-        this._drawProportions();
-      })
-    );
-
-    this._settingsConnections.push(
-      this.settings.connect('changed::row-start', () => {
-        const gridSize = this.settings.get_int('grid-size');
-        const rowStart = this.settings.get_int('row-start') - 1;
-
-        if (this.settings.get_int('height') > gridSize - rowStart) {
-          this.settings.set_int('height', gridSize - rowStart);
-        }
-
-        this._height_adjustment.set_upper(gridSize - rowStart);
-
-        this._drawProportions();
-      })
-    );
-
-    this._settingsConnections.push(
-      this.settings.connect('changed::width', () => {
-        this._drawProportions();
-      })
-    );
-
-    this._settingsConnections.push(
-      this.settings.connect('changed::height', () => {
-        this._drawProportions();
-      })
-    );
-
-    this._settingsConnections.push(
-      this.settings.connect('changed::top-left-x', () => {
-        const topLeftX = this.settings.get_int('top-left-x');
-        if (this.settings.get_int('bottom-right-x') < topLeftX) {
-          this.settings.set_int('bottom-right-x', topLeftX);
-        }
-      })
-    );
-
-    this._settingsConnections.push(
-      this.settings.connect('changed::top-left-y', () => {
-        const topLeftY = this.settings.get_int('top-left-y');
-        if (this.settings.get_int('bottom-right-y') < topLeftY) {
-          this.settings.set_int('bottom-right-y', topLeftY);
-        }
-      })
-    );
-  }
-
-  onDuplicateApplication() {
-    this._duplicateApplication(this._id);
-  }
-
-  onDeleteApplication() {
-    debug('Deleting Application...');
-    [...this._shortcutsList].forEach(shortcut => shortcut.onDeleteShortcut());
-    this._gestureDrag.disconnect(this._gestureIdBegin);
-    this._gestureDrag.disconnect(this._gestureIdUpdate);
-    this._gestureDrag.disconnect(this._gestureIdEnd);
-    this._settingsConnections.forEach(connection => this.settings.disconnect(connection));
-    this.settings.list_keys().forEach(key => this.settings.reset(key));
-    this.settings.run_dispose();
-    this._deleteApplication(this._id);
-  }
-
-  onIncreasePriority() {
-    this._changeApplicationPriority(this._id, true);
-  }
-
-  onDecreasePriority() {
-    this._changeApplicationPriority(this._id, false);
-  }
-
-  onApplicationItem() {
-    this.set_title(
-      // The default application name when creating a new application
-      this._factory.getItem(this._application_item.get_selected()).title || _('New Application')
-    );
-  }
-
-  onAddShortcut() {
-    const newShortcut = this._createShortcut({
-      type: 'new',
-      name: this._getNextShortcutName()
-    });
-    this._shortcutsList.push(newShortcut);
-    this._shortcuts.add_row(newShortcut);
-    this._shortcuts.set_expanded(true);
-    this._setDescription();
-    this._setShortcuts();
-  }
-
-  _getNextShortcutName() {
-    // The name of a keyboard shortcut, suffixed with the number of the shortcut
-    return ngettext('Shortcut %d', 'Shortcut %d', this._shortcutsList.length + 1).format(
-      this._shortcutsList.length + 1
-    );
-  }
-
-  _populateApplications() {
+  _populateApplicationNames() {
+    const id = this.manager.getSettings().get_string('id');
     const applications = Gio.AppInfo.get_all()
       .filter(a => a.should_show())
-      .sort((app1, app2) =>
-        app1.get_name().toLowerCase().localeCompare(app2.get_name().toLowerCase())
-      )
+      .sort((app1, app2) => app1.get_name().toLowerCase().localeCompare(app2.get_name().toLowerCase()))
       .map(application => ({
         title: application.get_name(),
-        value: application.get_name()
+        value: application.get_id(),
+        metadata: application
       }));
 
     applications.unshift({
       // The default application name when creating a new application
       title: _('No App Selected'),
-      // The default application name when creating a new application
-      value: _('No App Selected')
+      value: '',
+      metadata: null
     });
 
-    this._factory = new Factory({}, AppName, applications);
-    this._application_item.set_model(this._factory.getModel());
-    this._application_item.set_expression(this._factory.getExpression());
-    this._application_item.set_factory(this._factory);
+    this.listFactory = new ListFactory(AppName, applications);
+    this._applicationName.set_factory(this.listFactory);
+    this._applicationName.set_model(this.listFactory.getModel());
+    this._applicationName.set_expression(this.listFactory.getExpression());
+    this._applicationName.set_selected(this.listFactory.getPosition(id));
   }
 
-  _deleteShortcut(id) {
-    const shortcutIndex = this._shortcutsList.findIndex(shortcut => shortcut.getId() === id);
-    const shortcut = this._shortcutsList[shortcutIndex];
-    this._shortcuts.remove(shortcut);
-    this._shortcutsList.splice(shortcutIndex, 1);
+  _typeWidgets() {
+    /** @type {import('@girs/gtk-4.0').Gtk.ListBox} */
+    this._shortcuts;
 
-    this._shortcutsList.forEach((shortcut, index) =>
-      // The name of a keyboard shortcut, suffixed with the number of the shortcut
-      shortcut.set_title(ngettext('Shortcut %d', 'Shortcut %d', index + 1).format(index + 1))
-    );
-    this._setDescription();
-    this._setShortcuts();
-  }
+    /** @type {import('@girs/gtk-4.0').Gtk.DropDown} */
+    this._applicationName;
 
-  /**
-   * @param {import('$lib/prefs/shortcut').ShortcutProps} shortcutProps
-   */
-  _createShortcut(shortcutProps) {
-    return new Shortcut(
-      {},
-      this._deleteShortcut.bind(this),
-      this._setDescription.bind(this),
-      shortcutProps
-    );
-  }
+    /** @type {import('@girs/gtk-4.0').Gtk.Image} */
+    this._iconHeader;
 
-  _setDescription() {
-    const boundShortcuts = this._shortcutsList.filter(shortcut => shortcut.isBound());
-    // The default application description when no keyboard shortcuts are defined
-    let description = _('No Keyboard Shortcuts');
-    if (boundShortcuts.length > 0) {
-      description = ngettext(
-        // The description of the application row, showing the number of keyboard shortcuts
-        '%d Keyboard Shortcut',
-        '%d Keyboard Shortcuts',
-        boundShortcuts.length
-      ).format(boundShortcuts.length);
-    }
-    this.set_description(description);
-  }
+    /** @type {import('@girs/gtk-4.0').Gtk.Label} */
+    this._labelHeader;
 
-  _setShortcuts() {
-    this.settings.set_strv(
-      'shortcuts',
-      this._shortcutsList.map(shortcut => shortcut.getId())
-    );
+    /** @type {import('@girs/adw-1').Adw.ActionRow} */
+    this._noShortcuts;
+
+    /** @type {import('@girs/gtk-4.0').Gtk.DrawingArea} */
+    this._drawingArea;
+
+    /** @type {import('@girs/gtk-4.0').Gtk.Adjustment} */
+    this._widthAdjustment;
+
+    /** @type {import('@girs/gtk-4.0').Gtk.Adjustment} */
+    this._heightAdjustment;
   }
 }
 
 var application = GObject.registerClass(
   {
-    GTypeName: 'ApplicationPreferencesGroup',
+    GTypeName: 'FWApplication',
     Template: Me.dir.get_child('ui/application.ui').get_uri(),
     InternalChildren: [
-      'enabled',
-      'application-item',
+      'applicationName',
+      'iconHeader',
+      'labelHeader',
       'shortcuts',
-      'launch-application',
-      'command-line-arguments',
-      'filter-by-title',
-      'title-to-match',
-      'filter-by-workspace',
-      'filter-to-current-workspace',
-      'workspace-to-match',
-      'filter-by-monitor',
-      'filter-to-current-monitor',
-      'monitor-to-match',
-      'move-on-focus',
-      'move-to-current-workspace',
-      'move-to-current-monitor',
-      'resize-on-focus',
-      'maximize',
-      'restrict-resize',
-      'use-pixels',
-      'top-left-x',
-      'top-left-y',
-      'bottom-right-x',
-      'bottom-right-y',
-      'use-proportions',
-      'grid-size',
-      'column-start',
-      'width',
-      'row-start',
-      'height',
-      'minimize',
-      'always-on-top',
-      'disable-animations',
-      'drawing-area-proportions',
-      'height-adjustment',
-      'width-adjustment'
+      'noShortcuts',
+      'drawingArea',
+      'widthAdjustment',
+      'heightAdjustment',
+      ...Object.keys(ApplicationClass.bindings)
     ]
   },
   ApplicationClass
 );
+
+/**
+ * @typedef {Object} ApplicationPreferences
+ * @property {import('$lib/prefs/shortcutItem').ShortcutPreferences[]} shortcuts
+ * @property {boolean} enabled
+ * @property {string} id
+ * @property {boolean} launch
+ * @property {string} commandLineArguments
+ * @property {boolean} filterByTitle
+ * @property {string} titleToMatch
+ * @property {boolean} filterByWorkspace
+ * @property {boolean} filterToCurrentWorkspace
+ * @property {number} workspaceToMatch
+ * @property {boolean} filterByMonitor
+ * @property {boolean} filterToCurrentMonitor
+ * @property {number} monitorToMatch
+ * @property {boolean} moveOnFocus
+ * @property {boolean} moveToCurrentWorkspace
+ * @property {boolean} moveToCurrentMonitor
+ * @property {boolean} resizeOnFocus
+ * @property {boolean} maximize
+ * @property {boolean} restrictResize
+ * @property {boolean} usePixels
+ * @property {number} topLeftX
+ * @property {number} topLeftY
+ * @property {number} bottomRightX
+ * @property {number} bottomRightY
+ * @property {boolean} useProportions
+ * @property {number} gridSize
+ * @property {number} columnStart
+ * @property {number} width
+ * @property {number} rowStart
+ * @property {number} height
+ * @property {boolean} minimize
+ * @property {boolean} alwaysOnTop
+ * @property {boolean} disableAnimations
+ */

@@ -1,0 +1,74 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $FWApplicationItem : Adw.ActionRow {
+  activatable-widget: enabled;
+  
+  [prefix]
+  Image icon {
+    pixel-size: 28;
+    icon-name: 'application-x-addon-symbolic';
+  }
+  
+  Box {
+    spacing: 12;
+
+    Switch enabled {
+      valign: center;
+      active: false;
+    }
+    
+    Box {
+      styles ["linked"]
+
+      homogeneous: true;
+
+      Button {
+        styles ["error", "raised"]
+        
+        valign: center;
+        // The tooltip-markup text when hovering over the delete application button
+        tooltip-markup: _("Delete Application");
+        icon-name: "edit-delete-symbolic";
+        
+        clicked => $deleteApplication();
+      }
+
+      Button {
+        valign: center;
+        // The tooltip-markup text when hovering over the duplicate application button
+        tooltip-markup: _("Duplicate Application");
+        icon-name: "edit-copy-symbolic";
+        
+        clicked => $duplicateApplication();
+      }
+
+      Button {
+        valign: center;
+        // The tooltip-markup text when hovering over the increase priority button
+        tooltip-markup: _("Increase Priority");
+        icon-name: "pan-up-symbolic";
+        
+        clicked => $increasePriority();
+      }
+
+      Button {
+        valign: center;
+        // The tooltip-markup text when hovering over the decrease priority button
+        tooltip-markup: _("Decrease Priority");
+        icon-name: "pan-down-symbolic";
+        
+        clicked => $decreasePriority();
+      }
+
+      Button {
+        valign: center;
+        // The tooltip-markup text when hovering over the application preferences button
+        tooltip-markup: _("Application Preferences");
+        icon-name: "settings-app-symbolic";
+        
+        clicked => $openPreferences();
+      }
+    }
+  }
+}

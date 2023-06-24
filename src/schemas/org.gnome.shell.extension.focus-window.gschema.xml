@@ -16,9 +16,14 @@
       <description>Whether the profile is enabled</description>
     </key>
     <key name="name" type="s">
-      <default>""</default>
+      <default>"My Profile"</default>
       <summary>Profile Name</summary>
       <description>The name of the profile</description>
+    </key>
+    <key name="icon" type="s">
+      <default>"settings-app-symbolic"</default>
+      <summary>Profile Icon</summary>
+      <description>The Icon of the profile</description>
     </key>
     <key name="applications" type="as">
       <default>[]</default>
@@ -33,82 +38,82 @@
       <summary>Application Enabled</summary>
       <description>Whether the application is enabled</description>
     </key>
-    <key name="name" type="s">
+    <key name="id" type="s">
       <default>""</default>
-      <summary>Application Name</summary>
-      <description>The name of the application</description>
+      <summary>Application ID</summary>
+      <description>The ID of the application</description>
     </key>
     <key name="shortcuts" type="as">
       <default>[]</default>
       <summary>Application Shortcut ID's</summary>
       <description>An array of keyboard shortcut ID's</description>
     </key>
-    <key name="launch-application" type="b">
+    <key name="launch" type="b">
       <default>true</default>
       <summary>Launch Application</summary>
       <description>Whether to launch the application if it is not running</description>
     </key>
-    <key name="command-line-arguments" type="s">
+    <key name="commandlinearguments" type="s">
       <default>""</default>
       <summary>Command Line Arguments</summary>
       <description>Command line arguments to pass to the application on launch</description>
     </key>
-    <key name="filter-by-title" type="b">
+    <key name="filterbytitle" type="b">
       <default>false</default>
       <summary>Filter by Title</summary>
       <description>Whether to filter by the application title</description>
     </key>
-    <key name="title-to-match" type="s">
+    <key name="titletomatch" type="s">
       <default>""</default>
       <summary>Title to Match</summary>
       <description>The title to match</description>
     </key>
-    <key name="filter-by-workspace" type="b">
+    <key name="filterbyworkspace" type="b">
       <default>false</default>
       <summary>Filter by Workspace</summary>
       <description>Whether to filter by the application workspace</description>
     </key>
-    <key name="filter-to-current-workspace" type="b">
+    <key name="filtertocurrentworkspace" type="b">
       <default>false</default>
       <summary>Filter to Current Workspace</summary>
       <description>Whether to filter to the current workspace</description>
     </key>
-    <key name="workspace-to-match" type="i">
+    <key name="workspacetomatch" type="i">
       <default>0</default>
       <summary>Workspace to Match</summary>
       <description>The workspace to match</description>
     </key>
-    <key name="filter-by-monitor" type="b">
+    <key name="filterbymonitor" type="b">
       <default>false</default>
       <summary>Filter by Monitor</summary>
       <description>Whether to filter by the application monitor</description>
     </key>
-    <key name="filter-to-current-monitor" type="b">
+    <key name="filtertocurrentmonitor" type="b">
       <default>false</default>
       <summary>Filter to Current Monitor</summary>
       <description>Whether to filter to the current monitor</description>
     </key>
-    <key name="monitor-to-match" type="i">
+    <key name="monitortomatch" type="i">
       <default>0</default>
       <summary>Monitor to Match</summary>
       <description>The monitor to match</description>
     </key>
-    <key name="move-on-focus" type="b">
+    <key name="moveonfocus" type="b">
       <default>false</default>
       <summary>Move on Focus</summary>
       <description>Whether to move the window when it is focused</description>
     </key>
-    <key name="move-to-current-workspace" type="b">
+    <key name="movetocurrentworkspace" type="b">
       <default>false</default>
       <summary>Move to Current Workspace</summary>
       <description>Whether to move the window to the current workspace</description>
     </key>
-    <key name="move-to-current-monitor" type="b">
+    <key name="movetocurrentmonitor" type="b">
       <default>false</default>
       <summary>Move to Current Monitor</summary>
       <description>Whether to move the window to the current monitor</description>
     </key>
-    <key name="resize-on-focus" type="b">
+    <key name="resizeonfocus" type="b">
       <default>false</default>
       <summary>Resize on Focus</summary>
       <description>Whether to resize the window when it is focused</description>
@@ -118,47 +123,47 @@
       <summary>Maximize Window</summary>
       <description>Whether to maximize the window on focus</description>
     </key>
-    <key name="restrict-resize" type="b">
+    <key name="restrictresize" type="b">
       <default>true</default>
       <summary>Restrict Resize</summary>
       <description>Whether to restrict the resize to the current monitor</description>
     </key>
-    <key name="use-pixels" type="b">
+    <key name="usepixels" type="b">
       <default>false</default>
       <summary>Use Pixels</summary>
       <description>Whether to use pixels for the resize amount</description>
     </key>
-    <key name="top-left-x" type="i">
+    <key name="topleftx" type="i">
       <default>0</default>
       <summary>Top Left X</summary>
       <description>The top left X coordinate</description>
     </key>
-    <key name="top-left-y" type="i">
+    <key name="toplefty" type="i">
       <default>0</default>
       <summary>Top Left Y</summary>
       <description>The top left Y coordinate</description>
     </key>
-    <key name="bottom-right-x" type="i">
+    <key name="bottomrightx" type="i">
       <default>0</default>
       <summary>Bottom Right X</summary>
       <description>The bottom right X coordinate</description>
     </key>
-    <key name="bottom-right-y" type="i">
+    <key name="bottomrighty" type="i">
       <default>0</default>
       <summary>Bottom Right Y</summary>
       <description>The bottom right Y coordinate</description>
     </key>
-    <key name="use-proportions" type="b">
+    <key name="useproportions" type="b">
       <default>true</default>
       <summary>Use Proportions</summary>
       <description>Whether to use proportions for the resize amount</description>
     </key>
-    <key name="grid-size" type="i">
+    <key name="gridsize" type="i">
       <default>12</default>
       <summary>Grid Size</summary>
       <description>The grid size</description>
     </key>
-    <key name="column-start" type="i">
+    <key name="columnstart" type="i">
       <default>3</default>
       <summary>Column Start</summary>
       <description>The column start</description>
@@ -168,7 +173,7 @@
       <summary>Width</summary>
       <description>The width</description>
     </key>
-    <key name="row-start" type="i">
+    <key name="rowstart" type="i">
       <default>3</default>
       <summary>Row Start</summary>
       <description>The row start</description>
@@ -183,12 +188,12 @@
       <summary>Minimize when Unfocused</summary>
       <description>Whether to minimize the window when it is unfocused</description>
     </key>
-    <key name="always-on-top" type="b">
+    <key name="alwaysontop" type="b">
       <default>false</default>
       <summary>Always On Top</summary>
       <description>Whether to keep the window on top</description>
     </key>
-    <key name="disable-animations" type="b">
+    <key name="disableanimations" type="b">
       <default>false</default>
       <summary>Disable Animations</summary>
       <description>Whether to disable animations</description>

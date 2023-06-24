@@ -13,6 +13,7 @@ declare module '@girs/cairo-1.0' {
       stroke: () => void;
       strokePreserve: () => void;
       fill: () => void;
+      $dispose: () => void;
     }
   }
 }

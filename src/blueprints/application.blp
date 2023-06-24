@@ -1,609 +1,743 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $ApplicationPreferencesGroup : Adw.PreferencesGroup {
-  // The default application name when creating a new application
-  title: _("No App Selected");
-  // The default application subtitle when no keyboard shortcuts are defined
-  description: _("No Keyboard Shortcuts");
+template $FWApplication : Box {
+  orientation: vertical;
 
-  [header-suffix]
-  Box {
-    styles ["linked"]
+  Adw.HeaderBar {
+    decoration-layout: ":minimize,maximize,close";
+    valign: start;
+    halign: fill;
+    title-widget: Adw.WindowTitle {
+      title: "Focus Window";
+      // The subtitle of the profiles window
+      subtitle: _("Configure your Application");
+    };
+    
+    [start]
+    Box {        
+      Button {
+        valign: center;
+        // The tooltip-markup text that is shown when hovering over the go back button
+        tooltip-markup: _("Go Back");
+        icon-name: "go-previous-symbolic";
 
-    homogeneous: true;
+        clicked => $goBack();
+      }
+      
+      MenuButton {
+        valign: center;
+        // The tooltip-markup text that is shown when hovering over the info button
+        tooltip-markup: _("Info");
+        icon-name: "dialog-information-symbolic";
+        menu-model: infoMenu;
+      }
+    }
 
-    Button {   
-      styles ["error", "raised"]
-
+    [end]
+    Button {
+      styles ["error", "circular", "image-button"]
+      
       valign: center;
-      // The tooltip-markup text when hovering over the delete application button
-      tooltip-markup: _("Delete Application Shortcut");
+      // The tooltip-markup text that is shown when hovering over the delete application button
+      tooltip-markup: _("Delete Application");
       icon-name: "edit-delete-symbolic";
-      
-      clicked => $onDeleteApplication();
-    }
 
-    Button {        
-      valign: center;
-      // The tooltip-markup text that appears when hovering over the duplicate application button
-      tooltip-markup: _("Duplicate Application Shortcut");
-      icon-name: "edit-copy-symbolic";
-      
-      clicked => $onDuplicateApplication();
-    }
-
-    Button {
-      valign: center;
-      // The tooltip-markup text when hovering over the increase priority button
-      tooltip-markup: _("Increase Priority");
-      icon-name: "pan-up-symbolic";
-      
-      clicked => $onIncreasePriority();
-    }
-
-    Button {
-      valign: center;
-      // The tooltip-markup text when hovering over the decrease priority button
-      tooltip-markup: _("Decrease Priority");
-      icon-name: "pan-down-symbolic";
-      
-      clicked => $onDecreasePriority();
+      clicked => $deleteApplication();
     }
   }
 
-  Adw.ActionRow {
-      // The title of the enable application action row
-      title: _("Enable Application");
-      // The subtitle of the enable application action row
-      subtitle: _("Enable this application");
-      activatable-widget: enabled;
+  Adw.PreferencesPage {    
+    Adw.PreferencesGroup {            
+      Box {
+        orientation: horizontal;
+        halign: center;
+        spacing: 10;
+        
+        Image iconHeader {
+          pixel-size: 48;
+          icon-name: 'application-x-addon-symbolic';
+        }
+        
+        Label labelHeader {
+          styles ["title-1"]
 
-      Switch enabled {
+          // The default application name when creating a new application
+          label: _("No App Selected");
+        }
+      }
+    }
+
+    Adw.PreferencesGroup {
+      // The title of the application preferences groups
+      title: _("Application");
+      // The description of the application preferences groups
+      description: _("Configure your application");
+
+      Adw.ActionRow {
+        // The title of the enable application action row
+        title: _("Enable Application");
+        // The subtitle of the enable application action row
+        subtitle: _("Enable this application");
+        activatable-widget: enabled;
+
+        Switch enabled {
+          valign: center;
+          active: false;
+        }
+      }
+      
+      Adw.ActionRow {
+        // The title of the application expander row
+        title: _("Application");
+        // The subtitle of the application expander row
+        subtitle: _("The application that will be focused");
+        activatable-widget: applicationName;
+
+        DropDown applicationName {
+          valign: center;
+          enable-search: true;
+
+          notify::selected => $setApplicationName();
+        }
+      }
+    }
+    
+    Adw.PreferencesGroup {
+      // The title of the shortcuts preferences group
+      title: _("Shortcuts");
+      // The description of the shortcuts preferences group
+      description: _("Manage your shortcuts");
+      
+      [header-suffix]
+      Button {
+        styles ["suggested-action"]
+
+        valign: center;
+        // The tooltip-markup text that is shown when hovering over the add shortcut button
+        tooltip-markup: _("Add a new shortcut to the list");
+
+        Adw.ButtonContent {
+          // The label of the add shortcut button
+          label: _("Add Shortcut");
+          icon-name: "preferences-desktop-keyboard-shortcuts-symbolic";
+        }
+        
+        clicked => $addShortcut();
+      }
+      
+      Adw.PreferencesRow noShortcuts {
+        Box {
+          opacity: 0.7;
+          valign: center;
+          halign: center;
+          margin-top: 20;
+          spacing: 5;
+          margin-bottom: 20;
+          margin-start: 20;
+          margin-end: 20;
+          orientation: vertical;
+          
+          Image {
+            pixel-size: 96;
+            margin-bottom: 12;
+            icon-name: "preferences-desktop-keyboard-shortcuts-symbolic";
+          }
+          
+          Label {
+            styles ["heading"]
+            // The title of the no shortcuts preferences row
+            label: _("No Shortcuts");
+          }
+          
+          Label {
+            styles ["caption"]
+            // The subtitle of the no shortcuts preferences row
+            label: _("No keyboard shortcuts could be found");
+          }
+        }
+      }
+
+      ListBox shortcuts {
+        styles ["boxed-list"]
+
+        selection-mode: none;
+      }
+    }
+    
+    Adw.PreferencesGroup {
+      // The title of the launch application preferences group
+      title: _("Launch");
+      // The description of the launch application preferences group
+      description: _("Launch the application if no windows are found");
+      
+      [header-suffix]
+      Switch launch {
         valign: center;
         active: false;
       }
-    }
-
-  Adw.ActionRow {
-    // The title of the application expander row
-    title: _("Application");
-    // The subtitle of the application expander row
-    subtitle: _("The application that will be focused");
-    activatable-widget: application-item;
-
-    DropDown application-item {
-      valign: center;
-      enable-search: true;
-
-      notify::selected => $onApplicationItem();
-    }
-    
-  }
-
-  Adw.ExpanderRow shortcuts {
-    // The title of the shortcuts expander row
-    title: _("Keyboard Shortcuts");
-    // The subtitle of the shortcuts expander row
-    subtitle: _("All the shortcuts used to focus your application");
-    expanded: true;
-    
-    [action]
-    Button {    
-      styles ["suggested-action"]
       
-      valign: center;
-      // The tooltip-markup text when hovering over the add shortcut button
-      tooltip-markup: _("Add Shortcut");
-      
-      Adw.ButtonContent {
-        // The label of the add shortcut button
-        label: _("Add");
-        icon-name: "preferences-desktop-keyboard-shortcuts-symbolic";
-      }
-
-      clicked => $onAddShortcut();
-    }
-  }
-  
-  Adw.ExpanderRow launch-application {
-    // The title of the launch application expander row
-    title: _("Launch Application");
-    // The subtitle of the launch application expander row
-    subtitle: _("Launch the application if no windows are found");
-    show-enable-switch: true;
-    enable-expansion: true;
-    
-    Adw.ActionRow {
-      // The title of the command line arguments action row
-      title: _("Command Line Arguments");
-      // The subtitle of the command line arguments action row
-      subtitle: _("Override any arguments passed to the application");
-      activatable-widget: command-line-arguments;
-
-      Entry command-line-arguments {
-        width-chars: 30;
-        valign: center;
-        // The placeholder text of the command line arguments entry
-        placeholder-text: _("Arguments");        
-      }
-    }
-  }
-  
-  Adw.ExpanderRow filter-by-title {
-    // The title of the filter by title expander row
-    title: _("Filter by Title");
-    // The subtitle of the filter by title expander row
-    subtitle: _("Filter the application windows by a specified title");
-    show-enable-switch: true;
-    enable-expansion: false;
-    
-    Adw.ActionRow {
-      // The title of the title to match action row
-      title: _("Title to Match");
-      // The subtitle of the title to match action row
-      subtitle: _("Match window titles against a regular expression");
-      activatable-widget: title-to-match;
-
-      Entry title-to-match {
-        width-chars: 30;
-        valign: center;
-        // The placeholder text of the title to match entry
-        placeholder-text: _("Window Title");        
-      }
-    }
-  }
-  
-  Adw.ExpanderRow filter-by-workspace {
-    // The title of the filter by workspace expander row
-    title: _("Filter by Workspace");
-    // The subtitle of the filter by workspace expander row
-    subtitle: _("Filter the application windows based on its workspace");
-    show-enable-switch: true;
-    enable-expansion: false;
-    
-    Adw.ActionRow {
-      // The title of the filter to current workspace action row
-      title: _("Filter to Current Workspace");
-      // The subtitle of the filter to current workspace action row
-      subtitle: _("Only consider application windows in the current workspace");
-      activatable-widget: filter-to-current-workspace;
-
-      Switch filter-to-current-workspace {
-        valign: center;
-        active: false;        
-      }
-    }
-
-    Adw.ActionRow {
-      visible: bind-property filter-to-current-workspace.active inverted;
-      // The title of the workspace to match action row
-      title: _("Workspace to Match");
-      // The subtitle of the workspace to match action row
-      subtitle: _("The specific workspace that should be matched\nWorkspaces are numbered starting from 0");
-      activatable-widget: workspace-to-match;
-
-      SpinButton workspace-to-match {
-        valign: center;
-        adjustment: Adjustment {
-          lower: 0;
-          upper: 250;
-          step-increment: 1;
-          page-size: 0;
-          page-increment: 1;
-        };        
-      }
-    }
-  }
-  
-  Adw.ExpanderRow filter-by-monitor {
-    // The title of the filter by monitor expander row
-    title: _("Filter by Monitor");
-    // The subtitle of the filter by monitor expander row
-    subtitle: _("Filter the application windows based on its monitor");
-    show-enable-switch: true;
-    enable-expansion: false;
-    
-    Adw.ActionRow {
-      // The title of the filter to current monitor action row
-      title: _("Filter to Current Monitor");
-      // The subtitle of the filter to current monitor action row
-      subtitle: _("Only consider application windows in the current monitor");
-      activatable-widget: filter-to-current-monitor;
-
-      Switch filter-to-current-monitor {
-        valign: center;
-        active: false;        
-      }
-    }
-
-    Adw.ActionRow {
-      visible: bind-property filter-to-current-monitor.active inverted;
-      // The title of the monitor to match action row
-      title: _("Monitor to Match");
-      // The subtitle of the monitor to match action row
-      subtitle: _("The specific monitor that should be matched\Monitors are numbered starting from 0");
-      activatable-widget: monitor-to-match;
-
-      SpinButton monitor-to-match {
-        valign: center;
-        adjustment: Adjustment {
-          lower: 0;
-          upper: 50;
-          step-increment: 1;
-          page-size: 0;
-          page-increment: 1;
-        };        
-      }
-    }
-  }
-  
-  Adw.ExpanderRow move-on-focus {
-    // The title of the move on focus expander row
-    title: _("Move On Focus");
-    // The subtitle of the move on focus expander row
-    subtitle: _("Move the window on focus");
-    show-enable-switch: true;
-    enable-expansion: false;
-    
-    Adw.ActionRow {
-      // The title of the move to current workspace action row
-      title: _("Move to Current Workspace");
-      // The subtitle of the move to current workspace action row
-      subtitle: _("Move the window to the current workspace unless filtered to a specific workspace");
-      activatable-widget: move-to-current-workspace;
-
-      Switch move-to-current-workspace {
-        valign: center;
-        active: false;        
-      }
-    }
-
-    Adw.ActionRow {
-      // The title of the move to current monitor action row
-      title: _("Move to Current Monitor");
-      // The subtitle of the move to current monitor action row
-      subtitle: _("Move the window to the current monitor unless filtered to a specific monitor");
-      activatable-widget: move-to-current-monitor;
-
-      Switch move-to-current-monitor {
-        valign: center;
-        active: false;        
-      }
-    }
-  }
-  
-  Adw.ExpanderRow resize-on-focus {
-    // The title of the resize on focus expander row
-    title: _("Resize On Focus");
-    // The subtitle of the resize on focus expander row
-    subtitle: _("Resize the window on focus");
-    show-enable-switch: true;
-    enable-expansion: false;    
-    
-    Adw.ActionRow {
-      // The title of the maximize window action row
-      title: _("Maximize Window");
-      // The subtitle of the maximize window action row
-      subtitle: _("Maximize the application window");
-      activatable-widget: maximize;
-
-      Switch maximize {
-        valign: center;
-        active: false;        
-      }
-    }
-
-    Adw.ActionRow {
-      visible: bind-property maximize.active inverted;
-      // The title of the restrict to current monitor action row
-      title: _("Restrict to Current Monitor");
-      // The subtitle of the restrict to current monitor action row
-      subtitle: _("Restrict the window to the current monitor when resizing");
-      activatable-widget: restrict-resize;
-
-      Switch restrict-resize {
-        valign: center;
-        active: true;        
-      }
-    }
-
-        Adw.ExpanderRow {
-      visible: bind-property maximize.active inverted;
-      // The title of the use proportions expander row
-      title: _("Use Proportions");
-      // The subtitle of the use proportions expander row
-      subtitle: _("Define the application window size by its relative proportions to the screen");
-      show-enable-switch: false;
-      enable-expansion: bind-property use-proportions.active;
-      
-      [prefix]
-      CheckButton use-proportions {
-        valign: center;
-        active: true;
-        group: use-pixels;        
-      }
-     
       Adw.ActionRow {
-        // The title of the grid size action row
-        title: _("Grid Size");
-        // The subtitle of the grid size action row
-        subtitle: _("The number of screen slices that should be made\nThis defines the units used to resize the application window");
-        activatable-widget: grid-size;
-        
-        SpinButton grid-size {
+        sensitive: bind-property launch.active;
+        // The title of the command line arguments action row
+        title: _("Command Line Arguments");
+        // The subtitle of the command line arguments action row
+        subtitle: _("Override any arguments passed to the application");
+        activatable-widget: commandLineArguments;
+
+        Entry commandLineArguments {
+          width-chars: 25;
+          valign: center;
+          // The placeholder text of the command line arguments entry
+          placeholder-text: _("Arguments");        
+        }
+      }
+    }
+    
+    Adw.PreferencesGroup {
+      // The title of the filter by title preferences group
+      title: _("Filter by Title");
+      // The description of the filter by title preferences group
+      description: _("Filter the application windows by a specified title");
+      
+      [header-suffix]
+      Switch filterByTitle {
+        valign: center;
+        active: false;
+      }
+      
+      Adw.ActionRow {
+        sensitive: bind-property filterByTitle.active;
+        // The title of the title to match action row
+        title: _("Title to Match");
+        // The subtitle of the title to match action row
+        subtitle: _("Match window titles against a regular expression");
+        activatable-widget: titleToMatch;
+
+        Entry titleToMatch {
+          width-chars: 25;
+          valign: center;
+          // The placeholder text of the title to match entry
+          placeholder-text: _("Window Title");        
+        }
+      }
+    }
+    
+    Adw.PreferencesGroup {
+      // The title of the filter by workspace preferences group
+      title: _("Filter by Workspace");
+      // The description of the filter by workspace preferences group
+      description: _("Filter the application windows based on its workspace");
+      
+      [header-suffix]
+      Switch filterByWorkspace {
+        valign: center;
+        active: false;
+      }
+      
+      Adw.ActionRow {
+        sensitive: bind-property filterByWorkspace.active;
+        // The title of the filter to current workspace action row
+        title: _("Filter to Current Workspace");
+        // The subtitle of the filter to current workspace action row
+        subtitle: _("Only consider application windows in the current workspace");
+        activatable-widget: filterToCurrentWorkspace;
+
+        Switch filterToCurrentWorkspace {
+          valign: center;
+          active: false;
+        }
+      }
+      
+      Adw.ActionRow {
+        sensitive: bind-property filterByWorkspace.active;
+        visible: bind-property filterToCurrentWorkspace.active inverted;
+        // The title of the workspace to match action row
+        title: _("Workspace to Match");
+        // The subtitle of the workspace to match action row
+        subtitle: _("The specific workspace that should be matched\nWorkspaces are numbered starting from 0");
+        activatable-widget: workspaceToMatch;
+
+        SpinButton workspaceToMatch {
           valign: center;
           adjustment: Adjustment {
-            lower: 1;
-            upper: 1000;
+            lower: 0;
+            upper: 250;
             step-increment: 1;
             page-size: 0;
             page-increment: 1;
-            value: 12;
-          };          
-        }
-      }
-
-      Adw.PreferencesRow {
-        can-focus: false;
-        activatable: false;
-
-        DrawingArea drawing-area-proportions {
-          width-request: 300;
-          height-request: 300;
-          margin-bottom: 12;
-          margin-top: 12;
-          margin-start: 12;
-          margin-end: 12;
-        }
-      }
-
-      Adw.ActionRow {
-        // The title of the column start action row
-        title: _("Window Column Start");
-        // The subtitle of the column start action row
-        subtitle: _("The grid cell column representing the left of the application window");
-        activatable-widget: column-start;
-        
-        SpinButton column-start {
-          valign: center;
-          adjustment: Adjustment {
-            lower: 1;
-            upper: bind-property grid-size.value;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 2;
-          };          
-        }
-      }
-      
-      Adw.ActionRow {
-        // The title of the window width action row
-        title: _("Window Width");
-        // The subtitle of the window width action row
-        subtitle: _("The width in grid cells of the application window");
-        activatable-widget: width;
-        
-        SpinButton width {
-          valign: center;
-          adjustment: Adjustment width-adjustment {
-            lower: 1;
-            upper: bind-property grid-size.value;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 8;
-          };          
-        }
-      }
-      
-      Adw.ActionRow {
-        // The title of the row start action row
-        title: _("Window Row Start");
-        // The subtitle of the row start action row
-        subtitle: _("The grid cell row representing the top of the application window");
-        activatable-widget: row-start;
-        
-        SpinButton row-start {
-          valign: center;
-          adjustment: Adjustment {
-            lower: 1;
-            upper: bind-property grid-size.value;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 2;
-          };          
-        }
-      }
-      
-      Adw.ActionRow {
-        // The title of the window height action row
-        title: _("Window Height");
-        // The subtitle of the window height action row
-        subtitle: _("The height in grid cells of the application window");
-        activatable-widget: height;
-        
-        SpinButton height {
-          valign: center;
-          adjustment: Adjustment height-adjustment {
-            lower: 1;
-            upper: bind-property grid-size.value;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 8;
-          };          
+          };        
         }
       }
     }
     
-    Adw.ExpanderRow {
-      visible: bind-property maximize.active inverted;
-      // The title of the use pixels expander row
-      title: _("Use Pixels");
-      // The subtitle of the use pixels expander row
-      subtitle: _("Define the application window size by its pixels");
-      show-enable-switch: false;
-      enable-expansion: bind-property use-pixels.active;
+    Adw.PreferencesGroup {
+      // The title of the filter by monitor preferences group
+      title: _("Filter by Monitor");
+      // The description of the filter by monitor preferences group
+      description: _("Filter the application windows based on its monitor");
       
-      [prefix]
-      CheckButton use-pixels {
+      [header-suffix]
+      Switch filterByMonitor {
         valign: center;
-        active: false;        
+        active: false;
+      }
+      
+      Adw.ActionRow {
+        sensitive: bind-property filterByMonitor.active;
+        // The title of the filter to current monitor action row
+        title: _("Filter to Current Monitor");
+        // The subtitle of the filter to current monitor action row
+        subtitle: _("Only consider application windows on the current monitor");
+        activatable-widget: filterToCurrentMonitor;
+
+        Switch filterToCurrentMonitor {
+          valign: center;
+          active: false;
+        }
+      }
+      
+      Adw.ActionRow {
+        sensitive: bind-property filterByMonitor.active;
+        visible: bind-property filterToCurrentMonitor.active inverted;
+        // The title of the monitor to match action row
+        title: _("Monitor to Match");
+        // The subtitle of the monitor to match action row
+        subtitle: _("The specific monitor that should be matched\nMonitors are numbered starting from 0");
+        activatable-widget: monitorToMatch;
+
+        SpinButton monitorToMatch {
+          valign: center;
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 250;
+            step-increment: 1;
+            page-size: 0;
+            page-increment: 1;
+          };        
+        }
+      }
+    }
+    
+    Adw.PreferencesGroup {
+      // The title of the move on focus preferences group
+      title: _("Move on Focus");
+      // The description of the move on focus preferences group
+      description: _("Move the window on focus");
+      
+      [header-suffix]
+      Switch moveOnFocus {
+        valign: center;
+        active: false;
+      }
+      
+      Adw.ActionRow {
+        sensitive: bind-property moveOnFocus.active;
+        // The title of the move to current workspace action row
+        title: _("Move to Current Workspace");
+        // The subtitle of the move to current workspace action row
+        subtitle: _("Move the window to the current workspace unless filtered to a specific workspace");
+        activatable-widget: moveToCurrentWorkspace;
+
+        Switch moveToCurrentWorkspace {
+          valign: center;
+          active: false;        
+        }
       }
 
-      Adw.PreferencesRow {
-        activatable: false;
-        can-focus: false;
+      Adw.ActionRow {
+        sensitive: bind-property moveOnFocus.active;
+        // The title of the move to current monitor action row
+        title: _("Move to Current Monitor");
+        // The subtitle of the move to current monitor action row
+        subtitle: _("Move the window to the current monitor unless filtered to a specific monitor");
+        activatable-widget: moveToCurrentMonitor;
 
-        Box {
-          orientation: vertical;
+        Switch moveToCurrentMonitor {
+          valign: center;
+          active: false;        
+        }
+      }
+    }
+    
+    Adw.PreferencesGroup {
+      // The title of the resize on focus preferences group
+      title: _("Resize on Focus");
+      // The description of the resize on focus preferences group
+      description: _("Resize the window on focus");
+      
+      [header-suffix]
+      Switch resizeOnFocus {
+        valign: center;
+        active: false;
+      }
+      
+      Adw.ActionRow {
+        sensitive: bind-property resizeOnFocus.active;
+        // The title of the maximize window action row
+        title: _("Maximize Window");
+        // The subtitle of the maximize window action row
+        subtitle: _("Maximize the application window");
+        activatable-widget: maximize;
+
+        Switch maximize {
+          valign: center;
+          active: false;        
+        }
+      }
+
+      Adw.ActionRow {
+        sensitive: bind-property resizeOnFocus.active;
+        visible: bind-property maximize.active inverted;
+        // The title of the restrict to current monitor action row
+        title: _("Restrict to Current Monitor");
+        // The subtitle of the restrict to current monitor action row
+        subtitle: _("Restrict the window to the current monitor when resizing");
+        activatable-widget: restrictResize;
+
+        Switch restrictResize {
+          valign: center;
+          active: true;        
+        }
+      }
+      
+      Adw.ExpanderRow {
+        sensitive: bind-property resizeOnFocus.active;
+        visible: bind-property maximize.active inverted;
+        // The title of the use proportions expander row
+        title: _("Use Proportions");
+        // The subtitle of the use proportions expander row
+        subtitle: _("Define the application window size by its relative proportions to the screen");
+        show-enable-switch: false;
+        enable-expansion: bind-property useProportions.active;
+        
+        [prefix]
+        CheckButton useProportions {
+          valign: center;
+          active: true;
+        }
+        
+        Adw.ActionRow {
+          // The title of the grid size action row
+          title: _("Grid Size");
+          // The subtitle of the grid size action row
+          subtitle: _("The number of screen slices that should be made\nThis defines the units used to resize the application window");
+          activatable-widget: gridSize;
+          
+          SpinButton gridSize {
+            valign: center;
+            adjustment: Adjustment {
+              lower: 1;
+              upper: 1000;
+              step-increment: 1;
+              page-size: 0;
+              page-increment: 1;
+              value: 12;
+            };          
+          }
+        }
+
+        Adw.PreferencesRow {
           can-focus: false;
-          margin-top: 12;
-          margin-bottom: 12;
-          margin-start: 12;
-          margin-end: 12;
+          activatable: false;
 
-          Label {
-            styles ["dim-label"]
-            
-            justify: center;
+          DrawingArea drawingArea {
+            width-request: 300;
+            height-request: 300;
+            margin-bottom: 12;
+            margin-top: 12;
+            margin-start: 12;
+            margin-end: 12;
+          }
+        }
+
+        Adw.ActionRow {
+          // The title of the column start action row
+          title: _("Window Column Start");
+          // The subtitle of the column start action row
+          subtitle: _("The grid cell column representing the left of the application window");
+          activatable-widget: columnStart;
+          
+          SpinButton columnStart {
+            valign: center;
+            adjustment: Adjustment {
+              lower: 1;
+              upper: bind-property gridSize.value;
+              step-increment: 1;
+              page-size: 0;
+              page-increment: 1;
+              value: 2;
+            };          
+          }
+        }
+        
+        Adw.ActionRow {
+          // The title of the window width action row
+          title: _("Window Width");
+          // The subtitle of the window width action row
+          subtitle: _("The width in grid cells of the application window");
+          activatable-widget: width;
+          
+          SpinButton width {
+            valign: center;
+            adjustment: Adjustment widthAdjustment {
+              lower: 1;
+              upper: bind-property gridSize.value;
+              step-increment: 1;
+              page-size: 0;
+              page-increment: 1;
+              value: 8;
+            };          
+          }
+        }
+        
+        Adw.ActionRow {
+          // The title of the row start action row
+          title: _("Window Row Start");
+          // The subtitle of the row start action row
+          subtitle: _("The grid cell row representing the top of the application window");
+          activatable-widget: rowStart;
+          
+          SpinButton rowStart {
+            valign: center;
+            adjustment: Adjustment {
+              lower: 1;
+              upper: bind-property gridSize.value;
+              step-increment: 1;
+              page-size: 0;
+              page-increment: 1;
+              value: 2;
+            };          
+          }
+        }
+        
+        Adw.ActionRow {
+          // The title of the window height action row
+          title: _("Window Height");
+          // The subtitle of the window height action row
+          subtitle: _("The height in grid cells of the application window");
+          activatable-widget: height;
+          
+          SpinButton height {
+            valign: center;
+            adjustment: Adjustment heightAdjustment {
+              lower: 1;
+              upper: bind-property gridSize.value;
+              step-increment: 1;
+              page-size: 0;
+              page-increment: 1;
+              value: 8;
+            };          
+          }
+        }
+      }
+      
+      Adw.ExpanderRow {
+        sensitive: bind-property resizeOnFocus.active;
+        visible: bind-property maximize.active inverted;
+        // The title of the use pixels expander row
+        title: _("Use Pixels");
+        // The subtitle of the use pixels expander row
+        subtitle: _("Define the application window size by its pixels");
+        show-enable-switch: false;
+        enable-expansion: bind-property usePixels.active;
+        
+        [prefix]
+        CheckButton usePixels {
+          valign: center;
+          active: false;
+          group: useProportions;
+        }
+
+        Adw.PreferencesRow {
+          activatable: false;
+          can-focus: false;
+
+          Box {
+            orientation: vertical;
             can-focus: false;
-            margin-bottom: 5;
-            // The label of the use pixels expander row explaining how to find the monitor resolution
-            label: _("If you are unsure of your monitor's resolution,\nyou can use the following command to find out:");
+            margin-top: 12;
+            margin-bottom: 12;
+            margin-start: 12;
+            margin-end: 12;
+
+            Label {
+              styles ["dim-label"]
+              
+              justify: center;
+              can-focus: false;
+              margin-bottom: 5;
+              // The label of the use pixels expander row explaining how to find the monitor resolution
+              label: _("If you are unsure of your monitor's resolution,\nyou can use the following command to find out:");
+            }
+
+            Label {
+              styles ["dim-label"]
+
+              justify: center;
+              selectable: true;
+              label: "xrandr | grep 'connected'";
+            }
           }
-
-          Label {
-            styles ["dim-label"]
-
-            justify: center;
-            selectable: true;
-            label: "xrandr | grep ' connected'";
+        }
+        
+        Adw.ActionRow {
+          // The title of the top left x coordinate action row
+          title: _("Top Left X Coordinate");
+          // The subtitle of the top left x coordinate action row
+          subtitle: _("The x coordinate for the top left corner of the application window");
+          activatable-widget: topLeftX;
+          
+          SpinButton topLeftX {
+            valign: center;
+            adjustment: Adjustment {
+              lower: 0;
+              upper: 1000000000;
+              step-increment: 1;
+              page-size: 0;
+              page-increment: 1;
+              value: 0;
+            };          
+          }
+        }
+        
+        Adw.ActionRow {
+          // The title of the top left y coordinate action row
+          title: _("Top Left Y Coordinate");
+          // The subtitle of the top left y coordinate action row
+          subtitle: _("The y coordinate for the top left corner of the application window");
+          activatable-widget: topLeftY;
+          
+          SpinButton topLeftY {
+            valign: center;
+            adjustment: Adjustment {
+              lower: 0;
+              upper: 1000000000;
+              step-increment: 1;
+              page-size: 0;
+              page-increment: 1;
+              value: 0;
+            };          
+          }
+        }
+        
+        Adw.ActionRow {
+          // The title of the bottom right x coordinate action row
+          title: _("Bottom Right X Coordinate");
+          // The subtitle of the bottom right x coordinate action row
+          subtitle: _("The x coordinate for the bottom right corner of the application window");
+          activatable-widget: bottomRightX;
+          
+          SpinButton bottomRightX {
+            valign: center;
+            adjustment: Adjustment {
+              lower: bind-property topLeftX.value;
+              upper: 1000000000;
+              step-increment: 1;
+              page-size: 0;
+              page-increment: 1;
+              value: 0;
+            };          
+          }
+        }
+        
+        Adw.ActionRow {
+          // The title of the bottom right y coordinate action row
+          title: _("Bottom Right Y Coordinate");
+          // The subtitle of the bottom right y coordinate action row
+          subtitle: _("The y coordinate for the bottom right corner of the application window");
+          activatable-widget: bottomRightY;
+          
+          SpinButton bottomRightY {
+            valign: center;
+            adjustment: Adjustment {
+              lower: bind-property topLeftY.value;
+              upper: 1000000000;
+              step-increment: 1;
+              page-size: 0;
+              page-increment: 1;
+              value: 0;
+            };          
           }
         }
       }
+    }
+    
+    Adw.PreferencesGroup {
+      // The title of the miscellaneous preferences group
+      title: _("Miscellaneous");
+      // The description of the miscellaneous preferences group
+      description: _("Other miscellaneous preferences");
       
       Adw.ActionRow {
-        // The title of the top left x coordinate action row
-        title: _("Top Left X Coordinate");
-        // The subtitle of the top left x coordinate action row
-        subtitle: _("The x coordinate for the top left corner of the application window");
-        activatable-widget: top-left-x;
+        // The title of the minimize when unfocused action row
+        title: _("Minimize When Unfocused");
+        // The subtitle of the minimize when unfocused action row
+        subtitle: _("Minimize the application window if already focused\nBy default, the application window is sent to the back");
+        activatable-widget: minimize;
         
-        SpinButton top-left-x {
+        Switch minimize {
           valign: center;
-          adjustment: Adjustment {
-            lower: 0;
-            upper: 1000000000;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 0;
-          };          
+          active: false;
         }
       }
-      
+
       Adw.ActionRow {
-        // The title of the top left y coordinate action row
-        title: _("Top Left Y Coordinate");
-        // The subtitle of the top left y coordinate action row
-        subtitle: _("The y coordinate for the top left corner of the application window");
-        activatable-widget: top-left-y;
+        // The title of the always on top action row
+        title: _("Always On Top");
+        // The subtitle of the always on top action row
+        subtitle: _("Keep all matching application windows on top of other windows");
+        activatable-widget: alwaysOnTop;
         
-        SpinButton top-left-y {
+        Switch alwaysOnTop {
           valign: center;
-          adjustment: Adjustment {
-            lower: 0;
-            upper: 1000000000;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 0;
-          };          
+          active: false;
         }
       }
-      
+
       Adw.ActionRow {
-        // The title of the bottom right x coordinate action row
-        title: _("Bottom Right X Coordinate");
-        // The subtitle of the bottom right x coordinate action row
-        subtitle: _("The x coordinate for the bottom right corner of the application window");
-        activatable-widget: bottom-right-x;
+        // The title of the disable animations action row
+        title: _("Disable Animations");
+        // The subtitle of the disable animations action row
+        subtitle: _("Disable animations when moving, focusing, and resizing the application window\nThis may improve performance on some systems");
+        activatable-widget: disableAnimations;
         
-        SpinButton bottom-right-x {
+        Switch disableAnimations {
           valign: center;
-          adjustment: Adjustment {
-            lower: bind-property top-left-x.value;
-            upper: 1000000000;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 0;
-          };          
-        }
-      }
-      
-      Adw.ActionRow {
-        // The title of the bottom right y coordinate action row
-        title: _("Bottom Right Y Coordinate");
-        // The subtitle of the bottom right y coordinate action row
-        subtitle: _("The y coordinate for the bottom right corner of the application window");
-        activatable-widget: bottom-right-y;
-        
-        SpinButton bottom-right-y {
-          valign: center;
-          adjustment: Adjustment {
-            lower: bind-property top-left-y.value;
-            upper: 1000000000;
-            step-increment: 1;
-            page-size: 0;
-            page-increment: 1;
-            value: 0;
-          };          
+          active: false;
         }
       }
     }
   }
+}
 
-  Adw.ActionRow {
-    // The title of the minimize when unfocused action row
-    title: _("Minimize When Unfocused");
-    // The subtitle of the minimize when unfocused action row
-    subtitle: _("Minimize the application window if already focused\nBy default, the application window is sent to the back");
-    activatable-widget: minimize;
-    
-    Switch minimize {
-      valign: center;
-      active: false;
+menu infoMenu {
+  section {
+    item {
+      label: _("About Focus Window");
+      action: "info.about";
     }
   }
 
-  Adw.ActionRow {
-    // The title of the always on top action row
-    title: _("Always On Top");
-    // The subtitle of the always on top action row
-    subtitle: _("Keep all matching application windows on top of other windows");
-    activatable-widget: always-on-top;
-    
-    Switch always-on-top {
-      valign: center;
-      active: false;
+  section {
+    item {
+      label: _("Report Bug");
+      action: "info.bug";
     }
-  }
 
-  Adw.ActionRow {
-    // The title of the disable animations action row
-    title: _("Disable Animations");
-    // The subtitle of the disable animations action row
-    subtitle: _("Disable animations when moving, focusing, and resizing the application window\nThis may improve performance on some systems");
-    activatable-widget: disable-animations;
-    
-    Switch disable-animations {
-      valign: center;
-      active: false;
+    item {
+      label: _("View License");
+      action: "info.license";
+    }
+
+    item {
+      label: _("See Guide");
+      action: "info.guide";
+    }
+
+    item {
+      label: _("Contribute");
+      action: "info.contribute";
     }
   }
 }

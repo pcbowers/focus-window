@@ -1,21 +1,21 @@
 const { GObject } = imports.gi;
 
 /** @typedef {typeof ListItemClass} ListItem */
-/** @typedef {ListItemClass} ListItemInstance */
 class ListItemClass extends GObject.Object {
   /**
-   * @param {{ value: string, title: string }} ListItemProps
+   * @param {{ value: string, title: string, metadata?: Object }} ListItemProps
    */
   constructor(ListItemProps) {
-    super(ListItemProps);
+    super({});
     this.value = ListItemProps.value;
     this.title = ListItemProps.title;
+    this.metadata = ListItemProps.metadata || {};
   }
 }
 
-var listitem = GObject.registerClass(
+var listItem = GObject.registerClass(
   {
-    GTypeName: 'ListItemObject',
+    GTypeName: 'FWListItem',
     Properties: {
       value: GObject.ParamSpec.string(
         'value',
@@ -30,6 +30,12 @@ var listitem = GObject.registerClass(
         'The title that should be displayed',
         GObject.ParamFlags.READWRITE,
         null
+      ),
+      metadata: GObject.ParamSpec.jsobject(
+        'metadata',
+        'Metadata',
+        'The metadata that should be returned',
+        GObject.ParamFlags.READWRITE
       )
     }
   },

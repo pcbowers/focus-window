@@ -1,11 +1,14 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $ShortcutActionRow : Adw.ActionRow {
+template $FWShortcutItem : Adw.ActionRow {
+  // The title of the shortcut item action row
+  title: _("Keyboard Shortcut");
+  // The subtitle of the shortcut item action row
   subtitle: _("A shortcut that focuses the application\nPress 'Esc' to cancel or 'Backspace' to unbind");
   activatable-widget: accelerator;
 
-  activated => $onAccelerator();
+  activated => $setAccelerator();
 
   [prefix]
   Button {
@@ -16,14 +19,14 @@ template $ShortcutActionRow : Adw.ActionRow {
     tooltip-markup: _("Delete Shortcut");
     icon-name: "edit-delete-symbolic";
     
-    clicked => $onDeleteShortcut();
+    clicked => $deleteShortcut();
   }
 
   ShortcutLabel accelerator {
-  valign: center;
-  // The disabled text that is shown when no shortcut is bound
-  disabled-text: _("Not Bound");
-  focus-on-click: true;
-  accelerator: "";
+    valign: center;
+    // The disabled text that is shown when no shortcut is bound
+    disabled-text: _("Not Bound");
+    focus-on-click: true;
+    accelerator: "";
   }
 }
