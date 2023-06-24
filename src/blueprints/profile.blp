@@ -113,6 +113,7 @@ template $FWProfile : Box {
           valign: center;
           // The placeholder text describing the profile name entry
           placeholder-text: _("Profile Name");
+          // The default profile name
           text: _("My Profile");
         }
       }
@@ -185,6 +186,7 @@ template $FWProfile : Box {
 menu infoMenu {
   section {
     item {
+      // The label of the about focus window menu item
       label: _("About Focus Window");
       action: "info.about";
     }
@@ -192,21 +194,25 @@ menu infoMenu {
 
   section {
     item {
+      // The label of the report bug menu item
       label: _("Report Bug");
       action: "info.bug";
     }
 
     item {
+      // The label of the view license menu item
       label: _("View License");
       action: "info.license";
     }
 
     item {
+      // The label of the view guide menu item
       label: _("See Guide");
       action: "info.guide";
     }
 
     item {
+      // The label of the contribute menu item
       label: _("Contribute");
       action: "info.contribute";
     }

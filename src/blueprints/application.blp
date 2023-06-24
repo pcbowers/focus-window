@@ -88,9 +88,9 @@ template $FWApplication : Box {
       }
       
       Adw.ActionRow {
-        // The title of the application expander row
+        // The title of the application action row
         title: _("Application");
-        // The subtitle of the application expander row
+        // The subtitle of the application action row
         subtitle: _("The application that will be focused");
         activatable-widget: applicationName;
 
@@ -699,7 +699,7 @@ template $FWApplication : Box {
         // The title of the disable animations action row
         title: _("Disable Animations");
         // The subtitle of the disable animations action row
-        subtitle: _("Disable animations when moving, focusing, and resizing the application window\nThis may improve performance on some systems");
+        subtitle: _("Disable animations when moving, focusing, and resizing\nThis may improve performance on some systems");
         activatable-widget: disableAnimations;
         
         Switch disableAnimations {
@@ -714,6 +714,7 @@ template $FWApplication : Box {
 menu infoMenu {
   section {
     item {
+      // The label of the about focus window menu item
       label: _("About Focus Window");
       action: "info.about";
     }
@@ -721,21 +722,25 @@ menu infoMenu {
 
   section {
     item {
+      // The label of the report bug menu item
       label: _("Report Bug");
       action: "info.bug";
     }
 
     item {
+      // The label of the view license menu item
       label: _("View License");
       action: "info.license";
     }
 
     item {
+      // The label of the view guide menu item
       label: _("See Guide");
       action: "info.guide";
     }
 
     item {
+      // The label of the contribute menu item
       label: _("Contribute");
       action: "info.contribute";
     }

@@ -54,9 +54,10 @@ function openUrl(window, url) {
  */
 function fillPreferencesWindow(window) {
   createActions(window);
-  window.set_search_enabled(true);
   window.set_default_size(800, 800);
+  // The window requires a page to be added
   window.add(new Adw.PreferencesPage());
+  // Content is used to add more functionality
   window.set_content(new Profiles(window));
 }
 

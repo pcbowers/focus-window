@@ -209,7 +209,6 @@ var extension = class FocusWindowExtension {
    * @param {import('prefs').Preferences} settings
    */
   handleSettings(settings) {
-    debug('Registering...');
     this.shortcutManager.unbindAll();
 
     /** @type {import('$lib/prefs/profile').ProfilePreferences[]} */

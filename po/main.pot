@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Focus Window 1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-24 17:51-0400\n"
+"POT-Creation-Date: 2023-06-24 18:29-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -68,7 +68,6 @@ msgid "Info"
 msgstr ""
 
 #. The tooltip-markup text that is shown when hovering over the delete profile button
-#. The tooltip-markup text when hovering over the delete profile button
 #: src/blueprints/profile.blp:43 src/blueprints/profileItem.blp:31
 msgid "Delete Profile"
 msgstr ""
@@ -114,62 +113,68 @@ msgstr ""
 msgid "The name of the profile"
 msgstr ""
 
-#: src/blueprints/profile.blp:116
+#. The default profile name
+#: src/blueprints/profile.blp:117
 msgid "My Profile"
 msgstr ""
 
 #. The title of the profiles preferences group
-#: src/blueprints/profile.blp:123
+#: src/blueprints/profile.blp:124
 msgid "Applications"
 msgstr ""
 
 #. The description of the profiles preferences group
-#: src/blueprints/profile.blp:125
+#: src/blueprints/profile.blp:126
 msgid "Manage your applications"
 msgstr ""
 
 #. The tooltip-markup text that is shown when hovering over the add profile button
-#: src/blueprints/profile.blp:133
+#: src/blueprints/profile.blp:134
 msgid "Add a new application to the list"
 msgstr ""
 
 #. The label of the add application button
-#: src/blueprints/profile.blp:137
+#: src/blueprints/profile.blp:138
 msgid "Add Application"
 msgstr ""
 
 #. The title of the no applications preferences row
-#: src/blueprints/profile.blp:165
+#: src/blueprints/profile.blp:166
 msgid "No Applications"
 msgstr ""
 
 #. The subtitle of the no applications preferences row
-#: src/blueprints/profile.blp:171
+#: src/blueprints/profile.blp:172
 msgid "No applications could be found"
 msgstr ""
 
-#: src/blueprints/profile.blp:188 src/blueprints/application.blp:717
-#: src/blueprints/profiles.blp:109
+#. The label of the about focus window menu item
+#: src/blueprints/profile.blp:190 src/blueprints/application.blp:718
+#: src/blueprints/profiles.blp:108
 msgid "About Focus Window"
 msgstr ""
 
-#: src/blueprints/profile.blp:195 src/blueprints/application.blp:724
+#. The label of the report bug menu item
+#: src/blueprints/profile.blp:198 src/blueprints/application.blp:726
 #: src/blueprints/profiles.blp:116
 msgid "Report Bug"
 msgstr ""
 
-#: src/blueprints/profile.blp:200 src/blueprints/application.blp:729
-#: src/blueprints/profiles.blp:121
+#. The label of the view license menu item
+#: src/blueprints/profile.blp:204 src/blueprints/application.blp:732
+#: src/blueprints/profiles.blp:122
 msgid "View License"
 msgstr ""
 
-#: src/blueprints/profile.blp:205 src/blueprints/application.blp:734
-#: src/blueprints/profiles.blp:126
+#. The label of the view guide menu item
+#: src/blueprints/profile.blp:210 src/blueprints/application.blp:738
+#: src/blueprints/profiles.blp:128
 msgid "See Guide"
 msgstr ""
 
-#: src/blueprints/profile.blp:210 src/blueprints/application.blp:739
-#: src/blueprints/profiles.blp:131
+#. The label of the contribute menu item
+#: src/blueprints/profile.blp:216 src/blueprints/application.blp:744
+#: src/blueprints/profiles.blp:134
 msgid "Contribute"
 msgstr ""
 
@@ -179,13 +184,12 @@ msgid "Configure your Application"
 msgstr ""
 
 #. The tooltip-markup text that is shown when hovering over the delete application button
-#. The tooltip-markup text when hovering over the delete application button
 #: src/blueprints/application.blp:43 src/blueprints/applicationItem.blp:31
 msgid "Delete Application"
 msgstr ""
 
 #. The title of the application preferences groups
-#. The title of the application expander row
+#. The title of the application action row
 #: src/blueprints/application.blp:73 src/blueprints/application.blp:92
 msgid "Application"
 msgstr ""
@@ -205,7 +209,7 @@ msgstr ""
 msgid "Enable this application"
 msgstr ""
 
-#. The subtitle of the application expander row
+#. The subtitle of the application action row
 #: src/blueprints/application.blp:94
 msgid "The application that will be focused"
 msgstr ""
@@ -577,8 +581,7 @@ msgstr ""
 #. The subtitle of the disable animations action row
 #: src/blueprints/application.blp:702
 msgid ""
-"Disable animations when moving, focusing, and resizing the application "
-"window\n"
+"Disable animations when moving, focusing, and resizing\n"
 "This may improve performance on some systems"
 msgstr ""
 
