@@ -160,7 +160,17 @@ class Extension {
 
             // Draw focus to the window if it is not already focused
             if (appWindows.length === 1) {
-              return Main.activateWindow(appWindows[0]);
+              // Get the currently active workspace
+              const appWindow = appWindows[0];
+              const activeWorkspace = global.workspace_manager.get_active_workspace();
+              const windowWorkspaceIndex = appWindow.get_workspace().index();
+              // If the window is not in the active workspace, move it
+              // Move the window to the active workspace
+              if (activeWorkspace.index() !== windowWorkspaceIndex){
+                appWindow.change_workspace(activeWorkspace);
+              }
+
+              return Main.activateWindow(appWindow);
             }
 
             return false;
