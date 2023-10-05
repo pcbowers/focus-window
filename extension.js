@@ -123,7 +123,7 @@ class Extension {
             });
 
             // get the currently focused window
-            const focusedWindow = global.display.get_focus_window().get_id();
+            const focusedWindow = global.display.get_focus_window()?.get_id();
 
             // launch the application
             if (!appWindows.length && setting.launchApplication) {
