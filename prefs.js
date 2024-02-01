@@ -8,7 +8,6 @@ import GObject from "gi://GObject";
 import * as Me from './extension.js';
 import {ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const SETTINGS_ID = "org.gnome.shell.extensions.focus-window";
 const SETTINGS_KEY = "app-settings";
 const SETTINGS_VARIANT = "aa{sv}";
 
@@ -383,7 +382,7 @@ export default class FocusWindowPreferences extends ExtensionPreferences {
     const focusWidgets = [];
 
     // get settings
-    const extensionSettings = Me.getSettings(SETTINGS_ID);
+    const extensionSettings = Me.getSettings();
     const {getAllSettings, setSettings} = generateSettings(extensionSettings);
 
     // create preference pages
