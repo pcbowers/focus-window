@@ -1,7 +1,11 @@
-const { GObject, GLib, Gio, Adw, Gtk, Gdk } = imports.gi;
+import Adw from "gi://Adw";
+import Gtk from "gi://Gtk";
+import Gdk from "gi://Gdk";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import * as Me from './extension.js';
 
 const SETTINGS_ID = "org.gnome.shell.extensions.focus-window";
 const SETTINGS_KEY = "app-settings";
@@ -377,7 +381,7 @@ function fillPreferencesWindow(window) {
   const focusWidgets = [];
 
   // get settings
-  const extensionSettings = ExtensionUtils.getSettings(SETTINGS_ID);
+  const extensionSettings = Me.getSettings(SETTINGS_ID);
   const { getAllSettings, setSettings } = generateSettings(extensionSettings);
 
   // create preference pages
