@@ -177,8 +177,6 @@ export default class FocusWindowExtensions extends Extension {
 
             return false;
           } catch (error) {
-            Console.log("setting trigger failed: ");
-            Console.log(error);
           }
         });
       }
