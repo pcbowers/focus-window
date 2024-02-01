@@ -101,7 +101,7 @@ function init() {}
 const FocusWidget = GObject.registerClass(
   {
     GTypeName: "FocusWidget",
-    Template:  `resource://${Me.path}/ui/prefs/about.ui`,
+    Template:  `resource://${Me.path}/prefs.ui`,
     InternalChildren: [
       "application_to_focus",
       "application_list",
