@@ -7,12 +7,11 @@ import GObject from "gi://GObject";
 
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const APP_UUID = "focus-window@chris.al";
+const APP_PATH= "/org/gnome/shell/extensions/focus-window";
 const SETTINGS_ID = "org.gnome.shell.extensions.focus-window";
 const SETTINGS_KEY = "app-settings";
 const SETTINGS_VARIANT = "aa{sv}";
 
-const Me = ExtensionPreferences.lookupByUUID(APP_UUID);
 // Helper Functions
 
 // creates a simple unique ID based on date
@@ -101,7 +100,7 @@ function init() {}
 const FocusWidget = GObject.registerClass(
   {
     GTypeName: "FocusWidget",
-    Template:  `resource://${Me.path}/prefs.ui`,
+    Template:  `resource://${APP_PATH}/prefs.ui`,
     InternalChildren: [
       "application_to_focus",
       "application_list",
