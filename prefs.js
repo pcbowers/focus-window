@@ -6,6 +6,7 @@ import Gio from "gi://Gio";
 import GObject from "gi://GObject";
 
 import * as Me from './extension.js';
+import {ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 const SETTINGS_ID = "org.gnome.shell.extensions.focus-window";
 const SETTINGS_KEY = "app-settings";
@@ -376,88 +377,90 @@ const FocusWidget = GObject.registerClass(
   }
 );
 
-function fillPreferencesWindow(window) {
-  // stores all focusWidgets
-  const focusWidgets = [];
+export default class FocusWindowPreferences extends ExtensionPreferences {
+  fillPreferencesWindow(window) {
+    // stores all focusWidgets
+    const focusWidgets = [];
 
-  // get settings
-  const extensionSettings = Me.getSettings(SETTINGS_ID);
-  const { getAllSettings, setSettings } = generateSettings(extensionSettings);
+    // get settings
+    const extensionSettings = Me.getSettings(SETTINGS_ID);
+    const {getAllSettings, setSettings} = generateSettings(extensionSettings);
 
-  // create preference pages
-  const page = new Adw.PreferencesPage();
-  const group = new Adw.PreferencesGroup();
-  page.add(group);
-  window.add(page);
-  window.set_margin_bottom(10);
-  window.set_margin_top(10);
-  window.set_margin_start(5);
-  window.set_margin_end(5);
+    // create preference pages
+    const page = new Adw.PreferencesPage();
+    const group = new Adw.PreferencesGroup();
+    page.add(group);
+    window.add(page);
+    window.set_margin_bottom(10);
+    window.set_margin_top(10);
+    window.set_margin_start(5);
+    window.set_margin_end(5);
 
-  // generate 'Add Application' button
-  const button = new Gtk.Button({ valign: Gtk.Align.CENTER });
-  const buttonContent = new Adw.ButtonContent({
-    "icon-name": "list-add-symbolic",
-    label: "Add Application",
-  });
-  button.add_css_class("suggested-action");
-  group.set_header_suffix(button);
-  button.set_child(buttonContent);
+    // generate 'Add Application' button
+    const button = new Gtk.Button({valign: Gtk.Align.CENTER});
+    const buttonContent = new Adw.ButtonContent({
+      "icon-name": "list-add-symbolic",
+      label: "Add Application",
+    });
+    button.add_css_class("suggested-action");
+    group.set_header_suffix(button);
+    button.set_child(buttonContent);
 
-  // sets the title and description of group
-  const setTitleAndDescription = () => {
-    group.set_title(
-      `${focusWidgets.length} Shortcut${
-        focusWidgets.length === 1 ? "" : "s Created"
-      }`
-    );
+    // sets the title and description of group
+    const setTitleAndDescription = () => {
+      group.set_title(
+          `${focusWidgets.length} Shortcut${
+              focusWidgets.length === 1 ? "" : "s Created"
+          }`
+      );
 
-    const configured = focusWidgets.filter(
-      (item) =>
-        item.widget.settings &&
-        item.widget.settings.applicationToFocus &&
-        item.widget.settings.keyboardShortcut
-    ).length;
+      const configured = focusWidgets.filter(
+          (item) =>
+              item.widget.settings &&
+              item.widget.settings.applicationToFocus &&
+              item.widget.settings.keyboardShortcut
+      ).length;
 
-    group.set_description(
-      `${
-        configured === focusWidgets.length ? "All" : configured
-      } of which are fully configured`
-    );
-  };
+      group.set_description(
+          `${
+              configured === focusWidgets.length ? "All" : configured
+          } of which are fully configured`
+      );
+    };
 
-  // removes focus widget from page and memory, updates count label
-  const onDelete = (id) => () => {
-    const index = focusWidgets.findIndex((i) => i.id === id);
-    if (index < 0) return;
+    // removes focus widget from page and memory, updates count label
+    const onDelete = (id) => () => {
+      const index = focusWidgets.findIndex((i) => i.id === id);
+      if (index < 0) return;
 
-    group.remove(focusWidgets[index].widget);
-    focusWidgets.splice(index, 1);
+      group.remove(focusWidgets[index].widget);
+      focusWidgets.splice(index, 1);
+      setTitleAndDescription();
+    };
+
+    // add focus widgets from settings
+    getAllSettings().forEach((settings) => {
+      const newWidget = new FocusWidget(
+          {"margin-top": 0},
+          setSettings(settings.id),
+          onDelete(settings.id),
+          settings.id,
+          settings,
+          false
+      );
+      focusWidgets.push({id: settings.id, widget: newWidget});
+      group.add(newWidget);
+    });
+
     setTitleAndDescription();
-  };
 
-  // add focus widgets from settings
-  getAllSettings().forEach((settings) => {
-    const newWidget = new FocusWidget(
-      { "margin-top": 0 },
-      setSettings(settings.id),
-      onDelete(settings.id),
-      settings.id,
-      settings,
-      false
-    );
-    focusWidgets.push({ id: settings.id, widget: newWidget });
-    group.add(newWidget);
-  });
-
-  setTitleAndDescription();
-
-  // add focus widgets when 'Add Application' button is clicked
-  button.connect("clicked", () => {
-    const id = createId();
-    const newWidget = new FocusWidget({}, setSettings(id), onDelete(id), id);
-    focusWidgets.push({ id, widget: newWidget });
-    group.add(newWidget);
-    setTitleAndDescription();
-  });
+    // add focus widgets when 'Add Application' button is clicked
+    button.connect("clicked", () => {
+      const id = createId();
+      const newWidget = new FocusWidget({}, setSettings(id), onDelete(id), id);
+      focusWidgets.push({id, widget: newWidget});
+      group.add(newWidget);
+      setTitleAndDescription();
+    });
+  }
 }
