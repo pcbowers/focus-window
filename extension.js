@@ -7,6 +7,7 @@ import GObject from "gi://GObject";
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
+const SETTINGS_ID = "org.gnome.shell.extensions.focus-window";
 const SETTINGS_KEY = "app-settings";
 const SETTINGS_VARIANT = "aa{sv}";
 
@@ -83,7 +84,7 @@ export default class FocusWindowExtensions extends Extension {
   enable() {
     this.shortcuts = new KeyboardShortcuts();
 
-    this.settings = this.getSettings();
+    this.settings = this.getSettings(SETTINGS_ID);
 
     this.settingsListener = this.settings.connect(
       `changed::${SETTINGS_KEY}`,
