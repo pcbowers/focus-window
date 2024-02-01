@@ -6,7 +6,7 @@ import Gio from "gi://Gio";
 import GObject from "gi://GObject";
 
 import * as Me from './extension.js';
-import {ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 const SETTINGS_ID = "org.gnome.shell.extensions.focus-window";
 const SETTINGS_KEY = "app-settings";
@@ -100,7 +100,7 @@ function init() {}
 const FocusWidget = GObject.registerClass(
   {
     GTypeName: "FocusWidget",
-    Template: Me.dir.get_child("prefs.ui").get_uri(),
+    Template:  `resource://${Me.app_path}/ui/prefs/about.ui`,
     InternalChildren: [
       "application_to_focus",
       "application_list",
@@ -383,7 +383,7 @@ export default class FocusWindowPreferences extends ExtensionPreferences {
     const focusWidgets = [];
 
     // get settings
-    const extensionSettings = Me.getSettings(SETTINGS_ID);
+    const extensionSettings = this.getSettings(SETTINGS_ID);
     const {getAllSettings, setSettings} = generateSettings(extensionSettings);
 
     // create preference pages
