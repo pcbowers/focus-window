@@ -179,7 +179,7 @@ const FocusWidget = GObject.registerClass(
         }));
 
       // make them choosable
-      this.allApplications.forEach((a) => this.applicationList.append(a.name));
+      this.allApplications.forEach((a) => this.applicationList?.append(a.name));
     }
 
     addDeleteButton() {
